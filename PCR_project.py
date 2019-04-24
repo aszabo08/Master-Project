@@ -13,6 +13,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
+"The species included in the reactions are the following: "
+
+values = [S1S2, S1, S2, P1, P2, S1P2, S2P1, E, S1P2E, S2P1E, dNTP, S1P2EdNTP, S2P1EdNTP]
+
+
 
 def denaturation(values, t, kf1, kr1):
 
@@ -58,20 +63,32 @@ def primer_binding(values, t, kf2, kr2):
         An array with the result of the differential equations for S, P and SP over t time
     """
 
-    S = values[0]
-    P = values[1]
-    SP = values[2]
+    S1 = values[1]
+    S2 = values[2]
+    P1 = values[3]
+    P2 = values[4]
+    S1P2 = values[5]
+    S2P1 = values[6]
+
+    # we suppose identical k rates for the two reactions with S1P2 and S2P1
+
+    dS1dt = -kf2 * S1 * P2 + kr2 * S1P2
+    dP2dt = -kf2 * S1 * P2 + kr2 * S1P2
+    dS1P2dt = kf2 * S1 * P2 - kr2 * S1P2
 
 
-    dSdt = -kf2 * S * P + kr2 * SP
-    dPdt = -kf2 * S * P + kr2 * SP
-    dSPdt = kf2 * S * P - kr2 * SP
+    dS2dt = -kf2 * S2 * P1 + kr2 * S2P1
+    dP1dt = -kf2 * S2 * P1 + kr2 * S2P1
+    dS2P1dt = kf2 * S2 * P1 - kr2 * S2P1
 
     y = np.empty(3)
 
-    y[0] = dSdt
-    y[1] = dPdt
-    y[2] = dSPdt
+    y[0] = dS1dt
+    y[1] = dS2dt
+    y[2] = dP1dt
+    y[3] = dP2dt
+    y[4] = dS1P2dt
+    y[5] = dS2P1dt
 
     return y
 
