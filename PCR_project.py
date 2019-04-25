@@ -12,29 +12,86 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
+import random
+
+amplicon_length = 1000
+
+primer_length = 15
+
+extended_length = amplicon_length - primer_length
+
+
+
+bases = ["A", "G", "C", "U"]
+
+amplicon_list = []
+
+for i in range(1000):
+
+    amplicon_list.append(random.choice(bases))
+
+
+amplicon = "".join(amplicon_list)
+
+
+print(amplicon)
+
+
+primer_list = []
+
+for i in range(15):
+
+    primer_list.append(random.choice(bases))
+
+
+primer = "".join(primer_list)
+
+
+print(primer)
+
+
+
+
+
 
 "The species included in the reactions are the following: "
 
 values = [S1S2, S1, S2, P1, P2, S1P2, S2P1, E, S1P2E, S2P1E, dNTP, S1P2EdNTP, S2P1EdNTP]
 
 
+kB = 1.38064852 * (1/np.power(10,23))
 
-def denaturation(values, t, kf1, kr1):
+
+def denaturation(Tden):
 
     "used sequences: S1:AAGGCCCUAAU  complementary S2: UUCCGGGAUUA for RNAcofold"
 
 
-    kf1 = 1
+#    kf1 = 1
 
-    dG = -21756.8
+#    dG = -1316.7048
 
-    kB = 1.38064852 * (1/np.power(10,23))
+#   kB = 1.38064852 * (1/np.power(10,23))
 
-    kr1 = kf1 * np.exp(dG/kB*T)
+#   kr1 = kf1 * np.exp(dG/kB*Tden)
+
+
+
+# or: S1S2/ S1 * S2 = kf1 / kr1
+
+#   kr1 = (kf1 * S1 * S2 )/ S1S2
 
     S1S2 = values[0]
     S1 = values[1]
     S2 = values[2]
+
+
+    kf1 = 1
+
+    dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
+
+    kr1 = kf1 * np.exp(dG/kB*Tden)
+
 
     dS1S2dt = -kf1 * S1S2 + kr1 * S1 * S2
     dS1dt = kf1 * S1S2 - kr1 * S1 * S2
@@ -49,7 +106,7 @@ def denaturation(values, t, kf1, kr1):
     return y
 
 
-def primer_binding(values, t, kf2, kr2):
+def primer_binding(Tanneal):
 
 
     """
@@ -70,18 +127,31 @@ def primer_binding(values, t, kf2, kr2):
     S1P2 = values[5]
     S2P1 = values[6]
 
-    # we suppose identical k rates for the two reactions with S1P2 and S2P1
 
-    dS1dt = -kf2 * S1 * P2 + kr2 * S1P2
-    dP2dt = -kf2 * S1 * P2 + kr2 * S1P2
-    dS1P2dt = kf2 * S1 * P2 - kr2 * S1P2
+    kf2 = 1
+
+    # dG is equal for the two reactions as S1 = S2 and P1 = p2?
+
+    dGa = (np.log(S1P2) - np.log(S1 * P2)) * kB * Tanneal
+
+    kr2a = kf2 * np.exp(dGa/kB*Tanneal)
 
 
-    dS2dt = -kf2 * S2 * P1 + kr2 * S2P1
-    dP1dt = -kf2 * S2 * P1 + kr2 * S2P1
-    dS2P1dt = kf2 * S2 * P1 - kr2 * S2P1
+    dS1dt = -kf2 * S1 * P2 + kr2a * S1P2
+    dP2dt = -kf2 * S1 * P2 + kr2a * S1P2
+    dS1P2dt = kf2 * S1 * P2 - kr2a * S1P2
 
-    y = np.empty(3)
+
+    dGb = (np.log(S2P1) - np.log(S2 * P1)) * kB * Tanneal
+
+    kr2b = kf2 * np.exp(dGb/kB*Tanneal)
+
+
+    dS2dt = -kf2 * S2 * P1 + kr2b * S2P1
+    dP1dt = -kf2 * S2 * P1 + kr2b * S2P1
+    dS2P1dt = kf2 * S2 * P1 - kr2b * S2P1
+
+    y = np.empty(6)
 
     y[0] = dS1dt
     y[1] = dS2dt
@@ -94,7 +164,7 @@ def primer_binding(values, t, kf2, kr2):
 
 
 
-def ploymerase_binding(values, t, kf3, kr3):
+def ploymerase_binding(T):
 
 
     SP = values[0]
