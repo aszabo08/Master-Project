@@ -129,8 +129,14 @@ def primer_binding(values, t, Tanneal):
         An array with the result of the differential equations for S, P and SP over t time
     """
 
+    values[1] = list(S1S2_S1_S2[-1])[1]
+
     S1 = values[1]
+
+    values[2] = list(S1S2_S1_S2[-1])[2]
+
     S2 = values[2]
+
     P1 = values[3]
     P2 = values[4]
     S1P2 = values[5]
@@ -170,6 +176,11 @@ def primer_binding(values, t, Tanneal):
     y[5] = dS2P1dt
 
     return y
+
+
+    t = np.linspace(tden, tden + tanneal, tanneal * 10)
+
+    int_binding = odeint(primer_binding, values[1:7], t, args = (Tanneal, ) )
 
 
 
