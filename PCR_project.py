@@ -65,18 +65,17 @@ values = [S1S2, S1, S2, P1, P2, S1P2, S2P1, E, S1P2E, S2P1E, dNTP, S1P2EdNTP, S2
 kB = 1.38064852 * (1/np.power(10,23))
 
 
-def denaturation(Tden):
-
-    "used sequences: S1:AAGGCCCUAAU  complementary S2: UUCCGGGAUUA for RNAcofold"
+def denaturation(values, t, Tden):
 
 
-#    kf1 = 1
 
-#    dG = -1316.7048
 
-#   kB = 1.38064852 * (1/np.power(10,23))
+    kf1 = 1
 
-#   kr1 = kf1 * np.exp(dG/kB*Tden)
+    dG = -1316.7048
+
+
+    kr1 = kf1 * np.exp(dG/kB*Tden)
 
 
 
@@ -84,16 +83,16 @@ def denaturation(Tden):
 
 #   kr1 = (kf1 * S1 * S2 )/ S1S2
 
-    S1S2 = values[0]
-    S1 = values[1]
-    S2 = values[2]
+    #S1S2 = values[0]
+    #S1 = values[1]
+   # S2 = values[2]
 
 
-    kf1 = 1
+    #kf1 = 1
 
-    ?   dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
+    #?   dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
 
-    kr1 = kf1 * np.exp(dG/kB*Tden)
+    #kr1 = kf1 * np.exp(dG/kB*Tden)
 
 
     dS1S2dt = -kf1 * S1S2 + kr1 * S1 * S2
@@ -108,8 +107,15 @@ def denaturation(Tden):
 
     return y
 
+"only probe"
 
-def primer_binding(Tanneal):
+   t = np.linspace(0, tden, tden * 10)
+
+
+    S1S2_S1_S2 = odeint(denaturation, values[0:3], t, args = (Tden, ))
+
+
+def primer_binding(values, t, Tanneal):
 
 
     """
@@ -276,6 +282,8 @@ def primer_extension(Text):
 
 
 if __name__ == '__main__':
+
+    values = [0 for i in range(12)]
 
 
 
