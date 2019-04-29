@@ -59,6 +59,9 @@ print(primer)
 values = [S1S2, S1, S2, P1, P2, S1P2, S2P1, E, S1P2E, S2P1E, dNTP, S1P2EdNTP, S2P1EdNTP]
 
 
+"kB: Boltzmann constant"
+
+
 kB = 1.38064852 * (1/np.power(10,23))
 
 
@@ -88,7 +91,7 @@ def denaturation(Tden):
 
     kf1 = 1
 
-    dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
+    ?   dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
 
     kr1 = kf1 * np.exp(dG/kB*Tden)
 
@@ -164,50 +167,97 @@ def primer_binding(Tanneal):
 
 
 
-def ploymerase_binding(T):
+def ploymerase_binding(Text):
 
 
-    SP = values[0]
-    E = values[1]
-    SPE = values[2]
+    S1P2 = values[5]
+    S2P1 = values[6]
+    E = values[7]
+    S1P2E = values[8]
+    S2P1E = values[9]
 
 
-    dSPdt = -kf3 * SP * E + kr3 * SPE
+    kf3 = 1
 
-    dEdt = -kf3 * SP * E + kr3 * SPE
+    ?   dGa = (np.log(S1P2E) - np.log(S1P2 * E)) * kB * Text
 
-    dSPEdt = kf3 * SP * E - kr3 * SPE
+    kr3a = kf3 * np.exp(dGa/kB*Text)
 
-    y = np.empty(3)
+    dS1P2dt = -kf3 * S1P2 * E + kr3a * S1P2E
 
-    y[0] = dSPdt
-    y[1] = dEdt
-    y[2] = dSPEdt
+    dEadt = -kf3 * S1P2 * E + kr3a * S1P2E
+
+    dS1P2Edt = kf3 * S1P2 * E - kr3a * S1P2E
+
+
+    ?   dGb = (np.log(S2P1E) - np.log(S2P1 * E)) * kB * Text
+
+    kr3b = kf3 * np.exp(dGb/kB*Text)
+
+    dS2P1dt = -kf3 * S2P1 * E + kr3b * S2P1E
+
+    dEbdt = -kf3 * S2P1 * E + kr3b * S2P1E
+
+    dS2P1Edt = kf3 * S2P1 * E - kr3b * S2P1E
+
+
+
+    y = np.empty(6)
+
+    y[0] = dS1P2dt
+    y[1] = dS2P1dt
+    y[2] = dEadt
+    y[3] = dEbdt
+    y[4] = dS1P2Edt
+    y[5] = dS2P1Edt
+
 
     return y
 
 
-def stabilizing(values, t, kf4, kr4):
+def stabilizing():
+
+    """ The primer is extended by a few nucleotides to ensure the primer binding
+        to the substrate without dissociation when reaching the extension temperature
+
+        In this model 99.5 % of the primer - substrate complexes stay together, while 0.5 % of them will melt
+        at the extension temperature"""
 
 
-    SPE = values[0]
-    N = values[1]
-    SPEN = values[2]
+    S1P2E = values[8]
+    S2P1E = values[9]
+    dNTP = values[10]
+    S1P2EdNTP = values[11]
+    S2P1EdNTP = values[12]
 
-    dSPEdt = - kf4 * SPE * N + kr4 * SPEN
+   # 0.995 = np.exp(-(dG/kB*T))
 
-    dNdt = - kf4 * SPE * N + kr4 * SPEN
+    dG =
 
-    dSPENdt = kf4 * SPE * N - kr4 * SPEN
+    dS1P2Edt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
 
-    y[0] = dSPEdt
-    y[1] = dNdt
-    y[2] = dSPENdt
+    ddNTPadt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
+
+    dS1P2EdNTPdt = kf4 * S1P2E * dNTP - kr4a * S1P2EdNTP
+
+
+    dS2P1Edt = - kf4 * S2P1E * dNTP + kr4b * S2P1EdNTP
+
+    ddNTPbdt = - kf4 * S2P1E * dNTP + kr4b * S2P1EdNTP
+
+    dS2P1EdNTPdt = kf4 * S1P2E * dNTP - kr4b * S2P1EdNTP
+
+    y[0] = dS1P2Edt
+    y[1] = dS2P1Edt
+    y[2] = ddNTPadt
+    y[3] = ddNTPbdt
+    y[4] = dS1P2EdNTPdt
+    y[5] = dS2P1EdNTPdt
 
     return y
 
 
-def primer_extension(values, t, ke):
+def primer_extension(Text):
 
     "N_comp = complementary nucleotides in the whole length of the substrate"
 
@@ -225,10 +275,66 @@ def primer_extension(values, t, ke):
 
 
 
+if __name__ == '__main__':
 
 
 
+values[0] = float(input("Enter the concentration of plasmid (ng): "))
 
+
+values[3] = float(input("Enter the concentration of each primer (microL): "))
+
+
+values[4] = values[3]
+
+
+values[7] = float(input("Enter the concentration of polymerase (U): "))
+
+
+values[10] = float(input("Enter the concentration of each dNTP (microL): "))
+
+
+
+Tden_celsius, tden_string = input("Enter the temperature of denaturation (Celsius) and the length of it (second) ").split()
+
+# Converting the temperature from Celsius to Kelvin
+
+Tden = float(Tden_celsius) + 273.15
+
+tden = float(tden_string)
+
+
+Tanneal_celsius, tanneal_string = input("Enter the temperature of annealing (Celsius) and the length of it (second) ").split()
+
+# Converting the temperature from Celsius to Kelvin
+
+Tanneal = float(Tanneal_celsius) + 273.15
+
+tanneal = float(tanneal_string)
+
+
+
+Text_celsius, text_string = input("Enter the temperature of primer extension (Celsius) and the length of it (second) ").split()
+
+# Converting the temperature from Celsius to Kelvin
+
+Text = float(Text_celsius) + 273.15
+
+text = float(text_string)
+
+
+number_cycles = int("Enter the number of cycles ")
+
+
+# initially S1, S2 = 0
+
+
+
+for i in range(number_cycles):
+
+    t = np.linspace(0, tden, tden * 10)
+
+    odeint(denaturation(Tden), [values[0], 0, 0], t)
 
 
 
