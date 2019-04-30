@@ -22,58 +22,54 @@ extended_length = amplicon_length - primer_length
 
 
 
-bases = ["A", "G", "C", "U"]
 
-amplicon_list = []
-
-for i in range(1000):
-
-    amplicon_list.append(random.choice(bases))
+def creating_amplicon(amplicon_length):
 
 
-amplicon = "".join(amplicon_list)
+
+    bases = ["A", "G", "C", "T"]
+
+    amplicon_list = []
+
+    for i in range(amplicon_length):
+
+        amplicon_list.append(random.choice(bases))
 
 
-print(amplicon)
+    amplicon = "".join(amplicon_list)
 
 
-primer_list = []
-
-for i in range(15):
-
-    primer_list.append(random.choice(bases))
-
-
-primer = "".join(primer_list)
-
-
-print(primer)
+    return amplicon
 
 
 
 
+def creating_primer(primer_lenght):
+
+    bases = ["A", "G", "C", "T"]
+
+    primer_list = []
+
+    for i in range(primer_lenght):
+
+        primer_list.append(random.choice(bases))
 
 
-"The species included in the reactions are the following: "
-
-values = [S1S2, S1, S2, P1, P2, S1P2, S2P1, E, S1P2E, S2P1E, dNTP, S1P2EdNTP, S2P1EdNTP]
+    primer = "".join(primer_list)
 
 
-"kB: Boltzmann constant"
+    return primer
 
 
-kB = 1.38064852 * (1/np.power(10,23))
+
+
 
 
 def denaturation(values, t, Tden):
 
 
 
-
     kf1 = 1
-
-    dG = -1316.7048
-
 
     kr1 = kf1 * np.exp(dG/kB*Tden)
 
@@ -107,12 +103,6 @@ def denaturation(values, t, Tden):
 
     return y
 
-"only probe"
-
-   t = np.linspace(0, tden, tden * 10)
-
-
-    S1S2_S1_S2 = odeint(denaturation, values[0:3], t, args = (Tden, ))
 
 
 def primer_binding(values, t, Tanneal):
@@ -129,14 +119,9 @@ def primer_binding(values, t, Tanneal):
         An array with the result of the differential equations for S, P and SP over t time
     """
 
-    values[1] = list(S1S2_S1_S2[-1])[1]
 
     S1 = values[1]
-
-    values[2] = list(S1S2_S1_S2[-1])[2]
-
     S2 = values[2]
-
     P1 = values[3]
     P2 = values[4]
     S1P2 = values[5]
@@ -176,12 +161,6 @@ def primer_binding(values, t, Tanneal):
     y[5] = dS2P1dt
 
     return y
-
-
-    t = np.linspace(tden, tden + tanneal, tanneal * 10)
-
-    int_binding = odeint(primer_binding, values[1:7], t, args = (Tanneal, ) )
-
 
 
 def ploymerase_binding(Text):
@@ -294,66 +273,93 @@ def primer_extension(Text):
 
 if __name__ == '__main__':
 
-    values = [0 for i in range(12)]
+    amplicon_length = 1000
+
+    primer_length = 15
+
+    amplicon = creating_amplicon(amplicon_length)   # the resulted amplicon: TACAGGGATAGTTCAACTTTAGGGCTCAAGCGGAAGTTGGCATCACCCAAGCGACTGGGGCAAATGATGAGGGGGAGTCCTTCGGGTTGATTACCTAACGTCTGTCTGTATCAGGCCCGCAAGCTATGTCTCCCTTCCGTGATGCATGGAGAACCTGCGCTCAAGGGGAAATTAGCTCGTACTCTTCGCGCAGGGGGCATGCTGTGCGGACTCAATTAGTTGTTTACTGGCTTGAGGAATTTTCGTCCGGTATATAATCACATGCAGTAAAACCCTGATAGCGGTTACTTCTTGAGCAAACTTTTACGTGTTCTTCGCAGGTACACAACTTCGCTACCTTGCATAGGCATGTGTATGCTGAAAGGACCTATGCACTAACATAACTTAGTAGTAGTGAGACAACTCGAATTCAAGCTATTCCTGCTGCAAAGAGATCACCTATCGTCGGTCTCCGAGGGCGTAAAGCCATCGAGATTACCAGACTGGTGGGCGATTCCATCGACGACGTCAGCCTTCAGACATTCTAATAGGACCTCTGGGGCTGACAATGAGAGGTCCTGTTCTGGATTTGTAAGAGCCTCATTGTGTCAGAACCACAATTGATATGATCGGTTTTAACTACAATCGGATCCACCAAAACTCCATGCTAGAGCCAAGGATAGCTCGGATGAAGTGTGTAAATCAGATACAACCCTTTCCTATAATCCTACGATATATACCGTGACATCGGGTGGCTCTCTCCCACCCCCGGCAGTAGACCAAGCAGTCCATCCCACTGAGCCATTGTGACATAGCTTGTAAGTATCATTCACTATAACGCAACGCCGGGTAGCCTCTACGGTCGTCCTGACTAGTACATAATTGTGGACCTCCATGAGGAGTACAGTGTCAACTTACTAGTCCCTGACTGTTCCGAACGTGTGCCTAAATTAAGACTGGAGCGAATATCCCCTGTCTCACAGTGAGACCACAACTAAAAGCGAGTCGTCCTACGTATGAG
+
+    primer = creating_primer(primer_length)         # the resulted primer: GAATGGTCGCTCGCG
+
+    dG = -1306.6632                                 # using RNAcofold dG = -312.30 kcal/mol which is equivalent with -1306.6632 kJ/mol
+
+    kB = 1.38064852 * (1/np.power(10, 23))          # Boltzmann constant"
+
+
+    # "The species included in the reactions are the following: "
+    #
+    # values = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "S1P2EdNTP", "S2P1EdNTP"]
 
 
 
-values[0] = float(input("Enter the concentration of plasmid (ng): "))
-
-
-values[3] = float(input("Enter the concentration of each primer (microL): "))
-
-
-values[4] = values[3]
-
-
-values[7] = float(input("Enter the concentration of polymerase (U): "))
-
-
-values[10] = float(input("Enter the concentration of each dNTP (microL): "))
+    values = [0 for i in range(12)]                 # Initializing the concentrations of the reactants at 0
 
 
 
-Tden_celsius, tden_string = input("Enter the temperature of denaturation (Celsius) and the length of it (second) ").split()
-
-# Converting the temperature from Celsius to Kelvin
-
-Tden = float(Tden_celsius) + 273.15
-
-tden = float(tden_string)
+    values[0] = float(input("Enter the concentration of plasmid (ng): "))
 
 
-Tanneal_celsius, tanneal_string = input("Enter the temperature of annealing (Celsius) and the length of it (second) ").split()
+    values[3] = float(input("Enter the concentration of each primer (microL): "))
 
-# Converting the temperature from Celsius to Kelvin
 
-Tanneal = float(Tanneal_celsius) + 273.15
+    values[4] = values[3]
 
-tanneal = float(tanneal_string)
+
+    values[7] = float(input("Enter the concentration of polymerase (U): "))
+
+
+    values[10] = float(input("Enter the concentration of each dNTP (microL): "))
 
 
 
-Text_celsius, text_string = input("Enter the temperature of primer extension (Celsius) and the length of it (second) ").split()
+    Tden_celsius, tden_string = input("Enter the temperature of denaturation (Celsius) and the length of it (second) ").split()
 
-# Converting the temperature from Celsius to Kelvin
+    # Converting the temperature from Celsius to Kelvin
 
-Text = float(Text_celsius) + 273.15
+    Tden = float(Tden_celsius) + 273.15
 
-text = float(text_string)
-
-
-number_cycles = int("Enter the number of cycles ")
+    tden = float(tden_string)
 
 
-# initially S1, S2 = 0
+    Tanneal_celsius, tanneal_string = input("Enter the temperature of annealing (Celsius) and the length of it (second) ").split()
+
+    # Converting the temperature from Celsius to Kelvin
+
+    Tanneal = float(Tanneal_celsius) + 273.15
+
+    tanneal = float(tanneal_string)
 
 
 
-for i in range(number_cycles):
+    Text_celsius, text_string = input("Enter the temperature of primer extension (Celsius) and the length of it (second) ").split()
 
-    t = np.linspace(0, tden, tden * 10)
+    # Converting the temperature from Celsius to Kelvin
 
-    odeint(denaturation(Tden), [values[0], 0, 0], t)
+    Text = float(Text_celsius) + 273.15
+
+    text = float(text_string)
+
+
+    number_cycles = int("Enter the number of cycles ")
+
+
+
+
+    for i in range(number_cycles):
+
+
+        t1 = np.linspace(0, tden, tden * 10)
+
+        int_denaturation = odeint(denaturation, values[0:3], t1, args=(Tden, ))
+
+        values[1] = list(int_denaturation[-1])[1]
+
+        values[2] = list(int_denaturation[-1])[2]
+
+        t2 = np.linspace(tden, tden + tanneal, tanneal * 10)
+
+        int_binding = odeint(primer_binding, values[1:7], t2, args=(Tanneal, ))
+
 
 
 
