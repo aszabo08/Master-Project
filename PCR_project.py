@@ -68,27 +68,13 @@ def creating_primer(primer_lenght):
 def denaturation(values, t, Tden):
 
 
+    S1S2 = values[0]
+    S1 = values[1]
+    S2 = values[2]
+
 
     kf1 = 1
-
-    kr1 = kf1 * np.exp(dG/kB*Tden)
-
-
-
-# or: S1S2/ S1 * S2 = kf1 / kr1
-
-#   kr1 = (kf1 * S1 * S2 )/ S1S2
-
-    #S1S2 = values[0]
-    #S1 = values[1]
-   # S2 = values[2]
-
-
-    #kf1 = 1
-
-    #?   dG = (np.log(S1S2) - np.log(S1 * S2)) * kB * Tden
-
-    #kr1 = kf1 * np.exp(dG/kB*Tden)
+    kr1 = kf1 * np.exp(dG_den/kB*Tden)
 
 
     dS1S2dt = -kf1 * S1S2 + kr1 * S1 * S2
@@ -129,12 +115,7 @@ def primer_binding(values, t, Tanneal):
 
 
     kf2 = 1
-
-    # dG is equal for the two reactions as S1 = S2 and P1 = p2?
-
-    dGa = (np.log(S1P2) - np.log(S1 * P2)) * kB * Tanneal
-
-    kr2a = kf2 * np.exp(dGa/kB*Tanneal)
+    kr2a = kf2 * np.exp(dG_bind1/kB*Tanneal)
 
 
     dS1dt = -kf2 * S1 * P2 + kr2a * S1P2
@@ -142,9 +123,7 @@ def primer_binding(values, t, Tanneal):
     dS1P2dt = kf2 * S1 * P2 - kr2a * S1P2
 
 
-    dGb = (np.log(S2P1) - np.log(S2 * P1)) * kB * Tanneal
-
-    kr2b = kf2 * np.exp(dGb/kB*Tanneal)
+    kr2b = kf2 * np.exp(dG_bind2/kB*Tanneal)
 
 
     dS2dt = -kf2 * S2 * P1 + kr2b * S2P1
@@ -175,7 +154,6 @@ def ploymerase_binding(Text):
 
     kf3 = 1
 
-    ?   dGa = (np.log(S1P2E) - np.log(S1P2 * E)) * kB * Text
 
     kr3a = kf3 * np.exp(dGa/kB*Text)
 
@@ -186,7 +164,6 @@ def ploymerase_binding(Text):
     dS1P2Edt = kf3 * S1P2 * E - kr3a * S1P2E
 
 
-    ?   dGb = (np.log(S2P1E) - np.log(S2P1 * E)) * kB * Text
 
     kr3b = kf3 * np.exp(dGb/kB*Text)
 
@@ -228,11 +205,17 @@ def stabilizing():
 
    # 0.995 = np.exp(-(dG/kB*T))
 
-    dG =
+    dG = np.log(0.995) * kB * Text
 
-    dS1P2Edt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
 
-    ddNTPadt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
+    kr4_ = kf3 * np.exp(dGa/kB*Text)
+
+    kr4b = kf3 * np.exp(dGa/kB*Text)
+
+
+   # dS1P2Edt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
+
+   # ddNTPadt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
 
     dS1P2EdNTPdt = kf4 * S1P2E * dNTP - kr4a * S1P2EdNTP
 
@@ -279,9 +262,17 @@ if __name__ == '__main__':
 
     amplicon = creating_amplicon(amplicon_length)   # the resulted amplicon: TACAGGGATAGTTCAACTTTAGGGCTCAAGCGGAAGTTGGCATCACCCAAGCGACTGGGGCAAATGATGAGGGGGAGTCCTTCGGGTTGATTACCTAACGTCTGTCTGTATCAGGCCCGCAAGCTATGTCTCCCTTCCGTGATGCATGGAGAACCTGCGCTCAAGGGGAAATTAGCTCGTACTCTTCGCGCAGGGGGCATGCTGTGCGGACTCAATTAGTTGTTTACTGGCTTGAGGAATTTTCGTCCGGTATATAATCACATGCAGTAAAACCCTGATAGCGGTTACTTCTTGAGCAAACTTTTACGTGTTCTTCGCAGGTACACAACTTCGCTACCTTGCATAGGCATGTGTATGCTGAAAGGACCTATGCACTAACATAACTTAGTAGTAGTGAGACAACTCGAATTCAAGCTATTCCTGCTGCAAAGAGATCACCTATCGTCGGTCTCCGAGGGCGTAAAGCCATCGAGATTACCAGACTGGTGGGCGATTCCATCGACGACGTCAGCCTTCAGACATTCTAATAGGACCTCTGGGGCTGACAATGAGAGGTCCTGTTCTGGATTTGTAAGAGCCTCATTGTGTCAGAACCACAATTGATATGATCGGTTTTAACTACAATCGGATCCACCAAAACTCCATGCTAGAGCCAAGGATAGCTCGGATGAAGTGTGTAAATCAGATACAACCCTTTCCTATAATCCTACGATATATACCGTGACATCGGGTGGCTCTCTCCCACCCCCGGCAGTAGACCAAGCAGTCCATCCCACTGAGCCATTGTGACATAGCTTGTAAGTATCATTCACTATAACGCAACGCCGGGTAGCCTCTACGGTCGTCCTGACTAGTACATAATTGTGGACCTCCATGAGGAGTACAGTGTCAACTTACTAGTCCCTGACTGTTCCGAACGTGTGCCTAAATTAAGACTGGAGCGAATATCCCCTGTCTCACAGTGAGACCACAACTAAAAGCGAGTCGTCCTACGTATGAG
 
+                                                    # complement of amplicon: ATGTCCCTATCAAGTTGAAATCCCGAGTTCGCCTTCAACCGTAGTGGGTTCGCTGACCCCGTTTACTACTCCCCCTCAGGAAGCCCAACTAATGGATTGCAGACAGACATAGTCCGGGCGTTCGATACAGAGGGAAGGCACTACGTACCTCTTGGACGCGAGTTCCCCTTTAATCGAGCATGAGAAGCGCGTCCCCCGTACGACACGCCTGAGTTAATCAACAAATGACCGAACTCCTTAAAAGCAGGCCATATATTAGTGTACGTCATTTTGGGACTATCGCCAATGAAGAACTCGTTTGAAAATGCACAAGAAGCGTCCATGTGTTGAAGCGATGGAACGTATCCGTACACATACGACTTTCCTGGATACGTGATTGTATTGAATCATCATCACTCTGTTGAGCTTAAGTTCGATAAGGACGACGTTTCTCTAGTGGATAGCAGCCAGAGGCTCCCGCATTTCGGTAGCTCTAATGGTCTGACCACCCGCTAAGGTAGCTGCTGCAGTCGGAAGTCTGTAAGATTATCCTGGAGACCCCGACTGTTACTCTCCAGGACAAGACCTAAACATTCTCGGAGTAACACAGTCTTGGTGTTAACTATACTAGCCAAAATTGATGTTAGCCTAGGTGGTTTTGAGGTACGATCTCGGTTCCTATCGAGCCTACTTCACACATTTAGTCTATGTTGGGAAAGGATATTAGGATGCTATATATGGCACTGTAGCCCACCGAGAGAGGGTGGGGGCCGTCATCTGGTTCGTCAGGTAGGGTGACTCGGTAACACTGTATCGAACATTCATAGTAAGTGATATTGCGTTGCGGCCCATCGGAGATGCCAGCAGGACTGATCATGTATTAACACCTGGAGGTACTCCTCATGTCACAGTTGAATGATCAGGGACTGACAAGGCTTGCACACGGATTTAATTCTGACCTCGCTTATAGGGGACAGAGTGTCACTCTGGTGTTGATTTTCGCTCAGCAGGATGCATACTC
+
     primer = creating_primer(primer_length)         # the resulted primer: GAATGGTCGCTCGCG
 
-    dG = -1306.6632                                 # using RNAcofold dG = -312.30 kcal/mol which is equivalent with -1306.6632 kJ/mol
+                                                    # complement of the primer: CTTACCAGCGAGCGC
+
+    dG_den = -2573.5784                             # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
+
+    dG_bind1 = -1306.6632                           # using RNAcofold with amplicon and primer: dG = -312.30 kcal/mol which is equivalent with -1306.6632 kJ/mol
+
+    dG_bind2 = -1294.948                                  # using RNAcofold with the complement of the amplicon and the complement of the primer: dG = -309.50 kcal/mol which is equivalent with -1294.948 kJ/mol
 
     kB = 1.38064852 * (1/np.power(10, 23))          # Boltzmann constant"
 
