@@ -200,55 +200,40 @@ def stabilizing():
     S1P2E = values[8]
     S2P1E = values[9]
     dNTP = values[10]
-    S1P2EdNTP = values[11]
-    S2P1EdNTP = values[12]
+
 
    # 0.995 = np.exp(-(dG/kB*T))
 
-    dG = np.log(0.995) * kB * Text
+    dG = - np.log(0.995) * kB * Text
 
 
-    kr4_ = kf3 * np.exp(dGa/kB*Text)
-
-    kr4b = kf3 * np.exp(dGa/kB*Text)
+    dG = n * dH - T * dS
 
 
-   # dS1P2Edt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
+    dS1P2EdNTPdt = k4 * S1P2E * dNTP
 
-   # ddNTPadt = - kf4 * S1P2E * dNTP + kr4a * S1P2EdNTP
+    dS2P1EdNTPdt = k4 * S2P1E * dNTP
 
-    dS1P2EdNTPdt = kf4 * S1P2E * dNTP - kr4a * S1P2EdNTP
+    y = np.empty(2)
 
-
-    dS2P1Edt = - kf4 * S2P1E * dNTP + kr4b * S2P1EdNTP
-
-    ddNTPbdt = - kf4 * S2P1E * dNTP + kr4b * S2P1EdNTP
-
-    dS2P1EdNTPdt = kf4 * S1P2E * dNTP - kr4b * S2P1EdNTP
-
-    y[0] = dS1P2Edt
-    y[1] = dS2P1Edt
-    y[2] = ddNTPadt
-    y[3] = ddNTPbdt
-    y[4] = dS1P2EdNTPdt
-    y[5] = dS2P1EdNTPdt
+    y[0] = dS1P2EdNTPdt
+    y[1] = dS2P1EdNTPdt
 
     return y
 
 
-def primer_extension(Text):
-
-    "N_comp = complementary nucleotides in the whole length of the substrate"
-
-    SPEN = values[0]
-    N_comp = values[1]
+def primer_extension(values, t, Text):
 
 
-    dSPNN_compdt + dEdt = ke * SPEN * N_comp
+    extended_primer_length = n + len(primer)
 
-    y = dSPNN_compdt + dEdt
+    extension = len(amplicon) - extended_primer_length
 
-    return y
+
+    a = (ke * S1P2E * dNTP) / extension
+
+
+    return
 
 
 
@@ -331,7 +316,7 @@ if __name__ == '__main__':
     text = float(text_string)
 
 
-    number_cycles = int("Enter the number of cycles ")
+    number_cycles = int(input("Enter the number of cycles "))
 
 
 
