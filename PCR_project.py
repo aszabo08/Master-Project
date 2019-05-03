@@ -23,45 +23,6 @@ extended_length = amplicon_length - primer_length
 
 
 
-def creating_amplicon(amplicon_length):
-
-
-
-    bases = ["A", "G", "C", "T"]
-
-    amplicon_list = []
-
-    for i in range(amplicon_length):
-
-        amplicon_list.append(random.choice(bases))
-
-
-    amplicon = "".join(amplicon_list)
-
-
-    return amplicon
-
-
-
-
-def creating_primer(primer_lenght):
-
-    bases = ["A", "G", "C", "T"]
-
-    primer_list = []
-
-    for i in range(primer_lenght):
-
-        primer_list.append(random.choice(bases))
-
-
-    primer = "".join(primer_list)
-
-
-    return primer
-
-
-
 
 
 
@@ -142,7 +103,7 @@ def primer_binding(values, t, Tanneal):
     return y
 
 
-def ploymerase_binding(Text):
+def ploymerase_binding(values, t, Text):
 
 
     S1P2 = values[5]
@@ -188,7 +149,7 @@ def ploymerase_binding(Text):
     return y
 
 
-def stabilizing():
+def stabilizing(values, t, T):
 
     """ The primer is extended by a few nucleotides to ensure the primer binding
         to the substrate without dissociation when reaching the extension temperature
@@ -200,24 +161,52 @@ def stabilizing():
     S1P2E = values[8]
     S2P1E = values[9]
     dNTP = values[10]
+    Q1 = values[11]         # Q1 = P1 + n * dNTP
+    Q2 = values[12]         # Q2 = P2 + n * dNTP
+    S1Q2E = values[13]
+    S2Q1E = values[14]
+    
 
 
    # 0.995 = np.exp(-(dG/kB*T))
 
     dG = - np.log(0.995) * kB * Text
 
-
     dG = n * dH - T * dS
 
+    n = 5       # number of bases in the initial extension
 
-    dS1P2EdNTPdt = k4 * S1P2E * dNTP
 
-    dS2P1EdNTPdt = k4 * S2P1E * dNTP
+    #   S1P2E + n * dNTP -> S1Q2E
 
-    y = np.empty(2)
+    ce = 1000   # [dNTP/s] concentration of polymerase enzyme
 
-    y[0] = dS1P2EdNTPdt
-    y[1] = dS2P1EdNTPdt
+    #   s1 = ce / n * S1P2E * dNTP      # the speed of the reaction
+
+    dS1P2Edt = -(ce / n * S1P2E * dNTP)
+
+    dS1Q2Edt = ce / n * S1P2E * dNTP
+
+    #   S2P1E + n * dNTP -> S2Q1E
+
+    #   s2 = ce / n * S2P1E * dNTP      # the speed of the reaction
+
+    dS2P1Edt = -(ce / n * S2P1E * dNTP )
+
+    dS2Q1Edt = ce / n * S2P1E * dNTP
+
+
+    ddNTPdt =  -(ce * S1P2E * dNTP) -(ce * S2P1E * dNTP )       # -n * (ce / n * S1P2E * dNTP) and -n * (ce / n * S2P1E * dNTP )
+
+
+    y = np.empty(5)
+
+    y[0] = dS1P2Edt
+    y[1] = dS2P1Edt
+    y[2] = ddNTPdt
+    y[3] = dS1Q2Edt
+    y[4] = dS2Q1Edt
+
 
     return y
 
@@ -241,17 +230,7 @@ def primer_extension(values, t, Text):
 
 if __name__ == '__main__':
 
-    amplicon_length = 1000
 
-    primer_length = 15
-
-    amplicon = creating_amplicon(amplicon_length)   # the resulted amplicon: TACAGGGATAGTTCAACTTTAGGGCTCAAGCGGAAGTTGGCATCACCCAAGCGACTGGGGCAAATGATGAGGGGGAGTCCTTCGGGTTGATTACCTAACGTCTGTCTGTATCAGGCCCGCAAGCTATGTCTCCCTTCCGTGATGCATGGAGAACCTGCGCTCAAGGGGAAATTAGCTCGTACTCTTCGCGCAGGGGGCATGCTGTGCGGACTCAATTAGTTGTTTACTGGCTTGAGGAATTTTCGTCCGGTATATAATCACATGCAGTAAAACCCTGATAGCGGTTACTTCTTGAGCAAACTTTTACGTGTTCTTCGCAGGTACACAACTTCGCTACCTTGCATAGGCATGTGTATGCTGAAAGGACCTATGCACTAACATAACTTAGTAGTAGTGAGACAACTCGAATTCAAGCTATTCCTGCTGCAAAGAGATCACCTATCGTCGGTCTCCGAGGGCGTAAAGCCATCGAGATTACCAGACTGGTGGGCGATTCCATCGACGACGTCAGCCTTCAGACATTCTAATAGGACCTCTGGGGCTGACAATGAGAGGTCCTGTTCTGGATTTGTAAGAGCCTCATTGTGTCAGAACCACAATTGATATGATCGGTTTTAACTACAATCGGATCCACCAAAACTCCATGCTAGAGCCAAGGATAGCTCGGATGAAGTGTGTAAATCAGATACAACCCTTTCCTATAATCCTACGATATATACCGTGACATCGGGTGGCTCTCTCCCACCCCCGGCAGTAGACCAAGCAGTCCATCCCACTGAGCCATTGTGACATAGCTTGTAAGTATCATTCACTATAACGCAACGCCGGGTAGCCTCTACGGTCGTCCTGACTAGTACATAATTGTGGACCTCCATGAGGAGTACAGTGTCAACTTACTAGTCCCTGACTGTTCCGAACGTGTGCCTAAATTAAGACTGGAGCGAATATCCCCTGTCTCACAGTGAGACCACAACTAAAAGCGAGTCGTCCTACGTATGAG
-
-                                                    # complement of amplicon: ATGTCCCTATCAAGTTGAAATCCCGAGTTCGCCTTCAACCGTAGTGGGTTCGCTGACCCCGTTTACTACTCCCCCTCAGGAAGCCCAACTAATGGATTGCAGACAGACATAGTCCGGGCGTTCGATACAGAGGGAAGGCACTACGTACCTCTTGGACGCGAGTTCCCCTTTAATCGAGCATGAGAAGCGCGTCCCCCGTACGACACGCCTGAGTTAATCAACAAATGACCGAACTCCTTAAAAGCAGGCCATATATTAGTGTACGTCATTTTGGGACTATCGCCAATGAAGAACTCGTTTGAAAATGCACAAGAAGCGTCCATGTGTTGAAGCGATGGAACGTATCCGTACACATACGACTTTCCTGGATACGTGATTGTATTGAATCATCATCACTCTGTTGAGCTTAAGTTCGATAAGGACGACGTTTCTCTAGTGGATAGCAGCCAGAGGCTCCCGCATTTCGGTAGCTCTAATGGTCTGACCACCCGCTAAGGTAGCTGCTGCAGTCGGAAGTCTGTAAGATTATCCTGGAGACCCCGACTGTTACTCTCCAGGACAAGACCTAAACATTCTCGGAGTAACACAGTCTTGGTGTTAACTATACTAGCCAAAATTGATGTTAGCCTAGGTGGTTTTGAGGTACGATCTCGGTTCCTATCGAGCCTACTTCACACATTTAGTCTATGTTGGGAAAGGATATTAGGATGCTATATATGGCACTGTAGCCCACCGAGAGAGGGTGGGGGCCGTCATCTGGTTCGTCAGGTAGGGTGACTCGGTAACACTGTATCGAACATTCATAGTAAGTGATATTGCGTTGCGGCCCATCGGAGATGCCAGCAGGACTGATCATGTATTAACACCTGGAGGTACTCCTCATGTCACAGTTGAATGATCAGGGACTGACAAGGCTTGCACACGGATTTAATTCTGACCTCGCTTATAGGGGACAGAGTGTCACTCTGGTGTTGATTTTCGCTCAGCAGGATGCATACTC
-
-    primer = creating_primer(primer_length)         # the resulted primer: GAATGGTCGCTCGCG
-
-                                                    # complement of the primer: CTTACCAGCGAGCGC
 
     dG_den = -2573.5784                             # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
 
@@ -263,60 +242,14 @@ if __name__ == '__main__':
 
 
     # "The species included in the reactions are the following: "
-    #
-    # values = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "S1P2EdNTP", "S2P1EdNTP"]
+
+    # state vector:
+
+    # values = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2, "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
 
-    values = [0 for i in range(12)]                 # Initializing the concentrations of the reactants at 0
 
-
-
-    values[0] = float(input("Enter the concentration of plasmid (ng): "))
-
-
-    values[3] = float(input("Enter the concentration of each primer (microL): "))
-
-
-    values[4] = values[3]
-
-
-    values[7] = float(input("Enter the concentration of polymerase (U): "))
-
-
-    values[10] = float(input("Enter the concentration of each dNTP (microL): "))
-
-
-
-    Tden_celsius, tden_string = input("Enter the temperature of denaturation (Celsius) and the length of it (second) ").split()
-
-    # Converting the temperature from Celsius to Kelvin
-
-    Tden = float(Tden_celsius) + 273.15
-
-    tden = float(tden_string)
-
-
-    Tanneal_celsius, tanneal_string = input("Enter the temperature of annealing (Celsius) and the length of it (second) ").split()
-
-    # Converting the temperature from Celsius to Kelvin
-
-    Tanneal = float(Tanneal_celsius) + 273.15
-
-    tanneal = float(tanneal_string)
-
-
-
-    Text_celsius, text_string = input("Enter the temperature of primer extension (Celsius) and the length of it (second) ").split()
-
-    # Converting the temperature from Celsius to Kelvin
-
-    Text = float(Text_celsius) + 273.15
-
-    text = float(text_string)
-
-
-    number_cycles = int(input("Enter the number of cycles "))
 
 
 
@@ -335,6 +268,9 @@ if __name__ == '__main__':
         t2 = np.linspace(tden, tden + tanneal, tanneal * 10)
 
         int_binding = odeint(primer_binding, values[1:7], t2, args=(Tanneal, ))
+
+
+
 
 
 
