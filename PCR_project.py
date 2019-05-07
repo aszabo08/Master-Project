@@ -120,30 +120,30 @@ def ploymerase_binding(values, t, Text):
 
     dS1P2dt = -kf3 * S1P2 * E + kr3a * S1P2E
 
-    dEadt = -kf3 * S1P2 * E + kr3a * S1P2E
-
     dS1P2Edt = kf3 * S1P2 * E - kr3a * S1P2E
-
 
 
     kr3b = kf3 * np.exp(dGb/kB*Text)
 
     dS2P1dt = -kf3 * S2P1 * E + kr3b * S2P1E
 
-    dEbdt = -kf3 * S2P1 * E + kr3b * S2P1E
-
     dS2P1Edt = kf3 * S2P1 * E - kr3b * S2P1E
 
+    dEdt = (-kf3 * S1P2 * E + kr3a * S1P2E)+ (-kf3 * S2P1 * E + kr3b * S2P1E)
+
+    # dEadt = (-kf3 * S1P2 * E + kr3a * S1P2E)
+
+    # dEbdt = -kf3 * S2P1 * E + kr3b * S2P1E
 
 
-    y = np.empty(6)
+
+    y = np.empty(5)
 
     y[0] = dS1P2dt
     y[1] = dS2P1dt
-    y[2] = dEadt
-    y[3] = dEbdt
-    y[4] = dS1P2Edt
-    y[5] = dS2P1Edt
+    y[2] = dS1P2Edt
+    y[3] = dS2P1Edt
+    y[4] = dEdt
 
 
     return y
@@ -168,7 +168,7 @@ def stabilizing(values, t, T):
     
 
 
-   # 0.995 = np.exp(-(dG/kB*T))
+    # 0.995 = np.exp(-(dG/kB*T))
 
     dG = - np.log(0.995) * kB * Text
 
@@ -181,23 +181,44 @@ def stabilizing(values, t, T):
 
     ce = 1000   # [dNTP/s] concentration of polymerase enzyme
 
-    #   s1 = ce / n * S1P2E * dNTP      # the speed of the reaction
+    #   s_1 = ce / n * S1P2E * dNTP      # the speed of the reaction creating complexes
 
-    dS1P2Edt = -(ce / n * S1P2E * dNTP)
+    dS1P2Edt = -(ce / n * S1P2E * dNTP) - 3 * (ce2 / n * S1P2E * dNTP)
 
     dS1Q2Edt = ce / n * S1P2E * dNTP
 
+
+    # ce2 is the speed of creating S1, G2 and E which are going to be denaturated
+
+    # s_1 = ce2 / n * S1P2E * dNTP
+
+    dS1dt = ce2 / n * S1P2E * dNTP
+
+    dQ2dt = ce2 / n * S1P2E * dNTP
+
+    dEdt = ce2 / n * S1P2E * dNTP
+
+
+
+
     #   S2P1E + n * dNTP -> S2Q1E
 
-    #   s2 = ce / n * S2P1E * dNTP      # the speed of the reaction
+    #   s_ 2 = ce2b / n * S2P1E * dNTP      # the speed of the reaction creating complexes
 
-    dS2P1Edt = -(ce / n * S2P1E * dNTP )
+    dS2P1Edt = -(ce / n * S2P1E * dNTP ) -3 * (ce2 / n * S1P2E * dNTP)
 
     dS2Q1Edt = ce / n * S2P1E * dNTP
 
+    # s_2a = ce2 / n * S2P1E * dNTP
 
-    ddNTPdt =  -(ce * S1P2E * dNTP) -(ce * S2P1E * dNTP )       # -n * (ce / n * S1P2E * dNTP) and -n * (ce / n * S2P1E * dNTP )
+    dS2dt = ce2 / n * S2P1E * dNTP
 
+    dQ1dt = ce2 / n * S2P1E * dNTP
+
+    dEdt = ce2 / n * S1P2E * dNTP + ce2 / n * S2P1E * dNTP
+
+
+    ddNTPdt =  -(ce * S1P2E * dNTP) -(ce * S2P1E * dNTP )- 3 * (ce2 / n * S1P2E * dNTP) -3 * (ce2 / n * S1P2E * dNTP)
 
     y = np.empty(5)
 
@@ -206,7 +227,11 @@ def stabilizing(values, t, T):
     y[2] = ddNTPdt
     y[3] = dS1Q2Edt
     y[4] = dS2Q1Edt
-
+    y[5] = dS1dt
+    y[6] = dS2dt
+    y[7] = dQ1dt
+    y[8] = dQ2dt
+    y[9] = dEdt
 
     return y
 
@@ -230,6 +255,43 @@ def primer_extension(values, t, Text):
 
 if __name__ == '__main__':
 
+
+    values = [0 for i in range(15)]
+
+    values[0] = 60      # concentration of plasmid (S1S2) in ng
+    values[1] = 0       # concentration of S1 in ng
+    values[2] = 0       # concentration of S2 in ng
+    values[3] = 9.2     # concentration of P1 in microL
+    values[4] = 9.2     # concentration of P2 in microL
+    values[5] = 0       # concentration of S1P2
+    values[6] = 0       # concentration of S2P1
+    values[7] = 8.2      # concentration of E
+    values[8] = 0       # concentration of S1P2E
+    values[9] = 0       # concentration of S2P1E
+    values[10] = 4.2    # concentration of dNTP
+    values[11] = 0       # concentration of Q1
+    values[12] = 0       # concentration of Q2
+    values[13] = 0       # concentration of S1Q2E
+    values[14] = 0       # concentration of S2Q1E
+    values[15] = 0       #concentration of S2Q1
+    values[15] = 0       #concentration of S1Q2
+
+
+
+    Tden = 90           # degree Celsius
+    Tanneal = 72        # degree Celsius
+    Text = 80           # degree Celsius
+
+    tden = 2           # seconds
+    tanneal = 3        # seconds
+    text = 4           # seconds
+
+    number_cycles = 20
+
+
+    time = np.linspace(0, tden + tanneal + text, (tden + tanneal + text) * 10)      # for every second 10 points are distinguished
+
+    time = np.array([(np.linspace(0, tden, tden * 10)), (np.linspace(tden, tden + tanneal, tanneal * 10)), (np.linspace(tden + tanneal, tden + tanneal + text, text * 10))])
 
 
     dG_den = -2573.5784                             # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
@@ -255,6 +317,9 @@ if __name__ == '__main__':
 
 
     for i in range(number_cycles):
+
+
+
 
 
         t1 = np.linspace(0, tden, tden * 10)
