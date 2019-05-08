@@ -291,7 +291,9 @@ if __name__ == '__main__':
 
     time = np.linspace(0, tden + tanneal + text, (tden + tanneal + text) * 10)      # for every second 10 points are distinguished
 
-    time = np.array([(np.linspace(0, tden, tden * 10)), (np.linspace(tden, tden + tanneal, tanneal * 10)), (np.linspace(tden + tanneal, tden + tanneal + text, text * 10))])
+  #  time = np.array([(np.linspace(0, tden, tden * 10)), (np.linspace(tden, tden + tanneal, tanneal * 10)), (np.linspace(tden + tanneal, tden + tanneal + text, text * 10))])
+
+    T = np.array([([Tden]*tden*10), ([Tanneal]*tanneal*10), ([Text]*text*10) ])
 
 
     dG_den = -2573.5784                             # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
@@ -320,9 +322,13 @@ if __name__ == '__main__':
 
 
 
+        result = []
+
+        result = odeint(denaturation, values[0:3], time, args=(T, )) + odeint(denaturation, values[0:3], time, args=(T, ))
 
 
-        t1 = np.linspace(0, tden, tden * 10)
+
+        time = np.linspace(0, tden + tanneal + text, (tden + tanneal + text) * 10)
 
         int_denaturation = odeint(denaturation, values[0:3], t1, args=(Tden, ))
 
