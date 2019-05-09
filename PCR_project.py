@@ -8,7 +8,7 @@ The k parameters (k1, k2, k3) are rate constants in binding and misbinding proce
 
 from scipy.integrate import odeint
 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 import numpy as np
 
@@ -129,7 +129,7 @@ def primer_binding(values, t, Tanneal):
     return y
 
 
-def ploymerase_binding(values, t, Text):
+def polymerase_binding(values, t, Text):
 
 
     S1P2 = values[5]
@@ -300,7 +300,7 @@ def primer_extension(values, t, Text):
 if __name__ == '__main__':
 
 
-    values = [0 for i in range(15)]
+    values = [0 for i in range(17)]
 
     values[0] = 60      # concentration of plasmid (S1S2) in ng
     values[1] = 0       # concentration of S1 in ng
@@ -335,9 +335,9 @@ if __name__ == '__main__':
 
     time = np.linspace(0, tden + tanneal + text, (tden + tanneal + text) * 10)      # for every second 10 points are distinguished
 
-  #  time = np.array([(np.linspace(0, tden, tden * 10)), (np.linspace(tden, tden + tanneal, tanneal * 10)), (np.linspace(tden + tanneal, tden + tanneal + text, text * 10))])
+    #  time = np.array([(np.linspace(0, tden, tden * 10)), (np.linspace(tden, tden + tanneal, tanneal * 10)), (np.linspace(tden + tanneal, tden + tanneal + text, text * 10))])
 
-    T = np.array([([Tden]*tden*10), ([Tanneal]*tanneal*10), ([Text]*text*10) ])
+    T = np.array([([Tden]*tden*10), ([Tanneal]*tanneal*10), ([Text]*text*10)])
 
 
     dG_den = -2573.5784                             # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
@@ -355,34 +355,25 @@ if __name__ == '__main__':
 
     # values = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2, "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
-
-
-
-
-
+    change = np.zeros((number_cycles, 17), dtype=np.int)
 
 
     for i in range(number_cycles):
 
 
+        change[i] = odeint(denaturation, values, time, args=(T, ))[-1] + odeint(primer_binding, values, time, args=(T, ))[-1] + odeint(polymerase_binding, values, time, args=(T, ))[-1] + odeint(stabilizing, values, time, args=(T, ))[-1]
 
-        result = []
+        values = values + change[i]
 
-        result = odeint(denaturation, values[0:3], time, args=(T, )) + odeint(denaturation, values[0:3], time, args=(T, ))
+result = values
 
 
 
-        time = np.linspace(0, tden + tanneal + text, (tden + tanneal + text) * 10)
 
-        int_denaturation = odeint(denaturation, values[0:3], t1, args=(Tden, ))
 
-        values[1] = list(int_denaturation[-1])[1]
 
-        values[2] = list(int_denaturation[-1])[2]
 
-        t2 = np.linspace(tden, tden + tanneal, tanneal * 10)
 
-        int_binding = odeint(primer_binding, values[1:7], t2, args=(Tanneal, ))
 
 
 
@@ -432,4 +423,7 @@ def primer_misbinding(values, t, kfm, kram, krbm):
     return y
 
 
-
+        #
+        # values[1] = list(int_denaturation[-1])[1]
+        #
+        # values[2] = list(int_denaturation[-1])[2]
