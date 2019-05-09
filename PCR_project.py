@@ -12,8 +12,6 @@ import matplotlib.pyplot as plt
 
 import numpy as np
 
-import random
-
 amplicon_length = 1000
 
 primer_length = 15
@@ -42,11 +40,25 @@ def denaturation(values, t, Tden):
     dS1dt = kf1 * S1S2 - kr1 * S1 * S2
     dS2dt = kf1 * S1S2 - kr1 * S1 * S2
 
-    y = np.empty(3)
+    y = np.empty(17)
 
     y[0] = dS1S2dt
     y[1] = dS1dt
     y[2] = dS2dt
+    y[3] = values[3]    # concentration of P1 in microL
+    y[4] = values[4]    # concentration of P2 in microL
+    y[5] = values[5]      # concentration of S1P2
+    y[6] = values[6]     # concentration of S2P1
+    y[7] = values[7]     # concentration of E
+    y[8] = values[8]      # concentration of S1P2E
+    y[9] = values[9]     # concentration of S2P1E
+    y[10] = values[10]    # concentration of dNTP
+    y[11] = values[11]      # concentration of Q1
+    y[12] = values[12]     # concentration of Q2
+    y[13] = values[13]       # concentration of S1Q2E
+    y[14] = values[14]      # concentration of S2Q1E
+    y[15] = values[15]       #concentration of S2Q1
+    y[16] = values[16]       #concentration of S1Q2
 
     return y
 
@@ -91,14 +103,28 @@ def primer_binding(values, t, Tanneal):
     dP1dt = -kf2 * S2 * P1 + kr2b * S2P1
     dS2P1dt = kf2 * S2 * P1 - kr2b * S2P1
 
-    y = np.empty(6)
 
-    y[0] = dS1dt
-    y[1] = dS2dt
-    y[2] = dP1dt
-    y[3] = dP2dt
-    y[4] = dS1P2dt
-    y[5] = dS2P1dt
+    y = np.empty(17)
+
+
+    y[0] = values[0]
+    y[1] = dS1dt
+    y[2] = dS2dt
+    y[3] = dP1dt
+    y[4] = dP2dt
+    y[5] = dS1P2dt
+    y[6] = dS2P1dt
+    y[7] = values[7]     # concentration of E
+    y[8] = values[8]      # concentration of S1P2E
+    y[9] = values[9]     # concentration of S2P1E
+    y[10] = values[10]    # concentration of dNTP
+    y[11] = values[11]      # concentration of Q1
+    y[12] = values[12]     # concentration of Q2
+    y[13] = values[13]       # concentration of S1Q2E
+    y[14] = values[14]      # concentration of S2Q1E
+    y[15] = values[15]       #concentration of S2Q1
+    y[16] = values[16]      #concentration of S1Q2
+
 
     return y
 
@@ -129,21 +155,34 @@ def ploymerase_binding(values, t, Text):
 
     dS2P1Edt = kf3 * S2P1 * E - kr3b * S2P1E
 
-    dEdt = (-kf3 * S1P2 * E + kr3a * S1P2E)+ (-kf3 * S2P1 * E + kr3b * S2P1E)
+    dEdt = (-kf3 * S1P2 * E + kr3a * S1P2E) + (-kf3 * S2P1 * E + kr3b * S2P1E)
 
     # dEadt = (-kf3 * S1P2 * E + kr3a * S1P2E)
 
     # dEbdt = -kf3 * S2P1 * E + kr3b * S2P1E
 
 
+    y = np.empty(17)
 
-    y = np.empty(5)
 
-    y[0] = dS1P2dt
-    y[1] = dS2P1dt
-    y[2] = dS1P2Edt
-    y[3] = dS2P1Edt
-    y[4] = dEdt
+    y[0] = values[0]
+    y[1] = values[1]
+    y[2] = values[2]
+    y[3] = values[3]
+    y[4] = values[4]
+    y[5] = dS1P2dt
+    y[6] = dS2P1dt
+    y[7] = dEdt
+    y[8] = dS1P2Edt
+    y[9] = dS2P1Edt
+    y[10] = values[10]    # concentration of dNTP
+    y[11] = values[11]      # concentration of Q1
+    y[12] = values[12]     # concentration of Q2
+    y[13] = values[13]       # concentration of S1Q2E
+    y[14] = values[14]      # concentration of S2Q1E
+    y[15] = values[15]       #concentration of S2Q1
+    y[16] = values[16]      #concentration of S1Q2
+
 
 
     return y
@@ -161,10 +200,6 @@ def stabilizing(values, t, T):
     S1P2E = values[8]
     S2P1E = values[9]
     dNTP = values[10]
-    Q1 = values[11]         # Q1 = P1 + n * dNTP
-    Q2 = values[12]         # Q2 = P2 + n * dNTP
-    S1Q2E = values[13]
-    S2Q1E = values[14]
     
 
 
@@ -196,7 +231,7 @@ def stabilizing(values, t, T):
 
     dQ2dt = ce2 / n * S1P2E * dNTP
 
-    dEdt = ce2 / n * S1P2E * dNTP
+    # dEdt = ce2 / n * S1P2E * dNTP
 
 
 
@@ -220,18 +255,27 @@ def stabilizing(values, t, T):
 
     ddNTPdt =  -(ce * S1P2E * dNTP) -(ce * S2P1E * dNTP )- 3 * (ce2 / n * S1P2E * dNTP) -3 * (ce2 / n * S1P2E * dNTP)
 
-    y = np.empty(5)
+    y = np.empty(17)
 
-    y[0] = dS1P2Edt
-    y[1] = dS2P1Edt
-    y[2] = ddNTPdt
-    y[3] = dS1Q2Edt
-    y[4] = dS2Q1Edt
-    y[5] = dS1dt
-    y[6] = dS2dt
-    y[7] = dQ1dt
-    y[8] = dQ2dt
-    y[9] = dEdt
+    y[0] = values[0]
+    y[1] = dS1dt
+    y[2] = dS2dt
+    y[3] = dP1dt
+    y[4] = dP2dt
+    y[4] = dS1P2dt
+    y[5] = dS2P1dt
+    y[6] = values[6]    # concentration of S2P1
+    y[7] = dEdt         # concentration of E
+    y[8] = dS1P2Edt     # concentration of S1P2E
+    y[9] = dS2P1Edt     # concentration of S2P1E
+    y[10] = ddNTPdt     # concentration of dNTP
+    y[11] = dQ1dt       # concentration of Q1
+    y[12] = dQ2dt       # concentration of Q2
+    y[13] = dS1Q2Edt    # concentration of S1Q2E
+    y[14] = dS2Q1Edt    # concentration of S2Q1E
+    y[15] = values[15]       #concentration of S2Q1
+    y[16] = values[16]      #concentration of S1Q2
+
 
     return y
 
@@ -274,7 +318,7 @@ if __name__ == '__main__':
     values[13] = 0       # concentration of S1Q2E
     values[14] = 0       # concentration of S2Q1E
     values[15] = 0       #concentration of S2Q1
-    values[15] = 0       #concentration of S1Q2
+    values[16] = 0       #concentration of S1Q2
 
 
 
