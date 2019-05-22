@@ -8,13 +8,13 @@ The k parameters (k1, k2, k3) are rate constants in binding and misbinding proce
 
 from scipy.integrate import odeint
 
-#import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 import numpy as np
 
 
 
-
+species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
 values = [0 for i in range(17)]
@@ -467,21 +467,104 @@ if __name__ == '__main__':
     # Plotting SP, SP_newk, SP1, SP1_newk in one figure
 
 
-    # plt.figure(1)
-    #
-    # plt.suptitle("Change of concentration over time ", fontsize = 14)
-    #
-    #
+    plt.figure(1)
+
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+
+
+
+    #plt.subplot(221)
+
+    for i in range(8):
+
+
+
+        plt.subplot(2, 4, i+1)
+
+
+        plt.plot(time, concentration[:, i])
+
+        plt.legend([species[i]], loc='best', prop={'size':10})
+
+        plt.xlabel("Time")
+        plt.ylabel("Concentration")
+
+
+    #plt.subplots_adjust(left=0.1, bottom=0.2, right=0.2, top=0.3, wspace=0.7, hspace=0.8)
+
+    plt.figure(2)
+
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+
+
+
+    #plt.subplot(221)
+
+    for i in range(9):
+
+
+
+        plt.subplot(2, 5, i +1)
+
+
+        plt.plot(time, concentration[:, i + 8])
+
+        plt.legend([species[i + 8]], loc='best', prop={'size':10})
+
+        plt.xlabel("Time")
+        plt.ylabel("Concentration")
+
+
+
+    #plt.subplots_adjust(left=0.1, bottom=0.1, right=0.12, top=0.3, wspace=0.7, hspace=0.8)
+    plt.show()
+
+
     # # plot of SP
     #
     # plt.subplot(221)
     #
-    # SP_plot = plt.plot(t, SP)
+    # S1S2_plot = plt.plot(total, concentration[:, 0])
     #
     # plt.legend(["S", "P", "SP"], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
     #
     # plot_attributes(SP_plot)
-
+    #
+    #
+    #
+    # # plot of SP_newk
+    #
+    # plt.subplot(222)
+    #
+    # SP_newk_plot = plt.plot(t, SP_newk, '--')
+    #
+    # plt.legend(["S_newk", "P_newk", "SP_newk"], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
+    #
+    # plot_attributes(SP_newk_plot)
+    #
+    #
+    # # plot of SP1
+    #
+    # plt.subplot(223)
+    #
+    # SP1_plot = plt.plot(t, SP1)
+    #
+    # plt.legend(["S1", "P1", "SP1"], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
+    #
+    # plot_attributes(SP1_plot)
+    #
+    #
+    # # plot of SP1_newk
+    #
+    # plt.subplot(224)
+    #
+    # SP1_newk_plot = plt.plot(t, SP1_newk, ':')
+    #
+    # plt.legend(["S1_newk", "P1_newk", "SP1_newk"], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
+    #
+    # plot_attributes(SP1_newk_plot)
+    #
+    # plt.subplots_adjust(left=None, bottom=None, right=None, top=0.9, wspace=0.9, hspace=0.6)
 
 
 
@@ -492,7 +575,7 @@ if __name__ == '__main__':
 
     # state vector:
 
-    # values = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2, "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
+
 
     #change = np.zeros((number_cycles, 17), dtype=np.int)
 
