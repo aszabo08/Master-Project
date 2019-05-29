@@ -19,17 +19,17 @@ species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E"
 
 values = [0 for i in range(17)]
 
-values[0] = 6      # concentration of plasmid (S1S2) in ng
+values[0] = 60      # concentration of plasmid (S1S2) in ng
 values[1] = 0       # concentration of S1 in ng
 values[2] = 0       # concentration of S2 in ng
 values[3] = 600    # concentration of P1 in microL
-values[4] = 600     # concentration of P2 in microL
+values[4] = 600    # concentration of P2 in microL
 values[5] = 0       # concentration of S1P2
 values[6] = 0       # concentration of S2P1
-values[7] = 100    # concentration of E
+values[7] = 100  # concentration of E
 values[8] = 0       # concentration of S1P2E
 values[9] = 0       # concentration of S2P1E
-values[10] = 1000    # concentration of dNTP
+values[10] = 100   # concentration of dNTP
 values[11] = 0      # concentration of Q1
 values[12] = 0      # concentration of Q2
 values[13] = 0      # concentration of S1Q2E
@@ -37,9 +37,18 @@ values[14] = 0      # concentration of S2Q1E
 values[15] = 0      # concentration of S2Q1
 values[16] = 0      # concentration of S1Q2
 
-Tden = 363.15           # Kelvin which is equal to 90 degree Celsius
-Tanneal = 345.15        # Kelvin which is equal to 72 degree Celsius
-Text = 353.15           # Kelvin which is equal to 80 degree Celsius
+#Tden = 363.15           # Kelvin which is equal to 90 degree Celsius
+
+Tden = 357
+
+#Tanneal = 345.15        # Kelvin which is equal to 72 degree Celsius
+
+Tanneal = 302
+
+
+#Text = 353.15           # Kelvin which is equal to 80 degree Celsius
+
+Text = 330
 
 tden = 2            # seconds
 tanneal = 3         # seconds
@@ -74,7 +83,7 @@ number_time_points = total * steps * number_cycles
 
 # 1 entropy unit = 4.184 J/ K m
 
-dS = - 52.7184           # entropy in J/ K m  ---->  we use dS = -12.6 entropy unit which is equal to −52.7184 J/ K m
+dS = - 52.7184          # entropy in J/ K m  ---->  we use dS = -12.6 entropy unit which is equal to −52.7184 J/ K m which is equal to - 0.0527184 kJ / K m
 
 #dG_den = -257.5784  # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
 
@@ -133,7 +142,7 @@ dH_enzyme = 100 * dH_S1P2_S2P1
 
 
 
-R = 8.314e-3        # Gas contant in  KJ / mol
+R = 8.314e-3        # Gas contant in  J / K mol
 
 #kB = 1.38064852e-23  # Boltzmann constant"
 
@@ -155,13 +164,24 @@ def denaturation(values, t, T, dGs):
     S1 = values[1]
     S2 = values[2]
 
+    print("S1S2, S1, S2", S1S2, S1, S2 )
+
 
     kf1 = 1
     kr1 = kf1 * np.exp(dGs[0]/(R*T))
 
+    print("kr1 origin", kr1)
+
+    if kr1 < 1e-100:
+
+        kr1 = 0
+
+    print("kr1 second", kr1)
 
 
     rate_den = -kf1 * S1S2 + kr1 * S1 * S2
+
+    print("rateden", rate_den)
 
     y = np.zeros(17)
 
@@ -199,13 +219,57 @@ def primer_binding_1(values, t, T, dGs):
 
     kf2 = 1
 
-    kr2a = kf2 * np.exp(dGs[1]/(R*T))
+    print("in exp", dGs[1]/(R*T))
+
+    exponent_2a = dGs[1]/(R*T)
+
+    print("exponent origin", exponent_2a)
+
+    if exponent_2a > 709.7827128933827:
+
+        exponent_2a = 709.7827128933827
+
+    print("exponent second", exponent_2a)
+
+    kr2a = kf2 * np.exp(exponent_2a)
+
+    if kr2a > 1.79769313486e+308:
+
+        kr2a = 1.79769313486e+308
+
+
+
+    print("kr2a origin", kr2a)
+
+
 
     rate_S1P2_bind = kf2 * S1 * P2 - kr2a * S1P2
 
-    kr2b = kf2 * np.exp(dGs[1]/(R*T))
+    if rate_S1P2_bind > 1.79769313486e+308:
+
+        rate_S1P2_bind = 1.79769313486e+308
+
+    print("rate S1P1 bind", rate_S1P2_bind)
+
+    exponent_2b = dGs[1]/(R*T)
+
+    print("exponent origin", exponent_2a)
+
+    if exponent_2b > 709.7827128933827:
+
+        exponent_2b = 709.7827128933827
+
+    kr2b = kf2 * np.exp(exponent_2b)
+
+    if kr2b > 1.79769313486e+308:
+
+        kr2b = 1.79769313486e+308
 
     rate_S2P1_bind = kf2 * S2 * P1 - kr2b * S2P1
+
+    if rate_S2P1_bind > 1.79769313486e+308:
+
+        rate_S2P1_bind = 1.79769313486e+308
 
 
     y = np.zeros(17)
@@ -447,6 +511,8 @@ if __name__ == '__main__':
 
         dGs[3] = dH_enzyme - Tden * dS
 
+        print(dGs)
+
 
         integration_den = odeint(PCR_reaction, values, time[(total * i * steps) : ((total * i + tden) * steps)] , args=(Tden, dGs))
 
@@ -569,3 +635,9 @@ if __name__ == '__main__':
     # to solve it I changed the previously 1D array to 2D:  y = np.zeros((17, total * steps * number_cycles))
 
     # but then when running the code with odeint : RuntimeError: The array return by func must be one-dimensional, but got ndim=2.
+
+
+    # overflow encountered in exp
+    # kr2a = kf2 * np.exp(dGs[1]/(R*T))
+    # RuntimeWarning: invalid value encountered in double_scalars
+    # rate_S1P2_bind = kf2 * S1 * P2 - kr2a * S1P2
