@@ -19,47 +19,45 @@ species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E"
 
 values = [0 for i in range(17)]
 
-#values[0] = 3.0769e-15      # concentration of plasmid (S1S2) in mol/ul
 
-values[0] = 100
-values[1] = 100       # concentration of S1 in ng
-values[2] = 100       # concentration of S2 in ng
-values[3] = 3.0769e-10   # concentration of P1 in mol/ul
-values[4] = 3.0769e-10   # concentration of P2 in mol/ul
-values[5] = 0       # concentration of S1P2
-values[6] = 0       # concentration of S2P1
-values[7] = 1.25  # concentration of E in Unit
-values[8] = 0       # concentration of S1P2E
-values[9] = 0       # concentration of S2P1E
-values[10] = 2e-10 # concentration of dNTP in mol/ul
-values[11] = 0      # concentration of Q1
-values[12] = 0      # concentration of Q2
-values[13] = 0      # concentration of S1Q2E
-values[14] = 0      # concentration of S2Q1E
-values[15] = 0      # concentration of S2Q1
-values[16] = 0      # concentration of S1Q2
+values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
+values[1] = 0               # concentration of S1 in uM
+values[2] = 0               # concentration of S2 in uM
 
-#Tden = 363.15           # Kelvin which is equal to 90 degree Celsius
+values[3] = 2             # concentration of P1 in uM
+values[4] = 2            # concentration of P2 in uM
 
-Tden = 340
-
-#Tanneal = 345.15        # Kelvin which is equal to 72 degree Celsius
-
-Tanneal = 300
+values[5] = 0               # concentration of S1P2
+values[6] = 0               # concentration of S2P1
+values[7] = 0.2             # concentration of E in uM
+values[8] = 0               # concentration of S1P2E
+values[9] = 0               # concentration of S2P1E
+values[10] = 200           # concentration of dNTP in uM
+values[11] = 0              # concentration of Q1
+values[12] = 0              # concentration of Q2
+values[13] = 0              # concentration of S1Q2E
+values[14] = 0              # concentration of S2Q1E
+values[15] = 0              # concentration of S2Q1
+values[16] = 0              # concentration of S1Q2
 
 
-#Text = 353.15           # Kelvin which is equal to 80 degree Celsius
+initial_dNTP = values[10]
 
-Text = 350
+Tden = 369.15               # 96 degree
 
-tden = 1            # seconds
-tanneal = 4      # seconds
-text = 4            # seconds
+Tanneal = 303.15            # 30 degree
+
+
+Text = 343.15               # 70 degree
+
+tden = 10                   # seconds
+tanneal = 10                # seconds
+text = 10                   # seconds
 
 
 total = tden + tanneal + text
 
-number_cycles = 3
+number_cycles = 1
 
 steps = 1
 
@@ -77,112 +75,21 @@ time = np.linspace(0, number_cycles * (tden + tanneal + text), number_cycles * (
 
 number_time_points = total * steps * number_cycles
 
-# dGs = [dG_S1S2, dG_S1P2_S2P1, dG_S1Q2_S2Q1, dG_enzyme]
-
-
-#T = np.array(number_cycles * ([([Tden] * tden * steps), ([Tanneal] * tanneal * steps), ([Text] * text * steps)]))
 
 
 # 1 entropy unit = 4.184 J/ K m
 
-dS = - 52.7184          # entropy in J/ K m  ---->  we use dS = -12.6 entropy unit which is equal to −52.7184 J/ K m which is equal to - 0.0527184 kJ / K m
 
-#dG_den = -257.5784  # using RNAcofold with the two complementary sequences: dG = -615.10 kcal/mol which is equivalent with -2573.5784 kJ/mol
+Tm_S1S2 = 358.15                # 85 degrees
 
+Tm_primer = 308.15              # 35 degrees
 
-
-# At melting temperature dG = 0
-
-# dG = n * dH - Tm * dS    -----> n * dH = Tm * dS    -----> dH = 1/n * Tm * dS
-
-Tm_S1S2 = 358.15        # in Kelvin which is equal to 85 degree Celsius
-
-Tm_S1P2_S2P1 = 303.15        # in Kelvin which is equal to 30 degree Celsius
-
-                            # Tm_S1P2 = Tm_S2P1
+Tm_extended_primer = 313.15     # 40 degree
 
 
+#dS = -1256.0395 # j/m
 
-# At melting temperature dG = 0
-
-# dH/n and dS are the same for the substrates, primer and extended primer
-
-# amplicon_length * dH - Tm_S1S2 * dS = primer_length * dH - Tm_S1P2_S2P1 * dS
-#
-# amplicon_length * dH - primer_length * dH = Tm_S1S2 * dS - Tm_S1P2_S2P1 * dS
-#
-# (amplicon_length - primer_length) * dH = (Tm_S1S2 - Tm_S1P2_S2P1) * dS
-#
-# dH = ((Tm_S1S2 - Tm_S1P2_S2P1) * dS) / (amplicon_length - primer_length)
-#
-# dS = ((amplicon_length - primer_length) * dH) / (Tm_S1S2 - Tm_S1P2_S2P1)
-#
-# dS = (amplicon_length * dH) / Tm_S1S2 = (primer_length * dH) / Tm_S1P2_S2P1
-#
-#
-#
-# dH = Tm_S1S2 * dS / amplicon_length
-
-
-
-
-
-
-
-
-
-Tm_S1Q2_S2Q1 = 323.15       # in Kelvin which is equal to 50 degree Celsius
-
-
-
-
-
-#dH = - 2.9437
-
-dH = -18.8811
-
-dH_enzyme2 = 5 * dH
-
-
-#
-# dH_S1S2 = (Tm_S1S2 * dS) / amplicon_length              # J/ m
-#
-# dH_S1P2_S2P1 = (Tm_S1P2_S2P1 * dS) / primer_length
-#
-#
-# dH_S1Q2_S2Q1 = (Tm_S1Q2_S2Q1 * dS) / extended_primer
-#
-# dH_enzyme = 30 * dH_S1P2_S2P1
-
-
-
-# dG_S1S2 = amplicon_length * dH_S1S2 - T * dS          # J/ m
-#
-# dG_S1P2_S2P1 = primer_length * dH_S1P2_S2P1 - T * dS
-#
-# dG_S1Q2_S2Q1 = extended_primer * dH_S1Q2_S2Q1 - T * dS
-#
-# dG_enzyme = dH_enzyme - T * dS
-
-
-
-
-
-# or Calculating the number of added nucleotides during the primer_ext_1
-#
-# # dG_ext = dH - Text * dS
-#
-# # 0.995 = np.exp(-dG_ext/(R*Text))
-#
-# dG_ext = - np.log(0.995) * R * T
-#
-#  dG_ext = n * dH - T * dS
-#
-# n = int(round((dG_ext + T * dS) / dH))
-
-
-
-
+dS = - 52.7184e-2
 
 
 
@@ -190,16 +97,91 @@ dH_enzyme2 = 5 * dH
 
 R = 8.314e-3        # Gas contant in  J / K mol
 
-#kB = 1.38064852e-23  # Boltzmann constant"
+#kB = 1.38064852e-23  # Boltzmann constant
+
+def number_of_molecules(x):
+
+    """This function calculates the number of molecules with given concentration in uM in a 50 ul tube"""
+
+    umol_per_ul = x * 1e-6     # 1 uM = 10e-6 mol/l    which is equal to 10e-6 umol/ul
+
+    umol = umol_per_ul * 50       # number of umol in a 50 ul tube
+
+    molecules = umol * 6.022140857 * 1e+17     # in 1 mol there is 6.022140857 * 10e+23 molecules  -> in 1 umol there is 6.022140857 * 10e+23 * 10e-6 = 6.022140857 * 10e+17
+
+    return molecules
 
 
-#
+def total_molecule_length(x, y):
 
-print("The number of added nucleotides to the primer during primer_ext_1:", n)
+    """This function calculates the summary of the lengths of every molecules within a species in nucleotides"""
+
+    return number_of_molecules(x) * y
+
+
+bp_S1S2 = total_molecule_length(values[0], amplicon_length)
+
+
+#all_nucleotide = 2 * total_molecule_length(values[0], amplicon_length) + total_molecule_length(values[1], amplicon_length) + total_molecule_length(values[2], amplicon_length) + total_molecule_length(values[3], primer_length) total_molecule_length(values[4], primer_length)          # in the tube
+
+
+def all_nucleotide():
+
+    length = [2 * amplicon_length, amplicon_length, amplicon_length, primer_length, primer_length, amplicon_length + primer_length, amplicon_length + primer_length, 0, amplicon_length + primer_length, amplicon_length + primer_length, 1, extended_primer, extended_primer, amplicon_length + extended_primer,  amplicon_length + extended_primer, amplicon_length + extended_primer, amplicon_length + extended_primer]
+
+    total_number = 0
+
+    for i in range(len(values)):
+
+
+        total_number = total_number + total_molecule_length(values[i], length[i])
 
 
 
+    return total_number
 
+
+def used_dNTP(x,y,z):
+
+
+    dNTP_in_primer_ext1_s1 = number_of_molecules(x) * n
+
+    dNTP_in_primer_ext1_s2 = number_of_molecules(y) * n
+
+    dNTP_in_primer_ext2_s1s2 = number_of_molecules(z) * extended_length
+
+
+    used_dNTP = dNTP_in_primer_ext1_s1 + dNTP_in_primer_ext1_s2 + dNTP_in_primer_ext2_s1s2
+
+
+    return used_dNTP
+
+
+def taq_nt_per_s(temperature):
+
+
+
+    first_interval = np.linspace(0, 0.25, (22 - 0 + 1))
+    second_interval = np.linspace(0.25, 1.5, (37 - 22 + 1))
+    third_interval = np.linspace(1.5, 24, (55 - 37 + 1))
+    forth_interval = np.linspace(24, 60, (70 - 55 + 1))
+    fifth_interval = np.linspace(60, 150, (75 - 70 + 1))
+    sixth_interval = np.full((1, (79 - 75)), 150)
+    seventh_interval = np.linspace(150, 0, (90 - 80 + 1))
+
+
+
+    interval_values = np.concatenate((first_interval, second_interval, third_interval, forth_interval, fifth_interval), axis=None)
+
+
+    nt_per_s = np.concatenate((np.unique(interval_values), sixth_interval, seventh_interval) , axis=None)
+
+
+    taq_temperature = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(90), (90 - 0 + 1))
+
+    taq_index = list(taq_temperature).index(temperature)
+
+    return nt_per_s[taq_index]
 
 
 
@@ -210,11 +192,10 @@ def denaturation(values, t, T, dGs):
     S1 = values[1]
     S2 = values[2]
 
-    print("S1S2, S1, S2", S1S2, S1, S2 )
+    #print("S1S2, S1, S2", S1S2, S1, S2 )
 
 
     kf1 = 1
-
 
 
     exponent_1 = dGs[0]/(R*T)
@@ -223,34 +204,33 @@ def denaturation(values, t, T, dGs):
 
     kr1 = kf1 * np.exp(exponent_1)
 
-    print("kr1 origin", kr1)
+    #print("kr1 origin", kr1)
 
     kr1 = np.clip(kr1, a_min= -1e+14, a_max= 1e+14)
 
-    print("kr1 second", kr1)
+    if np.abs(kr1<1e-14):
+        kr1 = 0
 
-    #kr1 = 10
-
-
-    kr1 = 1e-5
+    #print("kr1 second", kr1)
 
 
-    rate_den = - kf1 * S1S2 + kr1 * S1 * S2
 
-    print("rateden first", rate_den)
+    rate_den = - kr1 * S1S2 + kf1 * S1 * S2
+
+    #print("rateden first", rate_den)
 
     rate_den = np.clip(rate_den,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rateden", rate_den)
+    #print("rateden", rate_den)
 
     y = np.zeros(17)
 
     y[0] = rate_den
-    #y[0] = np.clip(y[0],  a_min= 0, a_max= 1e+14 )
+
     y[1] = -rate_den
-    #y[1] = np.clip(y[1],  a_min= 0, a_max= 1e+14 )
+
     y[2] = -rate_den
-    #y[2] = np.clip(y[2],  a_min= 0, a_max= 1e+14 )
+
 
 
     return y
@@ -286,19 +266,22 @@ def primer_binding_1(values, t, T, dGs):
 
     exponent_2a = dGs[1]/(R*T)
 
-    print("exponent_2a origin", exponent_2a)
+    #print("exponent_2a origin", exponent_2a)
 
     exponent_2a = np.clip(exponent_2a, a_min= None, a_max= 29.9336)
 
-    print("exponent_2a second", exponent_2a)
+    #print("exponent_2a second", exponent_2a)
 
     kr2a = kf2 * np.exp(exponent_2a)
 
     kr2a = np.clip(kr2a,  a_min= -1e+14, a_max= 1e+14 )
 
+    if np.abs(kr2a < 1e-14):
+        kr2a = 0
 
 
-    print("kr2a second", kr2a)
+
+    #print("kr2a second", kr2a)
 
 
 
@@ -307,29 +290,34 @@ def primer_binding_1(values, t, T, dGs):
 
     rate_S1P2_bind = np.clip(rate_S1P2_bind,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rate S1P1 bind", rate_S1P2_bind)
+    #print("rate S1P1 bind", rate_S1P2_bind)
 
     exponent_2b = dGs[1]/(R*T)
 
-    print("exponent_2b origin", exponent_2b)
+    #print("exponent_2b origin", exponent_2b)
 
     exponent_2b = np.clip(exponent_2b, a_min= None, a_max= 29.9336)
 
-    print("exponent_2b second", exponent_2b)
+    #print("exponent_2b second", exponent_2b)
 
     kr2b = kf2 * np.exp(exponent_2b)
 
 
     kr2b = np.clip(kr2b,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("kr2b", kr2b)
+
+    if np.abs(kr2b < 1e-14):
+        kr2b = 0
+
+
+    #print("kr2b", kr2b)
 
     rate_S2P1_bind = kf2 * S2 * P1 - kr2b * S2P1
 
 
     rate_S2P1_bind = np.clip(rate_S2P1_bind,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rate_s2P1", rate_S2P1_bind)
+    #print("rate_s2P1", rate_S2P1_bind)
 
 
     y = np.zeros(17)
@@ -376,39 +364,46 @@ def primer_binding_2(values, t, T, dGs):
 
     exponent_5a = np.clip(exponent_5a, a_min= None, a_max= 29.9336)
 
-    print("exponent_5a", exponent_5a)
+    #print("exponent_5a", exponent_5a)
 
     kr5a = kf5 * np.exp(exponent_5a)
 
     kr5a = np.clip(kr5a,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("kr5a", kr5a)
+    if np.abs(kr5a < 1e-14):
+        kr5a = 0
+
+    #print("kr5a", kr5a)
 
     rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
 
     rate_S1Q2_bind = np.clip(rate_S1Q2_bind,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rate_S1Q2_bind", rate_S1Q2_bind)
+    #print("rate_S1Q2_bind", rate_S1Q2_bind)
 
     exponent_5b = dGs[2]/(R*T)
 
     exponent_5b = np.clip(exponent_5b, a_min= None, a_max= 29.9336)
 
 
-    print("exponent_5b", exponent_5b)
+    #print("exponent_5b", exponent_5b)
 
     kr5b = kf5 * np.exp(exponent_5b)
 
 
     kr5b = np.clip(kr5b,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("kr5b", kr5b)
+
+    if np.abs(kr5b < 1e-14):
+        kr5b = 0
+
+    #print("kr5b", kr5b)
 
     rate_S2Q1_bind = kf5 * S2 * Q1 - kr5b * S2Q1
 
     rate_S2Q1_bind = np.clip(rate_S2Q1_bind,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rate_S2Q1_bind", rate_S2Q1_bind)
+    #print("rate_S2Q1_bind", rate_S2Q1_bind)
 
     y = np.zeros(17)
 
@@ -446,6 +441,9 @@ def polymerase_binding_1(values, t, T, dGs):
 
     kr3a = np.clip(kr3a,  a_min= -1e+14, a_max= 1e+14 )
 
+    if np.abs(kr3a<1e-14):
+        kr3a = 0
+
     rate_poly_S1P2_bind = kf3 * S1P2 * E - kr3a * S1P2E
 
     rate_poly_S1P2_bind = np.clip(rate_poly_S1P2_bind,  a_min= -1e+14, a_max= 1e+14 )
@@ -458,6 +456,9 @@ def polymerase_binding_1(values, t, T, dGs):
     kr3b = kf3 * np.exp(exponent_3b)
 
     kr3b = np.clip(kr3b,  a_min= -1e+14, a_max= 1e+14 )
+
+    if np.abs(kr3b<1e-14):
+        kr3b = 0
 
     rate_poly_S2P1_bind = kf3 * S2P1 * E - kr3b * S2P1E
 
@@ -502,6 +503,9 @@ def polymerase_binding_2(values, t, T, dGs):
 
     kr4a = np.clip(kr4a,  a_min= -1e+14, a_max= 1e+14)
 
+    if np.abs(kr4a<1e-14):
+        kr4a = 0
+
     rate_poly_S1Q2_bind = kf4 * S1Q2 * E - kr4a * S1Q2E
 
     rate_poly_S1Q2_bind = np.clip(rate_poly_S1Q2_bind,  a_min= -1e+14, a_max= 1e+14)
@@ -512,12 +516,15 @@ def polymerase_binding_2(values, t, T, dGs):
 
     exponent_4b = np.clip(exponent_4b, a_min= None, a_max= 29.9336)
 
-    print("exponent_4b", exponent_4b)
+    #print("exponent_4b", exponent_4b)
 
 
     kr4b = kf4 * np.exp(exponent_4b)
 
     kr4b = np.clip(kr4b,  a_min= -1e+14, a_max= 1e+14 )
+
+    if np.abs(kr4b<1e-14):
+        kr4b = 0
 
     rate_poly_S2Q1_bind = kf4 * S2Q1 * E - kr4b * S2Q1E
 
@@ -567,17 +574,22 @@ def primer_ext_1(values, t, T, dGs):
 
     rate_ext_1 = np.clip(rate_ext_1,  a_min= -1e+14, a_max= 1e+14 )
 
-    print("rate_exp_1", rate_ext_1)
+    #print("rate_exp_1", rate_ext_1)
 
     rate_ext_2 = ce / n * S2P1E * dNTP
 
     rate_ext_2 = np.clip(rate_ext_2,  a_min= -1e+14, a_max= 1e+14)
 
-    print("rate_ext_2", rate_ext_2)
+
+    #print("rate_ext_2", rate_ext_2)
 
     nucleotide = - n * rate_ext_1 - n * rate_ext_2
 
     nucleotide = np.clip(nucleotide,  a_min= -1e+14, a_max= 1e+14)
+
+
+    primer_ext_1.counter += 1
+
 
     y = np.zeros(17)
 
@@ -615,15 +627,18 @@ def primer_ext_2(values, t, T, dGs):
 
     rate_ext_Q2 = np.clip(rate_ext_Q2,  a_min= -1e+14, a_max= 1e+14)
 
-    nucleotide_Q = - n * rate_ext_Q1 - n * rate_ext_Q2
+
+    nucleotide_Q = - extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2
 
     nucleotide_Q = np.clip(nucleotide_Q,  a_min= -1e+14, a_max= 1e+14)
+
+    primer_ext_2.counter += 1
 
     y = np.zeros(17)
 
     y[0] = rate_ext_Q1 + rate_ext_Q2
     y[7] = rate_ext_Q1 + rate_ext_Q2
-    y[10] = nucleotide_Q   # concentration of dNTP
+    y[10] = nucleotide_Q                            # concentration of dNTP
     y[13] = - rate_ext_Q1                           # concentration of S1Q2E
     y[14] = - rate_ext_Q2                           # concentration of S2Q1E
 
@@ -639,216 +654,192 @@ def PCR_reaction(values, t, T, dGs):
 
     summary = np.clip(summary,  a_min= -1e+14, a_max= 1e+14)
 
+    summary[np.abs(summary) < 1e-14] = 0
+
     return summary
+
+#
+def iterative_PCR(values, t, T, dGs):
+
+
+    summary = 0
+
+    #result = np.zeros((7, 17))
+
+
+    for i in range(len(functions)):
+
+        summary = summary + functions[i](values, t, T, dGs)
+
+
+
+    return summary
+
+
+
+def new_dntp():
+
+    used_dntp = primer_ext_1.counter * 2 * n + primer_ext_2.counter * 2 * extended_length
+
+    return used_dntp
+
 
 
 if __name__ == '__main__':
 
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2]
 
+    print("all nuc", all_nucleotide())
+
+    first = all_nucleotide()
 
     concentration = np.empty((number_time_points, 17))
 
     dGs = [0,0,0,0]
 
-    dGs[0] = -30
+    primer_ext_1.counter = 0
 
-    dGs[1] = -30
+    primer_ext_2.counter = 0
 
-    time_first = np.linspace(0, tden, tden +1)
+    dNTP_check = 0
 
-    print(time_first)
+    print(number_of_molecules(initial_dNTP))
 
-    #print(denaturation(values, 10, 340, [-300, 0,0,0]))
-
-
-    #integration_first = odeint(denaturation, values, time_first , args=(Tden, dGs))
-
-    #print(integration_first)
-
-    #plt.figure(1)
-
-    #plt.plot(time_first, integration_first[:, 0])
-    #plt.plot(time_first, integration_first[:, 1])
-    #plt.plot(time_first, integration_first[:, 2])
-
-    print(primer_binding_1(values, time))
+    result = np.empty(0)
 
 
 
-    integration_sec = odeint(primer_binding_1, values, time_first , args=(Tden, dGs))
+    for i in range(number_cycles):
 
-    print(integration_sec)
 
-    plt.figure(2)
+        dGs[0] = (Tm_S1S2 - Tden) * dS
 
-    plt.plot(time_first, integration_sec[:, 1])
-    plt.plot(time_first, integration_sec[:, 3])
+        dGs[1] = (Tm_primer - Tden) * dS
+
+        dGs[2] = (Tm_extended_primer - Tden) * dS
+
+        dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+        print("dGs_den", dGs)
+
+        before_level = [values[13], values[14], values[0]]
+
+
+
+        integration_den = odeint(PCR_reaction, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs))
+
+        concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+
+        dGs[0] = (Tm_S1S2 - Tanneal) * dS
+
+        dGs[1] = (Tm_primer - Tanneal) * dS
+
+        dGs[2] = (Tm_extended_primer - Tanneal) * dS
+
+        dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+        print("dGs_anneals", dGs)
+
+        integration_anneal = odeint(PCR_reaction, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs))
+
+        concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+
+        dGs[0] = (Tm_S1S2 - Text) * dS
+
+        dGs[1] = (Tm_primer - Text) * dS
+
+        dGs[2] = (Tm_extended_primer - Text) * dS
+
+        dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+        print("dGs_text", dGs)
+
+        integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs))
+
+        concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+
+
+        values = integration_ext[-1]
+
+        after_level = [values[13], values[14], values[0]]
+
+        #dNTP_check = dNTP_check + used_dNTP(after_level[0] - before_level[0],after_level[1] - before_level[1], after_level[2] - before_level[2])
+
+        #print("dntp check", number_of_molecules(initial_dNTP) - dNTP_check)
+
+        print("loop new dntp", new_dntp())
+
+        dNTP_check = dNTP_check + new_dntp()
+
+        print("dntp check", dNTP_check)
+
+        final_level = number_of_molecules(initial_dNTP) - dNTP_check
+
+        print("final level", final_level)
+
+        print("dntp value", number_of_molecules(values[10]))
+
+
+
+        print(all_nucleotide())
+
+
+    print("newdntp", new_dntp())
+
+
+
+    print("The concentration of the 17 species at the end of the process:", values)
+
+    print("counter", primer_ext_1.counter)
+
+    print("counter2", primer_ext_2.counter)
+
+    print(total_molecule_length(1,10))
+
+    print("all nuc", all_nucleotide())
+
+    second = all_nucleotide()
+
+    print("diff", first - second)
+
+
+    #print("concentration", concentration)
+
+
+    #Plotting the concentrartions over time
+
+    plt.figure(1)
+
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+
+    plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
+
+
+    for i in range(10):
+
+        plt.subplot(2, 5, i+1)
+
+
+        plt.plot(time, concentration[:, plots[i]])
+
+
+        plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+        plt.xlabel("Time")
+        plt.ylabel("Concentration")
+
 
 
     plt.show()
 
 
 
-    #
-    # for i in range(number_cycles):
-    #
-    #
-    #     # dGs[0] = amplicon_length * dH_S1S2 - Tden * dS
-    #     #
-    #     # dGs[1] = primer_length * dH_S1P2_S2P1 - Tden * dS
-    #     #
-    #     # dGs[2] = extended_primer * dH_S1Q2_S2Q1 - Tden * dS
-    #     #
-    #     # dGs[3] = dH_enzyme - Tden * dS
-    #
-    #
-    #
-    #     dGs[0] = amplicon_length * dH - Tden * dS
-    #
-    #     dGs[1] = primer_length * dH - Tden * dS
-    #
-    #     dGs[2] = extended_primer * dH - Tden * dS
-    #
-    #     dGs[3] = dH_enzyme2 - Tden * dS
-    #
-    #     dGs = np.clip(dGs, a_min= None, a_max= 1e+14 )
-    #
-    #     print("dGs_den", dGs)
-    #
-    #
-    #
-    #     integration_den = odeint(PCR_reaction, values, time[(total * i * steps) : ((total * i + tden) * steps)] , args=(Tden, dGs))
-    #
-    #     concentration[(total * i * steps) : ((total * i + tden) * steps)] = integration_den
-    #
-    #
-    #     # dGs[0] = amplicon_length * dH_S1S2 - Tanneal * dS
-    #     #
-    #     # dGs[1] = primer_length * dH_S1P2_S2P1 - Tanneal * dS
-    #     #
-    #     # dGs[2] = extended_primer * dH_S1Q2_S2Q1 - Tanneal * dS
-    #     #
-    #     # dGs[3] = dH_enzyme - Tanneal * dS
-    #
-    #
-    #
-    #     dGs[0] = amplicon_length * dH - Tanneal * dS
-    #
-    #     dGs[1] = primer_length * dH - Tanneal * dS
-    #
-    #     dGs[2] = extended_primer * dH - Tanneal * dS
-    #
-    #     dGs[3] = dH_enzyme2 - Tanneal * dS
-    #
-    #     dGs = np.clip(dGs, a_min= None, a_max= 1e+14 )
-    #
-    #     print("dGs_den", dGs)
-    #
-    #
-    #
-    #
-    #     print("dGs_anneals", dGs)
-    #
-    #     integration_anneal = odeint(PCR_reaction, integration_den[-1], time[((total * i + tden) * steps)-1 : ((total * i + tden + tanneal) * steps)] , args=(Tanneal, dGs ))
-    #
-    #     concentration[((total * i + tden) * steps) - 1 : ((total * i + tden + tanneal) * steps)] = integration_anneal
-    #
-    #
-    #     # dGs[0] = amplicon_length * dH_S1S2 - Text * dS
-    #     #
-    #     # dGs[1] = primer_length * dH_S1P2_S2P1 - Text * dS
-    #     #
-    #     # dGs[2] = extended_primer * dH_S1Q2_S2Q1 - Text * dS
-    #     #
-    #     # dGs[3] = dH_enzyme - Text * dS
-    #
-    #
-    #
-    #     dGs[0] = amplicon_length * dH - Text * dS
-    #
-    #     dGs[1] = primer_length * dH - Text * dS
-    #
-    #     dGs[2] = extended_primer * dH - Text * dS
-    #
-    #     dGs[3] = dH_enzyme2 - Text * dS
-    #
-    #     dGs = np.clip(dGs, a_min= None, a_max= 1e+14 )
-    #
-    #
-    #
-    #
-    #     print("dGs_text", dGs)
-    #
-    #     integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) -1 : (total * (i + 1) * steps)], args=(Text, dGs))
-    #
-    #     concentration[((total * i + tden + tanneal) * steps) -1 : (total * (i + 1) * steps)] = integration_ext
-    #
-    #
-    #     values = integration_ext[-1]
-    #
-    #
-    #
-    # print("The concentration of the 17 species at the end of the process:", values)
-    #
-    # print("concentration", concentration)
-    #
-    #
-    # #Plotting the concentrartions over time in two figures
-    #
-    # plt.figure(1)
-    #
-    # plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
-    #
-    # plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
-    #
-    #
-    # for i in range(10):
-    #
-    #     plt.subplot(2, 5, i+1)
-    #
-    #
-    #     plt.plot(time, concentration[:, plots[i]])
-    #
-    #
-    #     plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
-    #
-    #     plt.xlabel("Time")
-    #     plt.ylabel("Concentration")
-    #
-    #
-    # plt.figure(2)
-    #
-    # for i in range(8):
-    #
-    #     plt.subplot(2, 4, i+1)
-    #
-    #
-    #     plt.plot(time, concentration[:, i])
-    #
-    #     plt.legend([species[i]], loc='best', prop={'size':10})
-    #
-    #     plt.xlabel("Time")
-    #     plt.ylabel("Concentration")
-    #
-    #
-    # plt.figure(3)
-    #
-    # plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
-    #
-    # for i in range(9):
-    #
-    #
-    #     plt.subplot(2, 5, i +1)
-    #
-    #
-    #     plt.plot(time, concentration[:, i + 8])
-    #
-    #     plt.legend([species[i + 8]], loc='best', prop={'size':10})
-    #
-    #     plt.xlabel("Time")
-    #     plt.ylabel("Concentration")
-    #
-    # plt.show()
 
 
 
@@ -861,39 +852,3 @@ if __name__ == '__main__':
 
 
 
-
-
-
-    # when changing Tden to T in denaturation and other functions: TypeError: can't multiply sequence by non-int of type 'float'
-
-    # to solve it I created a new T vector:
-
-    # total = tden + tanneal + text
-    #
-    # Temp = np.empty(total * steps * number_cycles)
-    #
-    # for i in range(number_cycles):
-    #
-    #
-    #
-    #     Temp[(total * i * steps) : ((total * i + tden) * steps)] = Tden
-    #
-    #     Temp[((total * i + tden) * steps) : ((total * i + tden + tanneal) * steps)] = Tanneal
-    #
-    #     Temp[((total * i + tden + tanneal) * steps) : (total * (i + 1) * steps)] = Text
-
-
-
-    # with this Temp vector I could multiply Temp with R in the backrate calculation
-
-    # but then: ValueError: setting an array element with a sequence ( in the backrate calculations)
-
-    # to solve it I changed the previously 1D array to 2D:  y = np.zeros((17, total * steps * number_cycles))
-
-    # but then when running the code with odeint : RuntimeError: The array return by func must be one-dimensional, but got ndim=2.
-
-
-    # overflow encountered in exp
-    # kr2a = kf2 * np.exp(dGs[1]/(R*T))
-    # RuntimeWarning: invalid value encountered in double_scalars
-    # rate_S1P2_bind = kf2 * S1 * P2 - kr2a * S1P2
