@@ -50,7 +50,7 @@ initial_dNTP = values[10]
 
 initial_fixed = values
 
-functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
+functions_name = ["taq_denaturation", "denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
 Tden = 369.15               # 96 degree
 
@@ -66,7 +66,7 @@ text = 10                   # seconds
 
 total = tden + tanneal + text
 
-number_cycles = 1
+number_cycles = 10
 
 steps = 1
 
@@ -100,9 +100,9 @@ Tm_enzyme = 353.15              # 80 degree
 
 #dS = -1256.0395 # j/m
 
-#dS = - 52.7184e-2
+dS = - 52.7184e-2
 
-dS = - 52.7184e-1
+#dS = - 52.7184e-1
 
 
 
@@ -862,7 +862,7 @@ def dS1S2_dS_Tden(values):
 def individual_integration(values):
 
 
-    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2]
+    functions = [taq_denaturation, denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2]
 
     concentration = np.empty((number_time_points, 17))
 
@@ -989,42 +989,44 @@ def individual_integration(values):
 
 def a(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 def b(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 def c(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 def d(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 
 def e(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 
 
 def f(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_binding_2(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
 
 
 
 def g(values, t, T, dGs):
 
-    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) +  primer_binding_2(values, t, T, dGs) + primer_ext_2(values, t, T, dGs)
+    return denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) +  primer_binding_2(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
+
+
 
 
 
@@ -1039,7 +1041,7 @@ def iterative_integration(values, number):
 
         concentration = np.empty((number_time_points, 17))
 
-        dGs = [0,0,0,0]
+        dGs = [0 for x in range(4)]
 
         primer_ext_1.counter = 0
 
@@ -1147,137 +1149,14 @@ def iterative_integration(values, number):
 
 
 
-
-
-
-
-
-
-
-# def iterative_integration(values, number):
-#
-#
-#
-#     all_summaries = [a,b,c, d,e,f,g]
-#
-#     for n in range(number):
-#
-#
-#         concentration = np.empty((number_time_points, 17))
-#
-#         dGs = [0 for x in range(4)]
-#
-#
-#         before_nt_number = all_nucleotide(values)
-#
-#
-#         for i in range(number_cycles):
-#
-#
-#             dGs[0] = (Tm_S1S2 - Tden) * dS
-#
-#             dGs[1] = (Tm_primer - Tden) * dS
-#
-#             dGs[2] = (Tm_extended_primer - Tden) * dS
-#
-#             #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
-#
-#             dGs[3] = (Tm_enzyme - Tden) * dS
-#
-#             dGs = np.clip(dGs, a_min=None, a_max=1e+14)
-#
-#             #print("dGs_den", dGs)
-#
-#
-#             integration_den = odeint(all_summaries[n], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs))
-#
-#             concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
-#
-#             dGs[0] = (Tm_S1S2 - Tanneal) * dS
-#
-#             dGs[1] = (Tm_primer - Tanneal) * dS
-#
-#             dGs[2] = (Tm_extended_primer - Tanneal) * dS
-#
-#             #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
-#
-#             dGs[3] = (Tm_enzyme - Tanneal) * dS
-#
-#             dGs = np.clip(dGs, a_min=None, a_max=1e+14)
-#
-#             #print("dGs_anneals", dGs)
-#
-#             integration_anneal = odeint(all_summaries[n], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs))
-#
-#             concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
-#
-#             dGs[0] = (Tm_S1S2 - Text) * dS
-#
-#             dGs[1] = (Tm_primer - Text) * dS
-#
-#             dGs[2] = (Tm_extended_primer - Text) * dS
-#
-#             #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
-#
-#             dGs[3] = (Tm_enzyme - Text) * dS
-#
-#             dGs = np.clip(dGs, a_min=None, a_max=1e+14)
-#
-#             #print("dGs_text", dGs)
-#
-#             integration_ext = odeint(all_summaries[n], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs))
-#
-#             concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
-#
-#
-#             values = integration_ext[-1]
-#
-#         print("The concentration of the 17 species after", functions_name[n],  "is added to the process iteratively:", values)
-#
-#
-#         after_nt_number = all_nucleotide(values)
-#
-#         print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
-#
-#
-#         plt.figure(1)
-#
-#         plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
-#
-#         plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
-#
-#
-#         for i in range(10):
-#
-#             plt.subplot(2, 5, i+1)
-#
-#
-#             plt.plot(time, concentration[:, plots[i]])
-#
-#
-#             plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
-#
-#             plt.xlabel("Time")
-#             plt.ylabel("Concentration")
-#
-#
-#         plt.show()
-#
-#         values = initial_fixed
-#
-#
-#     return integration_ext[-1]
-
-
-
 def only_one_integration(values, number):
 
     number = number - 1
 
 
-    functions_plus = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2, PCR_reaction]
+    functions_plus = [taq_denaturation, denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2, PCR_reaction]
 
-    functions_plus_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction"]
+    functions_plus_name = ["taq_denaturation","denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction"]
 
 
     concentration = np.empty((number_time_points, 17))
@@ -1413,18 +1292,18 @@ if __name__ == '__main__':
 
     #dS1S2_dS_Tden(values)
 
-    print(taq_denaturation(values, Tanneal))
+    #print(taq_denaturation(values, Tanneal))
 
 
 
 
 
 
-    #iterative_integration(values, 5)
+    #iterative_integration(values, 7)
 
-    #individual_integration(values)
+    individual_integration(values)
 
-    #print(only_one_integration(values, 7))
+    #print(only_one_integration(values, 1))
 
 
 
