@@ -20,8 +20,8 @@ species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E"
 values = [0 for i in range(17)]
 
 
-values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
-#values[0] = 3.0769e-6
+#values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
+values[0] = 3.0769e-2
 values[1] = 0               # concentration of S1 in uM
 values[2] = 0               # concentration of S2 in uM
 
@@ -30,8 +30,8 @@ values[2] = 0               # concentration of S2 in uM
 #values[3] = 2             # concentration of P1 in uM
 #values[4] = 2            # concentration of P2 in uM
 
-values[3] = 6            # concentration of P1 in uM
-values[4] = 6
+values[3] = 8            # concentration of P1 in uM
+values[4] = 8
 
 values[5] = 0               # concentration of S1P2
 values[6] = 0               # concentration of S2P1
@@ -40,7 +40,7 @@ values[8] = 0               # concentration of S1P2E
 values[9] = 0               # concentration of S2P1E
 #values[10] = 200           # concentration of dNTP in uM
 
-values[10] = 13000
+values[10] = 10000
 
 
 
@@ -58,16 +58,16 @@ initial_fixed = values
 
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
-Tden = 369.15               # 96 degree
+#Tden = 343.15               # 96 degree
 
-# =303.15
+Tden = 369.15
 
-#Tanneal = 303.15            # 30 degree
-Tanneal = 303.15
+Tanneal = 303.15           # 30 degree
+#Tanneal = 323.15
 
 Text = 343.15               # 70 degree
 
-#Text = 303.15
+#Text = 323.15
 
 
 tden = 10                   # seconds
@@ -121,11 +121,18 @@ Tm_enzyme = 353.15              # 80 degree
 dS = - 2
 
 
-max_exponent = 15       # e on the power of 15 = 3,269,017.3724702
+max_exponent = 20       # e on the power of 15 = 3,269,017.3724702
 
-min_clip = -1e+12
+min_clip = -1e+30
 
-max_clip = 1e+12
+max_clip = 1e+30
+
+
+
+forward_rate = 1e-5
+
+
+                        
 
 
 
@@ -147,6 +154,31 @@ def celsius_to_Kelvin(x):
 def clipping(kf, kr):
 
     return (kf / kr) * np.clip(kr, a_min= min_clip, a_max= max_clip), np.clip(kr, a_min= min_clip, a_max= max_clip)
+
+
+def rate_clipping(x):
+
+    if x != np.clip(x, a_min= min_clip, a_max= max_clip):
+
+        print("Clipped rate value:", x)
+
+
+    return np.clip(x, a_min= min_clip, a_max= max_clip)
+
+
+def exponent_clipping(x):
+
+    if x != np.clip(x, a_min= None, a_max= max_exponent):
+
+        print("Clipped exponent value:", x)
+
+
+    return np.clip(x, a_min= None, a_max= max_exponent)
+
+
+
+
+
 
 
 
@@ -248,12 +280,12 @@ def denaturation(values, t, T, dGs):
     S2 = values[2]
 
 
-    kf1 = 1
+    kf1 = forward_rate
 
 
     #exponent_1 = dGs[0]/(R*T)
 
-    exponent_1 = np.clip((dGs[0]/(R*T)), a_min= None,  a_max= max_exponent)
+    exponent_1 = exponent_clipping(dGs[0]/(R*T))
 
     kr1 = kf1 * np.exp(exponent_1)
 
@@ -267,7 +299,9 @@ def denaturation(values, t, T, dGs):
 
     #rate_den = - kr1 * S1S2 + kf1 * S1 * S2
 
-    rate_den = np.clip((- kr1 * S1S2 + kf1 * S1 * S2), a_min= min_clip, a_max= max_clip)
+    #rate_den = np.clip((- kr1 * S1S2 + kf1 * S1 * S2), a_min= min_clip, a_max= max_clip)
+
+    rate_den = rate_clipping(- kr1 * S1S2 + kf1 * S1 * S2)
 
 
     y = np.zeros(17)
@@ -307,13 +341,15 @@ def primer_binding_1(values, t, T, dGs):
     S2P1 = values[6]
 
 
-    kf2 = 1
+    kf2 = forward_rate
 
 
 
     #exponent_2a = dGs[1]/(R*T)
 
-    exponent_2a = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_2a = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_2a = exponent_clipping(dGs[1]/(R*T))
 
     kr2a = kf2 * np.exp(exponent_2a)
 
@@ -324,11 +360,15 @@ def primer_binding_1(values, t, T, dGs):
 
     #rate_S1P2_bind = kf2 * S1 * P2 - kr2a * S1P2
 
-    rate_S1P2_bind = np.clip((kf2 * S1 * P2 - kr2a * S1P2), a_min= min_clip, a_max= max_clip)
+    #rate_S1P2_bind = np.clip((kf2 * S1 * P2 - kr2a * S1P2), a_min= min_clip, a_max= max_clip)
+
+    rate_S1P2_bind = rate_clipping(kf2 * S1 * P2 - kr2a * S1P2)
 
     #exponent_2b = dGs[1]/(R*T)
 
-    exponent_2b = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_2b = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_2b = exponent_clipping(dGs[1]/(R*T))
 
     kr2b = kf2 * np.exp(exponent_2b)
 
@@ -345,7 +385,9 @@ def primer_binding_1(values, t, T, dGs):
     #print(rate_S2P1_bind)
 
 
-    rate_S2P1_bind = np.clip((kf2 * S2 * P1 - kr2b * S2P1), a_min= min_clip, a_max= max_clip)
+    #rate_S2P1_bind = np.clip((kf2 * S2 * P1 - kr2b * S2P1), a_min= min_clip, a_max= max_clip)
+
+    rate_S2P1_bind = rate_clipping(kf2 * S2 * P1 - kr2b * S2P1)
 
     #print(rate_S2P1_bind)
 
@@ -387,11 +429,13 @@ def primer_binding_2(values, t, T, dGs):
     S2Q1 = values[16]
 
 
-    kf5 = 1
+    kf5 = forward_rate
 
     #exponent_5a = dGs[2]/(R*T)
 
-    exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_5a = exponent_clipping(dGs[2]/(R*T))
 
     kr5a = kf5 * np.exp(exponent_5a)
 
@@ -402,11 +446,13 @@ def primer_binding_2(values, t, T, dGs):
 
     #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
 
-    rate_S1Q2_bind = np.clip((kf5 * S1 * Q2 - kr5a * S1Q2), a_min= min_clip, a_max= max_clip)
+    rate_S1Q2_bind = rate_clipping(kf5 * S1 * Q2 - kr5a * S1Q2)
 
     #exponent_5b = dGs[2]/(R*T)
 
-    exponent_5b = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_5b = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_5b = exponent_clipping(dGs[2]/(R*T))
 
     kr5b = kf5 * np.exp(exponent_5b)
 
@@ -418,7 +464,9 @@ def primer_binding_2(values, t, T, dGs):
 
     #rate_S2Q1_bind = kf5 * S2 * Q1 - kr5b * S2Q1
 
-    rate_S2Q1_bind = np.clip((kf5 * S2 * Q1 - kr5b * S2Q1), a_min= min_clip, a_max= max_clip)
+    #rate_S2Q1_bind = np.clip((kf5 * S2 * Q1 - kr5b * S2Q1), a_min= min_clip, a_max= max_clip)
+
+    rate_S2Q1_bind = rate_clipping(kf5 * S2 * Q1 - kr5b * S2Q1)
 
     y = np.zeros(17)
 
@@ -445,11 +493,13 @@ def polymerase_binding_1(values, t, T, dGs):
     S2P1E = values[9]
 
 
-    kf3 = 1
+    kf3 = forward_rate
 
     #exponent_3a = dGs[3]/(R*T)
 
-    exponent_3a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_3a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_3a = exponent_clipping(dGs[3]/(R*T))
 
     kr3a = kf3 * np.exp(exponent_3a)
 
@@ -460,11 +510,15 @@ def polymerase_binding_1(values, t, T, dGs):
 
     #rate_poly_S1P2_bind = kf3 * S1P2 * E - kr3a * S1P2E
 
-    rate_poly_S1P2_bind = np.clip((kf3 * S1P2 * E - kr3a * S1P2E), a_min= min_clip, a_max= max_clip)
+    #rate_poly_S1P2_bind = np.clip((kf3 * S1P2 * E - kr3a * S1P2E), a_min= min_clip, a_max= max_clip)
+
+    rate_poly_S1P2_bind = rate_clipping(kf3 * S1P2 * E - kr3a * S1P2E)
 
     #exponent_3b = dGs[3]/(R*T)
 
-    exponent_3b = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_3b = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_3b = exponent_clipping(dGs[3]/(R*T))
 
 
     kr3b = kf3 * np.exp(exponent_3b)
@@ -476,11 +530,17 @@ def polymerase_binding_1(values, t, T, dGs):
 
     #rate_poly_S2P1_bind = kf3 * S2P1 * E - kr3b * S2P1E
 
-    rate_poly_S2P1_bind = np.clip((kf3 * S2P1 * E - kr3b * S2P1E), a_min= min_clip, a_max= max_clip)
+    #rate_poly_S2P1_bind = np.clip((kf3 * S2P1 * E - kr3b * S2P1E), a_min= min_clip, a_max= max_clip)
+
+
+    rate_poly_S2P1_bind = rate_clipping(kf3 * S2P1 * E - kr3b * S2P1E)
+
 
     #enzyme_binding = - rate_poly_S1P2_bind - rate_poly_S2P1_bind
 
-    enzyme_binding = np.clip((- rate_poly_S1P2_bind - rate_poly_S2P1_bind), a_min= min_clip, a_max= max_clip)
+    #enzyme_binding = np.clip((- rate_poly_S1P2_bind - rate_poly_S2P1_bind), a_min= min_clip, a_max= max_clip)
+
+    enzyme_binding = rate_clipping(- rate_poly_S1P2_bind - rate_poly_S2P1_bind)
 
 
     y = np.zeros(17)
@@ -506,11 +566,13 @@ def polymerase_binding_2(values, t, T, dGs):
     S2Q1E = values[14]
 
 
-    kf4 = 1
+    kf4 = forward_rate
 
     #exponent_4a = dGs[3]/(R*T)
 
-    exponent_4a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_4a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_4a = exponent_clipping(dGs[3]/(R*T))
 
 
     kr4a = kf4 * np.exp(exponent_4a)
@@ -522,13 +584,18 @@ def polymerase_binding_2(values, t, T, dGs):
 
     #rate_poly_S1Q2_bind = kf4 * S1Q2 * E - kr4a * S1Q2E
 
-    rate_poly_S1Q2_bind = np.clip((kf4 * S1Q2 * E - kr4a * S1Q2E), a_min= min_clip, a_max= max_clip)
+    #rate_poly_S1Q2_bind = np.clip((kf4 * S1Q2 * E - kr4a * S1Q2E), a_min= min_clip, a_max= max_clip)
+
+    rate_poly_S1Q2_bind = rate_clipping(kf4 * S1Q2 * E - kr4a * S1Q2E)
+
 
 
 
     #exponent_4b = dGs[3]/(R*T)
 
-    exponent_4b = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+    #exponent_4b = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_4b = exponent_clipping(dGs[3]/(R*T))
 
     kr4b = kf4 * np.exp(exponent_4b)
 
@@ -539,11 +606,15 @@ def polymerase_binding_2(values, t, T, dGs):
 
     #rate_poly_S2Q1_bind = kf4 * S2Q1 * E - kr4b * S2Q1E
 
-    rate_poly_S2Q1_bind = np.clip((kf4 * S2Q1 * E - kr4b * S2Q1E), a_min= min_clip, a_max= max_clip)
+    #rate_poly_S2Q1_bind = np.clip((kf4 * S2Q1 * E - kr4b * S2Q1E), a_min= min_clip, a_max= max_clip)
+
+    rate_poly_S2Q1_bind = rate_clipping(kf4 * S2Q1 * E - kr4b * S2Q1E)
 
     #enzyme = - rate_poly_S1Q2_bind - rate_poly_S2Q1_bind
 
-    enzyme = np.clip((- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind), a_min= min_clip, a_max= max_clip)
+    #enzyme = np.clip((- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind), a_min= min_clip, a_max= max_clip)
+
+    enzyme = rate_clipping(- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind)
 
 
     y = np.zeros(17)
@@ -587,15 +658,24 @@ def primer_ext_1(values, t, T, dGs):
 
     #rate_ext_1 = (ce / n) * S1P2E * dNTP
 
-    rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
+    #rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_1 = rate_clipping((ce / n) * S1P2E * dNTP)
+
+
 
     #rate_ext_2 = (ce / n) * S2P1E * dNTP
 
-    rate_ext_2 = np.clip(((ce / n) * S2P1E * dNTP), a_min= min_clip, a_max= max_clip)
+    #rate_ext_2 = np.clip(((ce / n) * S2P1E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_2 = rate_clipping((ce / n) * S2P1E * dNTP)
 
     #nucleotide = - n * rate_ext_1 - n * rate_ext_2
 
-    nucleotide = np.clip((- n * rate_ext_1 - n * rate_ext_2), a_min= min_clip, a_max= max_clip)
+    #nucleotide = np.clip((- n * rate_ext_1 - n * rate_ext_2), a_min= min_clip, a_max= max_clip)
+
+    nucleotide = rate_clipping(- n * rate_ext_1 - n * rate_ext_2)
+
 
     y = np.zeros(17)
 
@@ -643,17 +723,23 @@ def primer_ext_2(values, t, T, dGs):
 
     #rate_ext_Q1 = (ce_Q / extended_length) * S1Q2E * dNTP
 
-    rate_ext_Q1 = np.clip(((ce_Q / extended_length) * S1Q2E * dNTP), a_min= min_clip, a_max= max_clip)
+    #rate_ext_Q1 = np.clip(((ce_Q / extended_length) * S1Q2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_Q1 = rate_clipping((ce_Q / extended_length) * S1Q2E * dNTP)
 
     # reaction: S2Q1E + extended_length * dNTP ---> S1S2 + E
 
     #rate_ext_Q2 = (ce_Q / extended_length) * S2Q1E * dNTP
 
-    rate_ext_Q2 = np.clip(((ce_Q / extended_length) * S2Q1E * dNTP), a_min= min_clip, a_max= max_clip)
+    #rate_ext_Q2 = np.clip(((ce_Q / extended_length) * S2Q1E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_Q2 = rate_clipping((ce_Q / extended_length) * S2Q1E * dNTP)
 
     #nucleotide_Q = - extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2
 
-    nucleotide_Q = np.clip((- extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2), a_min= min_clip, a_max= max_clip)
+    #nucleotide_Q = np.clip((- extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2), a_min= min_clip, a_max= max_clip)
+
+    nucleotide_Q = rate_clipping(- extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2)
 
     # primer_ext_2.counter += 1
 
@@ -688,9 +774,9 @@ def taq_denaturation(values, t, T, dGs):
 
     y = np.zeros(17)
 
-    #rate = 0.001           #???
+    rate = 0.0001           #???
 
-    rate = 0
+    #rate = 0
 
     taq_denaturation_T = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)
 
@@ -718,7 +804,7 @@ def taq_denaturation(values, t, T, dGs):
 
 
 
-def PCR_reaction(values, t, T, dGs):
+def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array data
 
     summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
 
@@ -739,9 +825,9 @@ def S1S2_dS(values):
 
     #var_dS = [-52.7184e-3, -52.7184e-2, -52.7184e-1, -52.7184, -2.5 ]
 
-    var_dS = [- 2, - 0.99, - 0.5, - 0.3, - 0.1]
+    var_dS = [-5, - 3, - 2, - 1, - 0.5]
 
-    #var_dS = [-1e-2, -1e-1, -1, -1e+1, -1e+2]
+    #var_dS = [-1e-2, -1e-1, -1, -1e+1, -1.5e+1]
 
     time_den_S1S2 = np.linspace(0, tden, tden)
 
@@ -816,7 +902,7 @@ def S1S2_dS(values):
     plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
 
 
-    plt.ylabel("Concentration of S1S2 (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.8))
+    plt.ylabel("Concentration of S1S2 (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -841,9 +927,9 @@ def dS1S2_dS_Tden(values):
 
     #var_dS = [-1, -2, -3, -4, -5]
 
-    #var_dS = [-52.7184e-3, -52.7184e-2, (-52.7184e-1)/2, -52.7184e-1, ]
+    var_dS = [-5, - 3, - 2, - 1, - 0.5]
 
-    var_dS = [- 2, - 0.99, - 0.5, - 0.3, - 0.1]
+    #var_dS = [- 2, - 0.99, - 0.5, - 0.3, - 0.1]
 
     var_S1S2 = np.linspace(1e-8, 1e+3, 111)
 
@@ -879,7 +965,7 @@ def dS1S2_dS_Tden(values):
     #print(var_dS_result)
 
 
-    plt.title("S1S2 concentration with different dS values\nThe initial S1S2 concentration varies between 1e-8 and 1e+3 Micromolar", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("S1S2 concentration with different dS values\nThe initial S1S2 concentration varies between 1e-8 and 1e+3 Micromolar", FontSize= 14, FontWeight = "bold")
 
 
     for x in range(len(var_dS)):
@@ -888,9 +974,9 @@ def dS1S2_dS_Tden(values):
         plt.plot(var_S1S2, (var_dS_result[x, ]/var_S1S2)*100)
 
 
-    plt.xlabel("Initial concentration of S1S2", FontSize= 11, FontWeight = "bold", position=(0.8, -1))
+    plt.xlabel("Initial concentration of S1S2", FontSize= 11, FontWeight = "bold")
 
-    plt.ylabel("Percentage of S1S2 concentration (umol) at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= 11, FontWeight = "bold")
+    plt.ylabel("Percentage of S1S2 concentration (umol) \n at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= 11, FontWeight = "bold")
 
 
     plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4])], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
@@ -937,7 +1023,7 @@ def individual_integration(values):
 
             dGs[3] = (Tm_enzyme - Tden) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_den", dGs)
 
@@ -957,7 +1043,7 @@ def individual_integration(values):
 
             dGs[3] = (Tm_enzyme - Tanneal) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_anneals", dGs)
 
@@ -979,7 +1065,7 @@ def individual_integration(values):
 
             dGs[3] = (Tm_enzyme - Text) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_text", dGs)
 
@@ -1136,7 +1222,7 @@ def iterative_integration(values, number):
 
             dGs[3] = (Tm_enzyme - Tden) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_den", dGs)
 
@@ -1155,7 +1241,7 @@ def iterative_integration(values, number):
 
             dGs[3] = (Tm_enzyme - Tanneal) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_anneals", dGs)
 
@@ -1173,7 +1259,7 @@ def iterative_integration(values, number):
 
             dGs[3] = (Tm_enzyme - Text) * dS
 
-            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
             #print("dGs_text", dGs)
 
@@ -1276,7 +1362,7 @@ def only_one_integration(values, number):
 
         dGs[3] = (Tm_enzyme - Tden) * dS
 
-        dGs = np.clip(dGs, a_min=None, a_max=1e+10)
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
         #print("dGs_den", dGs)
 
@@ -1297,7 +1383,7 @@ def only_one_integration(values, number):
 
         dGs[3] = (Tm_enzyme - Tanneal) * dS
 
-        dGs = np.clip(dGs, a_min=None, a_max=1e+10)
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
         #print("dGs_anneals", dGs)
 
@@ -1315,7 +1401,7 @@ def only_one_integration(values, number):
 
         dGs[3] = (Tm_enzyme - Text) * dS
 
-        dGs = np.clip(dGs, a_min=None, a_max=1e+10)
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
         #print("dGs_text", dGs)
 
@@ -1348,7 +1434,7 @@ def only_one_integration(values, number):
 
     plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
 
-    y_top_limit = [5, 3, 6.15, 1, 0.21, 0.1, 10150, 0.08, 0.1, 0.05]
+    y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
 
 
     for i in range(10):
