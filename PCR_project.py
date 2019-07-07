@@ -17,15 +17,14 @@ import numpy as np
 species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
+new_species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1", "S1M2", "S1M2E", "S1N2E", "S1L2", "L2", "S1N2", "N2"]
+
+
 values = [0 for i in range(17)]
 
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 values[0] = 3.0769e-2
-values[1] = 0               # concentration of S1 in uM
-values[2] = 0               # concentration of S2 in uM
-
-
 
 #values[3] = 2             # concentration of P1 in uM
 #values[4] = 2            # concentration of P2 in uM
@@ -33,23 +32,12 @@ values[2] = 0               # concentration of S2 in uM
 values[3] = 8            # concentration of P1 in uM
 values[4] = 8
 
-values[5] = 0               # concentration of S1P2
-values[6] = 0               # concentration of S2P1
 values[7] = 0.2             # concentration of E in uM
-values[8] = 0               # concentration of S1P2E
-values[9] = 0               # concentration of S2P1E
+
 #values[10] = 200           # concentration of dNTP in uM
 
 values[10] = 10000
 
-
-
-values[11] = 0              # concentration of Q1
-values[12] = 0              # concentration of Q2
-values[13] = 0              # concentration of S1Q2E
-values[14] = 0              # concentration of S2Q1E
-values[15] = 0              # concentration of S2Q1
-values[16] = 0              # concentration of S1Q2
 
 
 initial_dNTP = values[10]
@@ -741,12 +729,22 @@ def primer_ext_2(values, t, T, dGs):
 
     nucleotide_Q = rate_clipping(- extended_length * rate_ext_Q1 - extended_length * rate_ext_Q2)
 
+
+    product = rate_clipping(rate_ext_Q1 + rate_ext_Q2)
+
+
+
+
     # primer_ext_2.counter += 1
 
     y = np.zeros(17)
 
-    y[0] = rate_ext_Q1 + rate_ext_Q2
-    y[7] = rate_ext_Q1 + rate_ext_Q2
+
+    #clipping for sums? --- product
+
+
+    y[0] = product
+    y[7] = product
     y[10] = nucleotide_Q  # concentration of dNTP
     y[13] = - rate_ext_Q1  # concentration of S1Q2E
     y[14] = - rate_ext_Q2  # concentration of S2Q1E
