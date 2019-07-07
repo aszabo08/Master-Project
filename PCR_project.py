@@ -17,10 +17,10 @@ import numpy as np
 species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
-new_species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1", "S1M2", "S1M2E", "S1N2E", "S1L2", "L2", "S1N2", "N2"]
+new_species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1", "S1M2", "S1M2E", "S1N2E", "S1L2", "L2", "S1N2", "N2", "L2P1", "L2P1E", "L2Q1E", "L1L2", "L2Q1", "L1", "L1P2", "L1P2E", "L1Q2E", "L1Q2"]
 
 
-values = [0 for i in range(17)]
+values = [0 for i in range(34)]
 
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
@@ -117,7 +117,7 @@ max_clip = 1e+30
 
 
 
-forward_rate = 1e-5
+forward_rate = 1
 
 
                         
@@ -1488,7 +1488,7 @@ if __name__ == '__main__':
 
 
 
-    only_one_integration(values, 8)
+    #only_one_integration(values, 8)
 
 
 
@@ -1500,7 +1500,7 @@ if __name__ == '__main__':
 
 
 
-
+    print(new_species[31])
 
 
 
