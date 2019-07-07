@@ -172,7 +172,7 @@ def misbinding_primer_ext_2(values, t, T, dGs):
     y[7] = rate_ext_N1
     y[10] = - misbinding_extended_length * rate_ext_N1           # concentration of dNTP
     y[19] = - rate_ext_N1       # concentration of S1N2E
-    y[20] = rate_ext_N1
+    y[20] = rate_ext_N1         # concentration of S1L2
 
     return y
 
@@ -224,11 +224,11 @@ def misbinding_denaturation(values, t, T, dGs):
 
     y = np.zeros(17)
 
-    y[20] = rate_den
+    y[20] = rate_den        # concentration of S1L2
 
-    y[1] = -rate_den
+    y[1] = -rate_den        # concentration of S1
 
-    y[21] = -rate_den
+    y[21] = -rate_den       # concentration of L2
 
 
 
@@ -236,157 +236,41 @@ def misbinding_denaturation(values, t, T, dGs):
 
 
 
+def misbinding_polymerase_2(values, t, T, dGs):
 
 
 
-
-def primer_binding_2(values, t, T, dGs):
-
-
-    """
-    Describes the differential equations for S, P and SP in a dynamic biological reaction
-    Args:
-        values: value of S, P and SP after t time period
-        t: time period
-        k1: rate constant for binding ( S + P -> SP)
-        k2: rate constant for dissociation ( SP -> S + P)
-    Returns:
-        An array with the result of the differential equations for S, P and SP over t time
-    """
-
-
-    S1 = values[1]
-    S2 = values[2]
-    Q1 = values[11]
-    Q2 = values[12]
-    S1Q2 = values[15]
-    S2Q1 = values[16]
-
-
-    kf5 = forward_rate
-
-    #exponent_5a = dGs[2]/(R*T)
-
-    #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
-
-    exponent_5a = exponent_clipping(dGs[2]/(R*T))
-
-    kr5a = kf5 * np.exp(exponent_5a)
-
-    kf5, kr5a = clipping(kf5, kr5a)
-
-    # if np.abs(kr5a < 1e-14):
-    #     kr5a = 0
-
-    #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
-
-    rate_S1Q2_bind = rate_clipping(kf5 * S1 * Q2 - kr5a * S1Q2)
-
-    #exponent_5b = dGs[2]/(R*T)
-
-    #exponent_5b = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
-
-    exponent_5b = exponent_clipping(dGs[2]/(R*T))
-
-    kr5b = kf5 * np.exp(exponent_5b)
-
-    kf5, kr5b = clipping(kf5, kr5b)
-
-
-    # if np.abs(kr5b < 1e-14):
-    #     kr5b = 0
-
-    #rate_S2Q1_bind = kf5 * S2 * Q1 - kr5b * S2Q1
-
-    #rate_S2Q1_bind = np.clip((kf5 * S2 * Q1 - kr5b * S2Q1), a_min= min_clip, a_max= max_clip)
-
-    rate_S2Q1_bind = rate_clipping(kf5 * S2 * Q1 - kr5b * S2Q1)
-
-    y = np.zeros(17)
-
-
-    y[1] = - rate_S1Q2_bind
-    y[2] = - rate_S2Q1_bind
-    y[11] = - rate_S2Q1_bind
-    y[12] = - rate_S1Q2_bind
-    y[15] = rate_S1Q2_bind
-    y[16] = rate_S2Q1_bind
-
-
-    return y
-
-
-
-
-
-def polymerase_binding_2(values, t, T, dGs):
-
-
-    S1Q2 = values[15]
-    S2Q1 = values[16]
     E = values[7]
-    S1Q2E = values[13]
-    S2Q1E = values[14]
+    S1N2E = values[19]
+    S1N2 = values[22]
 
 
-    kf4 = forward_rate
+
+    kf9 = forward_rate
 
     #exponent_4a = dGs[3]/(R*T)
 
     #exponent_4a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
 
-    exponent_4a = exponent_clipping(dGs[3]/(R*T))
+    exponent_9a = exponent_clipping(dGs[3]/(R*T))
 
 
-    kr4a = kf4 * np.exp(exponent_4a)
+    kr9a = kf9 * np.exp(exponent_9a)
 
-    kf4, kr4a = clipping(kf4, kr4a)
-
-    # if np.abs(kr4a<1e-14):
-    #     kr4a = 0
+    kf9, kr9a = clipping(kf9, kr9a)
 
     #rate_poly_S1Q2_bind = kf4 * S1Q2 * E - kr4a * S1Q2E
 
     #rate_poly_S1Q2_bind = np.clip((kf4 * S1Q2 * E - kr4a * S1Q2E), a_min= min_clip, a_max= max_clip)
 
-    rate_poly_S1Q2_bind = rate_clipping(kf4 * S1Q2 * E - kr4a * S1Q2E)
-
-
-
-
-    #exponent_4b = dGs[3]/(R*T)
-
-    #exponent_4b = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
-
-    exponent_4b = exponent_clipping(dGs[3]/(R*T))
-
-    kr4b = kf4 * np.exp(exponent_4b)
-
-    kf4, kr4b = clipping(kf4, kr4b)
-
-    # if np.abs(kr4b<1e-14):
-    #     kr4b = 0
-
-    #rate_poly_S2Q1_bind = kf4 * S2Q1 * E - kr4b * S2Q1E
-
-    #rate_poly_S2Q1_bind = np.clip((kf4 * S2Q1 * E - kr4b * S2Q1E), a_min= min_clip, a_max= max_clip)
-
-    rate_poly_S2Q1_bind = rate_clipping(kf4 * S2Q1 * E - kr4b * S2Q1E)
-
-    #enzyme = - rate_poly_S1Q2_bind - rate_poly_S2Q1_bind
-
-    #enzyme = np.clip((- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind), a_min= min_clip, a_max= max_clip)
-
-    enzyme = rate_clipping(- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind)
-
+    rate_poly_S1N2_bind = rate_clipping(kf9 * S1N2 * E - kr9a * S1N2E)
 
     y = np.zeros(17)
 
-    y[15] = - rate_poly_S1Q2_bind
-    y[16] = - rate_poly_S2Q1_bind
-    y[7] = enzyme
-    y[13] = rate_poly_S1Q2_bind
-    y[14] = rate_poly_S2Q1_bind
+    y[22] = - rate_poly_S1N2_bind
+    y[7] = - rate_poly_S1N2_bind
+    y[19] = rate_poly_S1N2_bind
+
 
 
     return y
@@ -411,40 +295,618 @@ def polymerase_binding_2(values, t, T, dGs):
 
 
 
+def misbinding_primer_2(values, t, T, dGs):
 
 
-def taq_denaturation(values, t, T, dGs):
+    """
+    Describes the differential equations for S, P and SP in a dynamic biological reaction
+    Args:
+        values: value of S, P and SP after t time period
+        t: time period
+        k1: rate constant for binding ( S + P -> SP)
+        k2: rate constant for dissociation ( SP -> S + P)
+    Returns:
+        An array with the result of the differential equations for S, P and SP over t time
+    """
 
-    E = values[7]
+
+    S1 = values[1]
+    N2 = values[23]
+    S1N2 = values[22]
+
+
+
+    kf10 = forward_rate
+
+    #exponent_5a = dGs[2]/(R*T)
+
+    #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_10a = exponent_clipping(dGs[2]/(R*T))
+
+    kr10a = kf10 * np.exp(exponent_10a)
+
+    kf10, kr10a = clipping(kf10, kr10a)
+
+    #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
+
+    rate_S1N2_bind = rate_clipping(kf10 * S1 * N2 - kr10a * S1N2)
 
     y = np.zeros(17)
 
-    rate = 0.0001           #???
 
-    #rate = 0
+    y[1] = - rate_S1N2_bind
+    y[23] = - rate_S1N2_bind
+    y[22] = rate_S1N2_bind
 
-    taq_denaturation_T = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)
 
-    temperature_data = [celsius_to_Kelvin(0), celsius_to_Kelvin(90), celsius_to_Kelvin(110)]
-
-    taq_denaturation = [0, 0, rate * E]
-
-    temp_interpolar = np.interp(taq_denaturation_T, temperature_data, taq_denaturation)        # calculating the taq polymerase rate between 0 and 90 degrees
-
-    # plt.title("Denaturation of Taq polymerase")
-    #
-    # plt.plot(taq_denaturation_T, temp_interpolar)
-    #
-    # plt.xlabel("Temperature (Kelvin)")
-    # plt.ylabel("Rate of Taq polymerase denaturation")
-    #
-    # plt.show()
-
-    if T > celsius_to_Kelvin(90):
-
-        y[7] = - rate * E
 
     return y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def short_misbinding_primer(values, t, T, dGs):
+
+
+    L2P1 = values[24]
+    P1 = values[3]
+    L2 = values[21]
+
+
+
+    kf11 = forward_rate
+
+
+    #exponent_1 = dGs[0]/(R*T)
+
+    exponent_11 = exponent_clipping(dGs[0]/(R*T))
+
+    kr11 = kf11 * np.exp(exponent_11)
+
+
+    kf11, kr11 = clipping(kf11, kr11)
+
+    rate_den = rate_clipping(- kr11 * L2P1 + kf11 * P1 * L2)
+
+
+    y = np.zeros(17)
+
+    y[24] = rate_den        # concentration of P1L2
+
+    y[3] = -rate_den        # concentration of P1
+
+    y[21] = -rate_den       # concentration of L2
+
+
+
+    return y
+
+
+
+
+def short_misbinding_polymerase_1(values, t, T, dGs):
+
+
+    L2P1 = values[24]
+    E = values[7]
+    L2P1E = values[25]
+
+
+    kf12 = forward_rate
+
+    #exponent_3a = dGs[3]/(R*T)
+
+    #exponent_3a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_12a = exponent_clipping(dGs[3]/(R*T))
+
+    kr12a = kf12 * np.exp(exponent_12a)
+
+    kf12, kr12a = clipping(kf12, kr12a)
+
+    rate_poly_L2P1_bind = rate_clipping(kf12 * L2P1 * E - kr12a * L2P1E)
+
+    y = np.zeros(17)
+
+    y[24] = - rate_poly_L2P1_bind
+    y[7] = - rate_poly_L2P1_bind
+    y[25] = rate_poly_L2P1_bind
+
+
+
+    return y
+
+
+
+def short_misbinding_primer_ext_1(values, t, T, dGs):
+
+    """ The primer is extended by a few nucleotides to ensure the primer binding
+        to the substrate without dissociation when reaching the extension temperature
+
+        In this model 99.5 % of the primer - substrate complexes stay together, while 0.5 % of them will melt
+        at the extension temperature"""
+
+
+    L2P1E = values[25]
+    dNTP = values[10]
+
+    #if (total_molecule_length(dNTP, 1)) >= (2 * n):
+
+
+        #primer_ext_1.counter += 1
+
+
+    #   S1P2E + n * dNTP -> S1Q2E
+    #   S2P1E + n * dNTP -> S2Q1E
+
+    #ce = 1000   # [dNTP/s] concentration of polymerase enzyme
+
+    ce = taq_nt_per_s(T)
+
+    #rate_ext_1 = (ce / n) * S1P2E * dNTP
+
+    #rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_1 = rate_clipping((ce / n) * L2P1E * dNTP)
+
+    y = np.zeros(17)
+
+    y[25] = - rate_ext_1                 # concentration of L2P1E
+    y[10] = - n * rate_ext_1             # concentration of dNTP
+    y[26] = rate_ext_1                   # concentration of L2Q1E
+
+
+    return y
+
+
+
+
+def short_misbinding_primer_ext_2(values, t, T, dGs):
+
+
+
+    L2Q1E = values[26]
+    dNTP = values[10]
+
+    ce_L = taq_nt_per_s(T)
+
+    # reaction: S1N2E + misbinding_extended_length * dNTP ---> L1L2 + E
+
+    #rate_ext_Q1 = (ce_Q / extended_length) * S1Q2E * dNTP
+
+    #rate_ext_Q1 = np.clip(((ce_Q / extended_length) * S1Q2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_QL = rate_clipping((ce_L / misbinding_extended_length) * L2Q1E * dNTP)
+
+
+    y = np.zeros(17)
+
+
+    y[7] = rate_ext_QL          # concentration of enzyme
+    y[10] = - misbinding_extended_length * rate_ext_QL           # concentration of dNTP
+    y[26] = - rate_ext_QL       # concentration of L2Q1E
+    y[27] = rate_ext_QL         # concentration of L1L2
+
+    return y
+
+
+
+    # else:
+    #
+    #     y = np.zeros(17)
+    #
+    #     y[10] = dNTP                           # concentration of dNTP
+    #     y[13] = S1Q2E                         # concentration of S1Q2E
+    #     y[14] = S2Q1E                          # concentration of S2Q1E
+    #
+    #     return y
+
+
+
+
+
+def short_misbinding_polymerase_2(values, t, T, dGs):
+
+
+
+    E = values[7]
+    L2Q1E = values[26]
+    L2Q1 = values[28]
+
+
+
+    kf13 = forward_rate
+
+    #exponent_4a = dGs[3]/(R*T)
+
+    #exponent_4a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_13a = exponent_clipping(dGs[3]/(R*T))
+
+
+    kr13a = kf13 * np.exp(exponent_13a)
+
+    kf13, kr13a = clipping(kf13, kr13a)
+
+    rate_poly_Q1L2_bind = rate_clipping(kf13 * L2Q1 * E - kr13a * L2Q1E)
+
+    y = np.zeros(17)
+
+    y[28] = - rate_poly_Q1L2_bind
+    y[7] = - rate_poly_Q1L2_bind
+    y[26] = rate_poly_Q1L2_bind
+
+
+
+    return y
+
+
+
+
+    #
+    # else:
+    #
+    #     y = np.zeros(17)
+    #
+    #
+    #     y[8] = S1P2E    # concentration of S1P2E
+    #     y[9] = S2P1E   # concentration of S2P1E
+    #     y[10] = dNTP   # concentration of dNTP
+    #     #y[13] = 0    # concentration of S1Q2E
+    #     #y[14] = 0   # concentration of S2Q1E
+
+
+
+
+
+
+def short_misbinding_primer_2(values, t, T, dGs):
+
+
+    """
+    Describes the differential equations for S, P and SP in a dynamic biological reaction
+    Args:
+        values: value of S, P and SP after t time period
+        t: time period
+        k1: rate constant for binding ( S + P -> SP)
+        k2: rate constant for dissociation ( SP -> S + P)
+    Returns:
+        An array with the result of the differential equations for S, P and SP over t time
+    """
+
+
+    Q1 = values[11]
+    L2 = values[21]
+    L2Q1 = values[28]
+
+
+
+    kf14 = forward_rate
+
+    #exponent_5a = dGs[2]/(R*T)
+
+    #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_14a = exponent_clipping(dGs[2]/(R*T))
+
+    kr14a = kf14 * np.exp(exponent_14a)
+
+    kf14, kr14a = clipping(kf14, kr14a)
+
+    #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
+
+    rate_Q1L2_bind = rate_clipping(kf14 * Q1 * L2 - kr14a * L2Q1)
+
+    y = np.zeros(17)
+
+
+    y[11] = - rate_Q1L2_bind
+    y[21] = - rate_Q1L2_bind
+    y[28] = rate_Q1L2_bind
+
+
+
+    return y
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def L_misbinding_denaturation(values, t, T, dGs):
+
+
+    L1L2 = values[27]
+    L1 = values[29]
+    L2 = values[21]
+
+
+    kf15 = forward_rate
+
+
+    #exponent_1 = dGs[0]/(R*T)
+
+    exponent_15 = exponent_clipping(dGs[0]/(R*T))
+
+    kr15 = kf15 * np.exp(exponent_15)
+
+
+    kf15, kr15 = clipping(kf15, kr15)
+
+    rate_den = rate_clipping(- kr15 * L1L2 + kf15 * L1 * L2)
+
+
+    y = np.zeros(17)
+
+    y[27] = rate_den        # concentration of L1L2
+
+    y[29] = -rate_den        # concentration of L1
+
+    y[21] = -rate_den       # concentration of L2
+
+
+
+    return y
+
+
+
+
+
+def L_misbinding_polymerase_1(values, t, T, dGs):
+
+
+    L2P1 = values[24]
+    E = values[7]
+    L2P1E = values[25]
+
+
+    kf12 = forward_rate
+
+    #exponent_3a = dGs[3]/(R*T)
+
+    #exponent_3a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_12a = exponent_clipping(dGs[3]/(R*T))
+
+    kr12a = kf12 * np.exp(exponent_12a)
+
+    kf12, kr12a = clipping(kf12, kr12a)
+
+    rate_poly_P1L2_bind = rate_clipping(kf12 * L2P1 * E - kr12a * L2P1E)
+
+    y = np.zeros(17)
+
+    y[24] = - rate_poly_P1L2_bind
+    y[7] = - rate_poly_P1L2_bind
+    y[25] = rate_poly_P1L2_bind
+
+
+
+    return y
+
+
+
+def short_misbinding_primer_ext_1(values, t, T, dGs):
+
+    """ The primer is extended by a few nucleotides to ensure the primer binding
+        to the substrate without dissociation when reaching the extension temperature
+
+        In this model 99.5 % of the primer - substrate complexes stay together, while 0.5 % of them will melt
+        at the extension temperature"""
+
+
+    L2P1E = values[25]
+    dNTP = values[10]
+
+    #if (total_molecule_length(dNTP, 1)) >= (2 * n):
+
+
+        #primer_ext_1.counter += 1
+
+
+    #   S1P2E + n * dNTP -> S1Q2E
+    #   S2P1E + n * dNTP -> S2Q1E
+
+    #ce = 1000   # [dNTP/s] concentration of polymerase enzyme
+
+    ce = taq_nt_per_s(T)
+
+    #rate_ext_1 = (ce / n) * S1P2E * dNTP
+
+    #rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_1 = rate_clipping((ce / n) * L2P1E * dNTP)
+
+    y = np.zeros(17)
+
+    y[25] = - rate_ext_1                 # concentration of L2P1E
+    y[10] = - n * rate_ext_1             # concentration of dNTP
+    y[26] = rate_ext_1                   # concentration of L2Q1E
+
+
+    return y
+
+
+
+
+def short_misbinding_primer_ext_2(values, t, T, dGs):
+
+
+
+    L2Q1E = values[26]
+    dNTP = values[10]
+
+    ce_L = taq_nt_per_s(T)
+
+    # reaction: S1N2E + misbinding_extended_length * dNTP ---> L1L2 + E
+
+    #rate_ext_Q1 = (ce_Q / extended_length) * S1Q2E * dNTP
+
+    #rate_ext_Q1 = np.clip(((ce_Q / extended_length) * S1Q2E * dNTP), a_min= min_clip, a_max= max_clip)
+
+    rate_ext_QL = rate_clipping((ce_L / misbinding_extended_length) * L2Q1E * dNTP)
+
+
+    y = np.zeros(17)
+
+
+    y[7] = rate_ext_QL          # concentration of enzyme
+    y[10] = - misbinding_extended_length * rate_ext_QL           # concentration of dNTP
+    y[26] = - rate_ext_QL       # concentration of L2Q1E
+    y[27] = rate_ext_QL         # concentration of L1L2
+
+    return y
+
+
+
+    # else:
+    #
+    #     y = np.zeros(17)
+    #
+    #     y[10] = dNTP                           # concentration of dNTP
+    #     y[13] = S1Q2E                         # concentration of S1Q2E
+    #     y[14] = S2Q1E                          # concentration of S2Q1E
+    #
+    #     return y
+
+
+
+
+
+def short_misbinding_polymerase_2(values, t, T, dGs):
+
+
+
+    E = values[7]
+    Q1L2E = values[26]
+    Q1L2 = values[28]
+
+
+
+    kf13 = forward_rate
+
+    #exponent_4a = dGs[3]/(R*T)
+
+    #exponent_4a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_13a = exponent_clipping(dGs[3]/(R*T))
+
+
+    kr13a = kf13 * np.exp(exponent_13a)
+
+    kf13, kr13a = clipping(kf13, kr13a)
+
+    rate_poly_Q1L2_bind = rate_clipping(kf13 * Q1L2 * E - kr13a * Q1L2E)
+
+    y = np.zeros(17)
+
+    y[28] = - rate_poly_Q1L2_bind
+    y[7] = - rate_poly_Q1L2_bind
+    y[26] = rate_poly_Q1L2_bind
+
+
+
+    return y
+
+
+
+
+    #
+    # else:
+    #
+    #     y = np.zeros(17)
+    #
+    #
+    #     y[8] = S1P2E    # concentration of S1P2E
+    #     y[9] = S2P1E   # concentration of S2P1E
+    #     y[10] = dNTP   # concentration of dNTP
+    #     #y[13] = 0    # concentration of S1Q2E
+    #     #y[14] = 0   # concentration of S2Q1E
+
+
+
+
+
+
+def short_misbinding_primer_2(values, t, T, dGs):
+
+
+    """
+    Describes the differential equations for S, P and SP in a dynamic biological reaction
+    Args:
+        values: value of S, P and SP after t time period
+        t: time period
+        k1: rate constant for binding ( S + P -> SP)
+        k2: rate constant for dissociation ( SP -> S + P)
+    Returns:
+        An array with the result of the differential equations for S, P and SP over t time
+    """
+
+
+    Q1 = values[11]
+    L2 = values[21]
+    Q1L2 = values[28]
+
+
+
+    kf14 = forward_rate
+
+    #exponent_5a = dGs[2]/(R*T)
+
+    #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
+
+    exponent_14a = exponent_clipping(dGs[2]/(R*T))
+
+    kr14a = kf14 * np.exp(exponent_14a)
+
+    kf14, kr14a = clipping(kf14, kr14a)
+
+    #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
+
+    rate_Q1L2_bind = rate_clipping(kf14 * Q1 * L2 - kr14a * Q1L2)
+
+    y = np.zeros(17)
+
+
+    y[11] = - rate_Q1L2_bind
+    y[21] = - rate_Q1L2_bind
+    y[28] = rate_Q1L2_bind
+
+
+
+    return y
+
+
+
+
+
+
+
+
+
 
 
 
