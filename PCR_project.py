@@ -26,17 +26,17 @@ values = [0 for i in range(34)]
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 values[0] = 3.0769e-2
 
-#values[3] = 2             # concentration of P1 in uM
-#values[4] = 2            # concentration of P2 in uM
+values[3] = 2             # concentration of P1 in uM
+values[4] = 2            # concentration of P2 in uM
 
-values[3] = 8            # concentration of P1 in uM
-values[4] = 8
+#values[3] = 8            # concentration of P1 in uM
+#values[4] = 8
 
 values[7] = 0.2             # concentration of E in uM
 
-#values[10] = 200           # concentration of dNTP in uM
+values[10] = 200           # concentration of dNTP in uM
 
-values[10] = 10000
+#values[10] = 10000
 
 
 
@@ -109,11 +109,11 @@ Tm_enzyme = 353.15              # 80 degree
 dS = - 2
 
 
-max_exponent = 20       # e on the power of 15 = 3,269,017.3724702
+max_exponent = 15       # e on the power of 15 = 3,269,017.3724702
 
-min_clip = -1e+30
+min_clip = -1e+20
 
-max_clip = 1e+30
+max_clip = 1e+20
 
 
 
@@ -214,7 +214,7 @@ def all_nucleotide(values):
 def u_molar_concentration(values):
 
 
-    length = [2 * amplicon_length, amplicon_length, amplicon_length, primer_length, primer_length, amplicon_length + primer_length, amplicon_length + primer_length, 0, amplicon_length + primer_length, amplicon_length + primer_length, 1, extended_primer, extended_primer, amplicon_length + extended_primer,  amplicon_length + extended_primer, amplicon_length + extended_primer, amplicon_length + extended_primer]
+    length = [2 * amplicon_length, amplicon_length, amplicon_length, primer_length, primer_length, amplicon_length + primer_length, amplicon_length + primer_length, 0, amplicon_length + primer_length, amplicon_length + primer_length, 1, extended_primer, extended_primer, amplicon_length + extended_primer,  amplicon_length + extended_primer, amplicon_length + extended_primer, amplicon_length + extended_primer, ]
 
     return sum(values[i] * length[i] for i in range(len(values)))
 
@@ -292,7 +292,7 @@ def denaturation(values, t, T, dGs):
     rate_den = rate_clipping(- kr1 * S1S2 + kf1 * S1 * S2)
 
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
     y[0] = rate_den
 
@@ -379,7 +379,7 @@ def primer_binding_1(values, t, T, dGs):
 
     #print(rate_S2P1_bind)
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
 
     y[1] = - rate_S1P2_bind
@@ -456,7 +456,7 @@ def primer_binding_2(values, t, T, dGs):
 
     rate_S2Q1_bind = rate_clipping(kf5 * S2 * Q1 - kr5b * S2Q1)
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
 
     y[1] = - rate_S1Q2_bind
@@ -531,7 +531,7 @@ def polymerase_binding_1(values, t, T, dGs):
     enzyme_binding = rate_clipping(- rate_poly_S1P2_bind - rate_poly_S2P1_bind)
 
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
     y[5] = - rate_poly_S1P2_bind
     y[6] = - rate_poly_S2P1_bind
@@ -605,7 +605,7 @@ def polymerase_binding_2(values, t, T, dGs):
     enzyme = rate_clipping(- rate_poly_S1Q2_bind - rate_poly_S2Q1_bind)
 
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
     y[15] = - rate_poly_S1Q2_bind
     y[16] = - rate_poly_S2Q1_bind
@@ -665,7 +665,7 @@ def primer_ext_1(values, t, T, dGs):
     nucleotide = rate_clipping(- n * rate_ext_1 - n * rate_ext_2)
 
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
     y[8] = - rate_ext_1  # concentration of S1P2E
     y[9] = - rate_ext_2  # concentration of S2P1E
@@ -737,7 +737,7 @@ def primer_ext_2(values, t, T, dGs):
 
     # primer_ext_2.counter += 1
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
 
     #clipping for sums? --- product
@@ -992,7 +992,7 @@ def individual_integration(values):
 
     functions_name = ["Denaturation", "Primer binding 1", "Polymerase binding 1", "Primer extension 1", "Polymerase binding 2", "Primer binding 2", "Primer extension 2"]
 
-    concentration = np.empty((number_time_points, 17))
+    concentration = np.empty((number_time_points, 34))
 
     dGs = [0 for x in range(4)]
 
@@ -1003,9 +1003,9 @@ def individual_integration(values):
 
 
 
-        before_nt_number = all_nucleotide(values)
+        #before_nt_number = all_nucleotide(values)
 
-        all_umol_1 = u_molar_concentration(values)
+        #all_umol_1 = u_molar_concentration(values)
 
 
         for i in range(number_cycles):
@@ -1077,14 +1077,14 @@ def individual_integration(values):
         print("The concentration of the 17 species after", functions_name[n], "is added to the process individually:", values)
 
 
-        after_nt_number = all_nucleotide(values)
+        #after_nt_number = all_nucleotide(values)
 
-        all_umol_2 = u_molar_concentration(values)
+        #all_umol_2 = u_molar_concentration(values)
 
-        difference_umol.append(all_umol_1 - all_umol_2)
+        #difference_umol.append(all_umol_1 - all_umol_2)
 
-        print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
-        print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
+        #print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
+        #print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
 
 
         plt.figure(1)
@@ -1115,18 +1115,18 @@ def individual_integration(values):
 
     #print(difference_umol)
 
-    plt.figure(2)
+    #plt.figure(2)
 
-    plt.title("Difference of micromolar concentration after each function is added individually", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    #plt.title("Difference of micromolar concentration after each function is added individually", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
-    plt.plot(range(len(functions)), difference_umol)
+    #plt.plot(range(len(functions)), difference_umol)
 
-    plt.xticks(range(len(functions)), functions_name)
+    #plt.xticks(range(len(functions)), functions_name)
 
-    plt.xlabel("Name of the individually added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
-    plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
+    #plt.xlabel("Name of the individually added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
+    #plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
 
-    plt.show()
+    #plt.show()
 
 
     #the created values will be used in the next function
@@ -1477,9 +1477,9 @@ if __name__ == '__main__':
     #print(taq_denaturation(values, Tanneal))
 
 
+    #print(values)
 
-
-    #individual_integration(values)
+    individual_integration(values)
 
     #iterative_integration(values, 7)
 
@@ -1500,7 +1500,7 @@ if __name__ == '__main__':
 
 
 
-    print(new_species[31])
+    #print(new_species[31])
 
 
 
