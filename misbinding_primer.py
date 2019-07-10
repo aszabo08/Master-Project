@@ -7,13 +7,6 @@ from PCR_project import *
 
 
 
-# new species: S1M2
-#
-# extend values
-#
-# change y size
-
-
 # amplicon length - primer length - n = 1000 - 15 -10 = 975         -------->  the longest extended length is 975 -1, when the product is only one nucleotide short
 #                                                                              the shortest extended length is 0
 # average extended length = (974 + 0)/2 = 487
@@ -49,7 +42,7 @@ def misbinding_primer_1(values, t, T, dGs):
 
     #exponent_2a = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
 
-    exponent_6a = exponent_clipping(dGs[1]/(R*T))
+    exponent_6a = exponent_clipping(dGs[4]/(R*T))
 
     kr6a = kf6 * np.exp(exponent_6a)
 
@@ -220,7 +213,7 @@ def misbinding_denaturation(values, t, T, dGs):
 
     #exponent_1 = dGs[0]/(R*T)
 
-    exponent_8 = exponent_clipping(dGs[0]/(R*T))
+    exponent_8 = exponent_clipping(dGs[6]/(R*T))
 
     kr8 = kf8 * np.exp(exponent_8)
 
@@ -336,7 +329,7 @@ def misbinding_primer_2(values, t, T, dGs):
 
     #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
 
-    exponent_10a = exponent_clipping(dGs[2]/(R*T))
+    exponent_10a = exponent_clipping(dGs[5]/(R*T))
 
     kr10a = kf10 * np.exp(exponent_10a)
 
@@ -390,7 +383,7 @@ def short_misbinding_primer(values, t, T, dGs):
 
     #exponent_1 = dGs[0]/(R*T)
 
-    exponent_11a = exponent_clipping(dGs[0]/(R*T))
+    exponent_11a = exponent_clipping(dGs[1]/(R*T))
 
     kr11a = kf11 * np.exp(exponent_11a)
 
@@ -817,7 +810,7 @@ def L_misbinding_denaturation(values, t, T, dGs):
 
     #exponent_1 = dGs[0]/(R*T)
 
-    exponent_15 = exponent_clipping(dGs[0]/(R*T))
+    exponent_15 = exponent_clipping(dGs[7]/(R*T))
 
     kr15 = kf15 * np.exp(exponent_15)
 
@@ -899,7 +892,7 @@ def misbinding_only_one_integration(values, number):
 
     concentration = np.empty((number_time_points, 34))
 
-    dGs = [0 for x in range(4)]
+    dGs = [0 for x in range(8)]
 
 
 
@@ -917,9 +910,16 @@ def misbinding_only_one_integration(values, number):
 
         dGs[2] = (Tm_extended_primer - Tden) * dS
 
-        #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
-
         dGs[3] = (Tm_enzyme - Tden) * dS
+
+        dGs[4] = (Tm_misbinding_primer - Tden) * dS
+
+        dGs[5] = (Tm_misbinding_extended_primer - Tden) * dS
+
+        dGs[6] = (Tm_misbinding_single_substrate - Tden) * dS
+
+        dGs[7] = (Tm_misbinding_double_substrate - Tden) * dS
+
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
@@ -938,9 +938,17 @@ def misbinding_only_one_integration(values, number):
 
         dGs[2] = (Tm_extended_primer - Tanneal) * dS
 
-        #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
-
         dGs[3] = (Tm_enzyme - Tanneal) * dS
+
+        dGs[4] = (Tm_misbinding_primer - Tanneal) * dS
+
+        dGs[5] = (Tm_misbinding_extended_primer - Tanneal) * dS
+
+        dGs[6] = (Tm_misbinding_single_substrate - Tanneal) * dS
+
+        dGs[7] = (Tm_misbinding_double_substrate - Tanneal) * dS
+
+
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
@@ -956,9 +964,15 @@ def misbinding_only_one_integration(values, number):
 
         dGs[2] = (Tm_extended_primer - Text) * dS
 
-        #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
-
         dGs[3] = (Tm_enzyme - Text) * dS
+
+        dGs[4] = (Tm_misbinding_primer - Text) * dS
+
+        dGs[5] = (Tm_misbinding_extended_primer - Text) * dS
+
+        dGs[6] = (Tm_misbinding_single_substrate - Text) * dS
+
+        dGs[7] = (Tm_misbinding_double_substrate - Text) * dS
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
