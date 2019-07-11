@@ -1,3 +1,4 @@
+
 """
 This application visualizes primer binding and misbinding to a substrate, creating substrate-primer products.
 "S" stands for the concentration of the substrate, "P" and "SP" for the concentration of the primer and the bound state of the substrate and primer.
@@ -89,7 +90,7 @@ number_time_points = total * steps * number_cycles
 
 Tm_S1S2 = 363.15                # 90 degrees
 
-Tm_primer = 308.15              # 35 degrees
+Tm_primer = 308.15              # 35 degrees        # from neb tm calculator: 15nt, 20 % GC content, 35 celius TM: AATTTAACGAATTCA
 
 Tm_extended_primer = 313.15     # 40 degree
 
@@ -109,7 +110,7 @@ Tm_enzyme = 353.15              # 80 degree
 dS = - 2
 
 
-max_exponent = 15       # e on the power of 15 = 3,269,017.3724702
+max_exponent = 13       # e on the power of 15 = 3,269,017.3724702
 
 min_clip = -1e+20
 
@@ -146,9 +147,9 @@ def clipping(kf, kr):
 
 def rate_clipping(x):
 
-    if x != np.clip(x, a_min= min_clip, a_max= max_clip):
+    #if x != np.clip(x, a_min= min_clip, a_max= max_clip):
 
-        print("Clipped rate value:", x)
+        #print("Clipped rate value:", x)
 
 
     return np.clip(x, a_min= min_clip, a_max= max_clip)
@@ -156,9 +157,9 @@ def rate_clipping(x):
 
 def exponent_clipping(x):
 
-    if x != np.clip(x, a_min= None, a_max= max_exponent):
+    #if x != np.clip(x, a_min= None, a_max= max_exponent):
 
-        print("Clipped exponent value:", x)
+        #print("Clipped exponent value:", x)
 
 
     return np.clip(x, a_min= None, a_max= max_exponent)
@@ -745,6 +746,7 @@ def primer_ext_2(values, t, T, dGs):
 
     y[0] = product
     y[7] = product
+
     y[10] = nucleotide_Q  # concentration of dNTP
     y[13] = - rate_ext_Q1  # concentration of S1Q2E
     y[14] = - rate_ext_Q2  # concentration of S2Q1E
@@ -770,7 +772,7 @@ def taq_denaturation(values, t, T, dGs):
 
     E = values[7]
 
-    y = np.zeros(17)
+    y = np.zeros(34)
 
     rate = 0.0001           #???
 
@@ -817,7 +819,7 @@ def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array da
 def S1S2_dS(values):
 
 
-    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2]
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2, PCR_reaction]
 
     dGs = [0 for x in range(4)]
 
@@ -914,6 +916,244 @@ def S1S2_dS(values):
 
 
     #return S1S2_denature_temp[index_temp]
+
+
+
+
+
+
+def dS_change(values):
+
+
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2, PCR_reaction]
+
+    dGs = [0 for x in range(4)]
+
+    #var_dS = [-52.7184e-3, -52.7184e-2, -52.7184e-1, -52.7184, -2.5 ]
+
+    var_dS = [-15, -10, -5, -1, -0.5]
+
+    #var_dS = [-5, - 3, - 2, - 1, - 0.5]
+
+    #var_dS = [-1e-2, -1e-1, -1, -1e+1, -1.5e+1]
+
+
+
+    time_all = np.linspace(0, tden + tanneal + text, tden + tanneal + text)
+
+
+    temperature_scale = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)     # Temperature scale between 0 and 110 degree Celsius
+
+    var_dS_S1S2_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_primer_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_ext_primer_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_enzyme_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+
+
+    for x in range(len(var_dS)):
+
+
+        dS = var_dS[x]
+
+
+
+        for i in range(len(temperature_scale)):
+
+
+            dGs[0] = (Tm_S1S2 - temperature_scale[i]) * dS
+
+            dGs[1] = (Tm_primer - temperature_scale[i]) * dS
+
+            dGs[2] = (Tm_extended_primer - temperature_scale[i]) * dS
+
+            dGs[3] = (Tm_enzyme - temperature_scale[i]) * dS
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+            integration = odeint(functions[7], values, time_all, args=(temperature_scale[i], dGs))
+
+            var_dS_S1S2_result[x, i] = integration[-1, 0]
+
+            var_dS_primer_result[x, i] = integration[-1, 3]
+
+            var_dS_ext_primer_result[x, i] = integration[-1, 11]
+
+            var_dS_enzyme_result[x, i] = integration[-1, 7]
+
+            values = initial_fixed                               # the initial concentrations will be used in the next cycle at a different temperature
+
+
+
+
+    plt.figure(1)
+
+    plt.title("S1S2 concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_S1S2_result[x, ])
+
+
+
+    plt.axvline(x=Tm_S1S2, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of S1S2 (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_S1S2", "Half-concentration of S1S2"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+    plt.figure(2)
+
+    plt.title("Primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_primer_result[x, ])
+
+
+
+    plt.axvline(x=Tm_primer, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    plt.axhline(y=(initial_fixed[3]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of primer (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_primer", "Half-concentration of primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+
+    plt.figure(3)
+
+    plt.title("Extended priemr concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_ext_primer_result[x, ])
+
+
+
+    plt.axvline(x=Tm_extended_primer, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of extended primer (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_extended_primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+    plt.figure(4)
+
+    plt.title("Enzyme concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_enzyme_result[x, ])
+
+
+
+    plt.axvline(x=Tm_enzyme, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    plt.axhline(y=(initial_fixed[7]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of enzyme (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_enzyme", "Half-concentration of enzyme"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+
+    plt.show()
+
+
+    #return S1S2_denature_temp[index_temp]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def dS1S2_dS_Tden(values):
@@ -1189,22 +1429,20 @@ def iterative_integration(values, number):
 
     all_summaries = [a,b,c, d,e,f,g]
 
-    difference_umol = []
+    #difference_umol = []
 
     for n in range(number):
 
 
-        concentration = np.empty((number_time_points, 17))
+        concentration = np.empty((number_time_points, 34))
 
         dGs = [0 for x in range(4)]
 
-        primer_ext_1.counter = 0
 
-        primer_ext_2.counter = 0
 
-        before_nt_number = all_nucleotide(values)
+        #before_nt_number = all_nucleotide(values)
 
-        all_umol_1 = u_molar_concentration(values)
+        #all_umol_1 = u_molar_concentration(values)
 
 
         for i in range(number_cycles):
@@ -1271,15 +1509,15 @@ def iterative_integration(values, number):
         print("The concentration of the 17 species after", functions_name[n],  "is added to the process iteratively:", values)
 
 
-        after_nt_number = all_nucleotide(values)
+        #after_nt_number = all_nucleotide(values)
 
-        all_umol_2 = u_molar_concentration(values)
+        #all_umol_2 = u_molar_concentration(values)
 
-        difference_umol.append(all_umol_1 - all_umol_2)
+        #difference_umol.append(all_umol_1 - all_umol_2)
 
-        print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
+        #print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
 
-        print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
+        #print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
 
 
         plt.figure(1)
@@ -1308,18 +1546,18 @@ def iterative_integration(values, number):
         values = initial_fixed
 
 
-    plt.figure(2)
+    #plt.figure(2)
 
-    plt.title("Difference of micromolar concentration after each function is added iteratively",  FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    #plt.title("Difference of micromolar concentration after each function is added iteratively",  FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
-    plt.plot(range(number), difference_umol)
+    #plt.plot(range(number), difference_umol)
 
-    plt.xticks(range(number), functions_name)
+    #plt.xticks(range(number), functions_name)
 
-    plt.xlabel("Name of the iteratively added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
-    plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
+    #plt.xlabel("Name of the iteratively added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
+    #plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
 
-    plt.show()
+    #plt.show()
 
 
     return integration_ext[-1]
@@ -1336,15 +1574,15 @@ def only_one_integration(values, number):
     functions_plus_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction"]
 
 
-    concentration = np.empty((number_time_points, 17))
+    concentration = np.empty((number_time_points, 34))
 
     dGs = [0 for x in range(4)]
 
 
 
-    before_nt_number = all_nucleotide(values)
+    #before_nt_number = all_nucleotide(values)
 
-    all_umol_1 = u_molar_concentration(values)
+    #all_umol_1 = u_molar_concentration(values)
 
 
     for i in range(number_cycles):
@@ -1415,13 +1653,13 @@ def only_one_integration(values, number):
 
     print("The concentration of the 17 species at the end of", functions_plus_name[number], ":", values)
 
-    after_nt_number = all_nucleotide(values)
+    #after_nt_number = all_nucleotide(values)
 
-    all_umol_2 = u_molar_concentration(values)
+    #all_umol_2 = u_molar_concentration(values)
 
-    print("The difference in nt number after", functions_plus_name[number], ":", before_nt_number - after_nt_number, "\n")
+    #print("The difference in nt number after", functions_plus_name[number], ":", before_nt_number - after_nt_number, "\n")
 
-    print("The difference in micromolar concentration after", functions_plus_name[number], ":", all_umol_1 - all_umol_2, "\n")
+    #print("The difference in micromolar concentration after", functions_plus_name[number], ":", all_umol_1 - all_umol_2, "\n")
 
 
     #Plotting the concentrations over time
@@ -1466,6 +1704,9 @@ def only_one_integration(values, number):
 if __name__ == '__main__':
 
 
+    dS_change(values)
+
+
     #print(u_molar_concentration(values))
 
 
@@ -1479,7 +1720,7 @@ if __name__ == '__main__':
 
     #print(values)
 
-    individual_integration(values)
+    #individual_integration(values)
 
     #iterative_integration(values, 7)
 
