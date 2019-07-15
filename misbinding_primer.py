@@ -57,7 +57,7 @@ def misbinding_primer_1(values, t, T, dGs):
     rate_S1M2_bind = rate_clipping(kf6 * S1 * P2 - kr6a * S1M2)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
 
     y[1] = - rate_S1M2_bind
@@ -98,7 +98,7 @@ def misbinding_polymerase_1(values, t, T, dGs):
 
     rate_poly_S1M2_bind = rate_clipping(kf7 * S1M2 * E - kr7a * S1M2E)
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
     y[17] = - rate_poly_S1M2_bind
     y[7] = - rate_poly_S1M2_bind
@@ -143,7 +143,7 @@ def misbinding_primer_ext_1(values, t, T, dGs):
 
     rate_ext_1 = rate_clipping((ce / n) * S1M2E * dNTP)
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
     y[18] = - rate_ext_1  # concentration of S1M2E
     y[10] = - n * rate_ext_1  # concentration of dNTP
@@ -173,7 +173,7 @@ def misbinding_primer_ext_2(values, t, T, dGs):
     rate_ext_N1 = rate_clipping((ce_N / misbinding_extended_length) * S1N2E * dNTP)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
 
     y[7] = rate_ext_N1
@@ -229,7 +229,7 @@ def misbinding_denaturation(values, t, T, dGs):
     rate_den = rate_clipping(- kr8 * S1L2 + kf8 * S1 * L2)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
     y[20] = rate_den        # concentration of S1L2
 
@@ -272,7 +272,7 @@ def misbinding_polymerase_2(values, t, T, dGs):
 
     rate_poly_S1N2_bind = rate_clipping(kf9 * S1N2 * E - kr9a * S1N2E)
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
     y[22] = - rate_poly_S1N2_bind
     y[7] = - rate_poly_S1N2_bind
@@ -318,7 +318,7 @@ def misbinding_primer_2(values, t, T, dGs):
 
 
     S1 = values[1]
-    N2 = values[23]
+    Q2 = values[12]
     S1N2 = values[22]
 
 
@@ -337,13 +337,13 @@ def misbinding_primer_2(values, t, T, dGs):
 
     #rate_S1Q2_bind = kf5 * S1 * Q2 - kr5a * S1Q2
 
-    rate_S1N2_bind = rate_clipping(kf10 * S1 * N2 - kr10a * S1N2)
+    rate_S1N2_bind = rate_clipping(kf10 * S1 * Q2 - kr10a * S1N2)
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
 
     y[1] = - rate_S1N2_bind
-    y[23] = - rate_S1N2_bind
+    y[12] = - rate_S1N2_bind
     y[22] = rate_S1N2_bind
 
 
@@ -367,14 +367,14 @@ def misbinding_primer_2(values, t, T, dGs):
 def short_misbinding_primer(values, t, T, dGs):
 
 
-    L2P1 = values[24]
+    L2P1 = values[23]
     P1 = values[3]
     L2 = values[21]
 
 
-    L1P2 = values[30]
+    L1P2 = values[29]
     P2 = values[4]
-    L1 = values[29]
+    L1 = values[28]
 
 
 
@@ -407,9 +407,9 @@ def short_misbinding_primer(values, t, T, dGs):
 
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
-    y[24] = rate_L2P1        # concentration of P1L2
+    y[23] = rate_L2P1        # concentration of P1L2
 
     y[3] = -rate_L2P1        # concentration of P1
 
@@ -419,11 +419,11 @@ def short_misbinding_primer(values, t, T, dGs):
 
 
 
-    y[30] = rate_L1P2        # concentration of L1P2
+    y[29] = rate_L1P2        # concentration of L1P2
 
     y[4] = -rate_L1P2        # concentration of P2
 
-    y[29] = -rate_L1P2      # concentration of L1
+    y[28] = -rate_L1P2      # concentration of L1
 
 
 
@@ -435,15 +435,15 @@ def short_misbinding_primer(values, t, T, dGs):
 def short_misbinding_polymerase_1(values, t, T, dGs):
 
 
-    L2P1 = values[24]
+    L2P1 = values[23]
     E = values[7]
-    L2P1E = values[25]
+    L2P1E = values[24]
 
 
 
-    L1P2 = values[30]
+    L1P2 = values[29]
     #E = values[7]
-    L1P2E = values[31]
+    L1P2E = values[30]
 
 
 
@@ -482,16 +482,16 @@ def short_misbinding_polymerase_1(values, t, T, dGs):
     enzyme_misbinding = rate_clipping(- rate_poly_L2P1_bind - rate_poly_L1P2_bind)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
-    y[24] = - rate_poly_L2P1_bind
+    y[23] = - rate_poly_L2P1_bind
     #y[7] = - rate_poly_L2P1_bind
-    y[25] = rate_poly_L2P1_bind
+    y[24] = rate_poly_L2P1_bind
 
 
-    y[30] = - rate_poly_L1P2_bind
+    y[29] = - rate_poly_L1P2_bind
     y[7] = enzyme_misbinding
-    y[31] = rate_poly_L1P2_bind
+    y[30] = rate_poly_L1P2_bind
 
 
 
@@ -508,11 +508,11 @@ def short_misbinding_primer_ext_1(values, t, T, dGs):
         at the extension temperature"""
 
 
-    L2P1E = values[25]
+    L2P1E = values[24]
     dNTP = values[10]
 
 
-    L1P2E = values[31]
+    L1P2E = values[30]
 
 
 
@@ -542,16 +542,16 @@ def short_misbinding_primer_ext_1(values, t, T, dGs):
 
     misbinding_nucleotide = rate_clipping(- n * rate_ext_1 - n * rate_ext_2)
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
-    y[25] = - rate_ext_1                 # concentration of L2P1E
+    y[24] = - rate_ext_1                 # concentration of L2P1E
     #y[10] = - n * rate_ext_1             # concentration of dNTP
-    y[26] = rate_ext_1                   # concentration of L2Q1E
+    y[25] = rate_ext_1                   # concentration of L2Q1E
 
 
-    y[31] = - rate_ext_2                 # concentration of L1P2E
+    y[30] = - rate_ext_2                 # concentration of L1P2E
     y[10] = misbinding_nucleotide            # concentration of dNTP
-    y[32] = rate_ext_2                   # concentration of L1Q2E
+    y[31] = rate_ext_2                   # concentration of L1Q2E
 
 
     return y
@@ -563,11 +563,11 @@ def short_misbinding_primer_ext_2(values, t, T, dGs):
 
 
 
-    L2Q1E = values[26]
+    L2Q1E = values[25]
     dNTP = values[10]
 
 
-    L1Q2E = values[32]
+    L1Q2E = values[31]
 
 
 
@@ -589,23 +589,23 @@ def short_misbinding_primer_ext_2(values, t, T, dGs):
 
     mis_product = rate_clipping(rate_ext_QL_1 + rate_ext_QL_2)
 
-    mis_nucleotide = rate_clipping(- misbinding_extended_length * rate_ext_QL_1- misbinding_extended_length * rate_ext_QL_2)
+    mis_nucleotide = rate_clipping(- misbinding_extended_length * rate_ext_QL_1 - misbinding_extended_length * rate_ext_QL_2)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
 
     #y[7] = rate_ext_QL_1          # concentration of enzyme
     #y[10] = - misbinding_extended_length * rate_ext_QL_1           # concentration of dNTP
-    y[26] = - rate_ext_QL_1       # concentration of L2Q1E
+    y[25] = - rate_ext_QL_1       # concentration of L2Q1E
     #y[27] = rate_ext_QL_1         # concentration of L1L2
 
 
 
     y[7] = mis_product          # concentration of enzyme
     y[10] = mis_nucleotide          # concentration of dNTP
-    y[32] = - rate_ext_QL_2      # concentration of L1Q2E
-    y[27] = mis_product        # concentration of L1L2
+    y[31] = - rate_ext_QL_2      # concentration of L1Q2E
+    y[26] = mis_product        # concentration of L1L2
 
 
     return y
@@ -631,12 +631,12 @@ def short_misbinding_polymerase_2(values, t, T, dGs):
 
 
     E = values[7]
-    L2Q1E = values[26]
-    L2Q1 = values[28]
+    L2Q1E = values[25]
+    L2Q1 = values[27]
 
 
-    L1Q2E = values[32]
-    L1Q2 = values[33]
+    L1Q2E = values[31]
+    L1Q2 = values[32]
 
 
 
@@ -668,19 +668,23 @@ def short_misbinding_polymerase_2(values, t, T, dGs):
 
     rate_poly_L1Q2_bind = rate_clipping(kf13 * L1Q2 * E - kr13b * L1Q2E)
 
-
-
-    y = np.zeros(34)
-
-    y[28] = - rate_poly_Q1L2_bind
-    y[7] = - rate_poly_Q1L2_bind
-    y[26] = rate_poly_Q1L2_bind
+    mis_enzyme = rate_clipping(- rate_poly_Q1L2_bind - rate_poly_L1Q2_bind)
 
 
 
-    y[33] = - rate_poly_L1Q2_bind
-    y[7] = - rate_poly_L1Q2_bind
-    y[32] = rate_poly_L1Q2_bind
+    y = np.zeros(33)
+
+    y[27] = - rate_poly_Q1L2_bind
+    #y[7] = - rate_poly_Q1L2_bind
+    y[25] = rate_poly_Q1L2_bind
+
+
+
+    y[32] = - rate_poly_L1Q2_bind
+    #y[7] = - rate_poly_L1Q2_bind
+    y[31] = rate_poly_L1Q2_bind
+
+    y[7] = mis_enzyme
 
 
 
@@ -724,13 +728,13 @@ def short_misbinding_primer_2(values, t, T, dGs):
 
     Q1 = values[11]
     L2 = values[21]
-    L2Q1 = values[28]
+    L2Q1 = values[27]
 
 
 
     Q2 = values[12]
-    L1 = values[29]
-    L1Q2 = values[33]
+    L1 = values[28]
+    L1Q2 = values[32]
 
 
 
@@ -750,10 +754,6 @@ def short_misbinding_primer_2(values, t, T, dGs):
 
     rate_Q1L2_bind = rate_clipping(kf14 * Q1 * L2 - kr14a * L2Q1)
 
-
-
-
-
     #exponent_5a = dGs[2]/(R*T)
 
     #exponent_5a = np.clip((dGs[2]/(R*T)), a_min= None, a_max= max_exponent)
@@ -768,23 +768,20 @@ def short_misbinding_primer_2(values, t, T, dGs):
 
     rate_L1Q2_bind = rate_clipping(kf14 * Q2 * L1 - kr14b * L1Q2)
 
-
-
-
-    y = np.zeros(34)
+    y = np.zeros(33)
 
 
     y[11] = - rate_Q1L2_bind
     y[21] = - rate_Q1L2_bind
-    y[28] = rate_Q1L2_bind
+    y[27] = rate_Q1L2_bind
 
 
 
 
 
     y[12] = - rate_L1Q2_bind
-    y[29] = - rate_L1Q2_bind
-    y[33] = rate_L1Q2_bind
+    y[28] = - rate_L1Q2_bind
+    y[32] = rate_L1Q2_bind
 
 
 
@@ -800,8 +797,8 @@ def short_misbinding_primer_2(values, t, T, dGs):
 def L_misbinding_denaturation(values, t, T, dGs):
 
 
-    L1L2 = values[27]
-    L1 = values[29]
+    L1L2 = values[26]
+    L1 = values[28]
     L2 = values[21]
 
 
@@ -820,11 +817,11 @@ def L_misbinding_denaturation(values, t, T, dGs):
     rate_den = rate_clipping(- kr15 * L1L2 + kf15 * L1 * L2)
 
 
-    y = np.zeros(34)
+    y = np.zeros(33)
 
-    y[27] = rate_den        # concentration of L1L2
+    y[26] = rate_den        # concentration of L1L2
 
-    y[29] = -rate_den        # concentration of L1
+    y[28] = -rate_den        # concentration of L1
 
     y[21] = -rate_den       # concentration of L2
 
@@ -840,7 +837,7 @@ def L_misbinding_denaturation(values, t, T, dGs):
 
 def PCR_reaction_with_misbinding(values, t, T, dGs):  # not using rate clipping cos the array data
 
-    summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs) +  misbinding_primer_1(values, t, T, dGs) + misbinding_polymerase_1(values, t, T, dGs) + misbinding_primer_ext_1(values, t, T, dGs) + misbinding_primer_ext_2(values, t, T, dGs) + misbinding_denaturation(values, t, T, dGs) + misbinding_polymerase_2(values, t, T, dGs) + misbinding_primer_2(values, t, T, dGs) + short_misbinding_primer(values, t, T, dGs) + short_misbinding_polymerase_1(values, t, T, dGs) + short_misbinding_primer_ext_1(values, t, T, dGs) + short_misbinding_primer_ext_2(values, t, T, dGs) + short_misbinding_polymerase_2(values, t, T, dGs) + short_misbinding_primer_2(values, t, T, dGs) + L_misbinding_denaturation(values, t, T, dGs)
+    summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs) + misbinding_primer_1(values, t, T, dGs) + misbinding_polymerase_1(values, t, T, dGs) + misbinding_primer_ext_1(values, t, T, dGs) + misbinding_primer_ext_2(values, t, T, dGs) + misbinding_denaturation(values, t, T, dGs) + misbinding_polymerase_2(values, t, T, dGs) + misbinding_primer_2(values, t, T, dGs) + short_misbinding_primer(values, t, T, dGs) + short_misbinding_polymerase_1(values, t, T, dGs) + short_misbinding_primer_ext_1(values, t, T, dGs) + short_misbinding_primer_ext_2(values, t, T, dGs) + short_misbinding_polymerase_2(values, t, T, dGs) + short_misbinding_primer_2(values, t, T, dGs) + L_misbinding_denaturation(values, t, T, dGs)
 
     summary = np.clip(summary, a_min= min_clip, a_max= max_clip)
 
@@ -890,7 +887,7 @@ def misbinding_only_one_integration(values, number):
 
 
 
-    concentration = np.empty((number_time_points, 34))
+    concentration = np.empty((number_time_points, 33))
 
     dGs = [0 for x in range(8)]
 
@@ -1020,16 +1017,19 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 5, i+1)
 
+        plt.gca().set_title(new_species[plots1[i]])
+
 
         plt.plot(time, concentration[:, plots1[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
 
-        plt.legend([new_species[plots1[i]]], loc='upper left', prop={'size':10})
+        #plt.legend([new_species[plots1[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time")
-        plt.ylabel("Concentration")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
+        plt.tight_layout(w_pad=0.8, h_pad=0.8)
 
 
     plt.figure(2)
@@ -1051,16 +1051,18 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 4, i+1)
 
+        plt.gca().set_title(new_species[plots2[i]])
 
         plt.plot(time, concentration[:, plots2[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
 
-        plt.legend([new_species[plots2[i]]], loc='upper left', prop={'size':10})
+        #plt.legend([new_species[plots2[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time")
-        plt.ylabel("Concentration")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
 
 
 
@@ -1081,16 +1083,18 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 5, i+1)
 
+        plt.gca().set_title(new_species[plots3[i]])
 
         plt.plot(time, concentration[:, plots3[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
 
-        plt.legend([new_species[plots3[i]]], loc='upper left', prop={'size':10})
+        #plt.legend([new_species[plots3[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time")
-        plt.ylabel("Concentration")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
+        plt.tight_layout()
 
 
 
@@ -1101,27 +1105,29 @@ def misbinding_only_one_integration(values, number):
 
     plots4 = []
 
-    for i in range(27, 34):
+    for i in range(27, 33):
 
         plots4.append(i)
 
     y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
 
 
-    for i in range(7):
+    for i in range(6):
 
         plt.subplot(2, 4, i+1)
 
+        plt.gca().set_title(new_species[plots4[i]])
 
         plt.plot(time, concentration[:, plots4[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
 
-        plt.legend([new_species[plots4[i]]], loc='upper left', prop={'size':10})
+        #plt.legend([new_species[plots4[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time")
-        plt.ylabel("Concentration")
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
+        plt.tight_layout()
 
 
 
