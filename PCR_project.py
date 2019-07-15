@@ -25,19 +25,42 @@ values = [0 for i in range(34)]
 
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
-values[0] = 3.0769e-2
+values[0] = 3.0769e-6
 
-values[3] = 2             # concentration of P1 in uM
-values[4] = 2            # concentration of P2 in uM
+#values[3] = 2             # concentration of P1 in uM
+#values[4] = 2            # concentration of P2 in uM
 
 #values[3] = 8            # concentration of P1 in uM
 #values[4] = 8
 
-values[7] = 0.2             # concentration of E in uM
+#values[7] = 0.2             # concentration of E in uM
 
-values[10] = 200           # concentration of dNTP in uM
+#values[10] = 200           # concentration of dNTP in uM
 
 #values[10] = 10000
+
+
+
+
+#values[11] = 3.0769e-2
+
+values[5] = 1e-2
+
+
+values[6] = 1e-2
+
+
+#values[1] = 2e-1
+#values[2] = 2e-1
+
+
+values[8] = 4e-1
+values[9] = 4e-1
+
+
+values[15] = 5e-1
+values[16] = 5e-1
+
 
 
 
@@ -131,6 +154,17 @@ forward_rate = 1
 R = 8.314e-3        # Gas contant in  J / K mol
 
 #kB = 1.38064852e-23  # Boltzmann constant
+
+
+
+
+def plot_attributes():
+
+
+    plt.xlabel("Time (s)")
+    plt.ylabel("Concentration (uM)")
+    matplotlib.pyplot.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.2, hspace=0.2)
+
 
 
 
@@ -810,6 +844,8 @@ def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array da
 
     summary = np.clip(summary, a_min= min_clip, a_max= max_clip)
 
+    #summary = rate_clipping(summary)
+
     # summary[np.abs(summary) < 1e-14] = 0
 
     return summary
@@ -1011,7 +1047,7 @@ def dS_change(values):
     plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
 
 
-    plt.ylabel("Concentration of S1S2 (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+    plt.ylabel("Concentration of S1S2 (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1044,7 +1080,7 @@ def dS_change(values):
     plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
 
 
-    plt.ylabel("Concentration of primer (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+    plt.ylabel("Concentration of primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1078,7 +1114,7 @@ def dS_change(values):
     plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
 
 
-    plt.ylabel("Concentration of extended primer (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+    plt.ylabel("Concentration of extended primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1111,7 +1147,7 @@ def dS_change(values):
     plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
 
 
-    plt.ylabel("Concentration of enzyme (umol)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+    plt.ylabel("Concentration of enzyme (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1145,6 +1181,236 @@ def dS_change(values):
 
 
 
+def dS_change_4_species(values):
+
+
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2, PCR_reaction]
+
+    dGs = [0 for x in range(4)]
+
+    #var_dS = [-52.7184e-3, -52.7184e-2, -52.7184e-1, -52.7184, -2.5 ]
+
+    var_dS = [-15, -10, -5, -1, -0.5]
+
+    #var_dS = [-5, - 3, - 2, - 1, - 0.5]
+
+    #var_dS = [-1e-2, -1e-1, -1, -1e+1, -1.5e+1]
+
+
+
+    time_all = np.linspace(0, tden + tanneal + text, tden + tanneal + text)
+
+
+    temperature_scale = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)     # Temperature scale between 0 and 110 degree Celsius
+
+    var_dS_S1S2_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_primer_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_ext_primer_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+    var_dS_enzyme_result = np.zeros((len(var_dS), len(temperature_scale)))
+
+
+
+    for x in range(len(var_dS)):
+
+
+        dS = var_dS[x]
+
+
+
+        for i in range(len(temperature_scale)):
+
+
+            dGs[0] = (Tm_S1S2 - temperature_scale[i]) * dS
+
+            dGs[1] = (Tm_primer - temperature_scale[i]) * dS
+
+            dGs[2] = (Tm_extended_primer - temperature_scale[i]) * dS
+
+            dGs[3] = (Tm_enzyme - temperature_scale[i]) * dS
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+
+            integration_den = odeint(functions[0], values, time_all, args=(temperature_scale[i], dGs))
+
+            var_dS_S1S2_result[x, i] = integration_den[-1, 0]
+
+            values = initial_fixed
+
+
+
+            integration_primer = odeint(functions[1], values, time_all, args=(temperature_scale[i], dGs))
+
+            var_dS_primer_result[x, i] = integration_primer[-1, 5]
+
+            values = initial_fixed
+
+
+
+            integration_ext_primer = odeint(functions[6], values, time_all, args=(temperature_scale[i], dGs))
+
+            var_dS_ext_primer_result[x, i] = integration_ext_primer[-1, 15]
+
+            values = initial_fixed                               # the initial concentrations will be used in the next cycle at a different temperature
+
+
+
+
+            integration_enzyme = odeint(functions[2], values, time_all, args=(temperature_scale[i], dGs))
+
+            var_dS_enzyme_result[x, i] = integration_enzyme[-1, 8]
+
+            values = initial_fixed
+
+
+
+
+
+
+
+    plt.figure(1)
+
+    plt.title("S1S2 concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_S1S2_result[x, ]/initial_fixed[0]*100)
+
+
+
+    plt.axvline(x=Tm_S1S2, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of S1S2 (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_S1S2", "Half-concentration of S1S2"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+    plt.figure(2)
+
+    plt.title("Primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_primer_result[x, ]/initial_fixed[5]*100)
+
+
+
+    plt.axvline(x=Tm_primer, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    #plt.axhline(y=(initial_fixed[3]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_primer", "Half-concentration of primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+
+    plt.figure(3)
+
+    plt.title("Extended priemr concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_ext_primer_result[x, ]/initial_fixed[15]*100)
+
+
+
+    plt.axvline(x=Tm_extended_primer, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of extended primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_extended_primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+    plt.figure(4)
+
+    plt.title("Enzyme concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(temperature_scale, var_dS_enzyme_result[x, ]/initial_fixed[8]*100)
+
+
+
+    plt.axvline(x=Tm_enzyme, color = "b", linestyle= ":")
+
+    #plt.legend(["Tm"])
+
+    #plt.axhline(y=(initial_fixed[7]/2), color = "k", linestyle= ":")
+
+    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+
+
+    plt.ylabel("Concentration of enzyme (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
+
+    #curve_legend = ["dS =", var_dS[x]]
+
+    #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_enzyme", "Half-concentration of enzyme"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+
+
+
+    plt.show()
+
+
+    #return S1S2_denature_temp[index_temp]
+
 
 
 
@@ -1159,7 +1425,7 @@ def dS_change(values):
 def dS1S2_dS_Tden(values):
 
 
-    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2]
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2, PCR_reaction]
 
     dGs = [0 for x in range(4)]
 
@@ -1169,7 +1435,7 @@ def dS1S2_dS_Tden(values):
 
     #var_dS = [- 2, - 0.99, - 0.5, - 0.3, - 0.1]
 
-    var_S1S2 = np.linspace(1e-8, 1e+3, 111)
+    var_S1S2 = np.linspace(1e-8, 1e+3, 111)     # 111 temperature point was used before
 
     time_den_S1S2 = np.linspace(0, tden, tden)
     var_dS_result = np.zeros((len(var_dS), len(var_S1S2)))
@@ -1222,6 +1488,115 @@ def dS1S2_dS_Tden(values):
     plt.tight_layout()
 
     plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def ratio_diff_dS(values):
+
+
+    functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, primer_ext_2, polymerase_binding_2, primer_binding_2]
+
+    dGs = [0 for x in range(4)]
+
+    #var_dS = [-1, -2, -3, -4, -5]
+
+    var_dS = [-5, - 3, - 2, - 1, - 0.5]
+
+    #var_dS = [- 2, - 0.99, - 0.5, - 0.3, - 0.1]
+
+    var_S1S2 = np.linspace(1e-8, 1e+3, 111)     # 111 temperature point was used before
+
+    time_den_S1S2 = np.linspace(0, tden, tden)
+    var_dS_result = np.zeros((len(var_dS), len(var_S1S2)))
+
+
+    for x in range(len(var_dS)):
+
+
+        dS = var_dS[x]
+
+
+
+        for i in range(len(var_S1S2)):
+
+            values[0] = var_S1S2[i]
+
+
+            dGs[0] = (Tm_S1S2 - Tden) * dS
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+14)
+
+            integration_den = odeint(functions[0], values, time_den_S1S2, args=(Tden, dGs))
+
+            var_dS_result[x, i] = integration_den[-1, 0]
+
+            values = initial_fixed                               # the initial concentrations will be used in the next cycle at a different temperature
+
+
+
+
+    #print(var_dS_result)
+
+
+    plt.title("S1S2 concentration with different dS values\nThe initial S1S2 concentration varies between 1e-8 and 1e+3 Micromolar", FontSize= 14, FontWeight = "bold")
+
+
+    for x in range(len(var_dS)):
+
+
+        plt.plot(var_S1S2, (var_dS_result[x, ]/var_S1S2)*100)
+
+
+    plt.xlabel("Initial concentration of S1S2", FontSize= 11, FontWeight = "bold")
+
+    plt.ylabel("Percentage of S1S2 concentration (umol) \n at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= 11, FontWeight = "bold")
+
+
+    plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4])], loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
+
+    plt.tight_layout()
+
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 def individual_integration(values):
@@ -1704,7 +2079,10 @@ def only_one_integration(values, number):
 if __name__ == '__main__':
 
 
-    dS_change(values)
+    dS_change_4_species(values)
+
+
+    #dS_change(values)
 
 
     #print(u_molar_concentration(values))
