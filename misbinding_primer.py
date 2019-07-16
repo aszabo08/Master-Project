@@ -1127,7 +1127,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.xlabel("Time (s)")
         plt.ylabel("Concentration (uM)")
-        plt.tight_layout()
+        #plt.tight_layout()
 
 
 
