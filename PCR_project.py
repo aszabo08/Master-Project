@@ -26,7 +26,7 @@ values = [0 for i in range(33)]
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 
-values[0] = 3e-7
+values[0] = 3e-2
 #values[0] = 3.0769e-8
 
 #values[3] = 2             # concentration of P1 in uM
@@ -35,11 +35,11 @@ values[0] = 3e-7
 #values[3] = 8            # concentration of P1 in uM
 #values[4] = 8
 
-values[3] = 20           # concentration of P1 in uM
-values[4] = 20
+values[3] = 8          # concentration of P1 in uM
+values[4] = 8
 
 
-values[7] = 200          # concentration of E in uM
+values[7] = 0.2        # concentration of E in uM
 
 #values[10] = 200           # concentration of dNTP in uM
 
@@ -850,6 +850,57 @@ def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array da
     # summary[np.abs(summary) < 1e-14] = 0
 
     return summary
+
+
+
+
+
+single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
+
+
+
+def PCR_total_concentration(all_concentration):
+
+
+    single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
+
+
+    concentration_PCR = np.zeros((all_concentration.shape[0], len(single_species_PCR)))
+
+    resi = []
+
+
+    for x in range(len(single_species_PCR)):
+
+
+        for i in species:
+
+            if single_species_PCR[x] in i:
+
+                #print("result", species.index(i))
+
+                append.resi(i)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2370,7 +2421,7 @@ def only_one_integration(values, number):
         values = integration_ext[-1]
 
 
-
+    print("length of conc", concentration.shape)
 
     print("The concentration of the 17 species at the end of", functions_plus_name[number], ":", values)
 
