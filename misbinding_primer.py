@@ -1465,6 +1465,157 @@ def total_yield(all_concentration, time_vector):
 
 
 
+def purity_total_yield(values):
+
+
+
+    dGs = [0 for x in range(8)]
+
+    time_all = np.linspace(0, tden + tanneal + text, tden + tanneal + text)
+
+
+    temperature_scale = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)     # Temperature scale between 0 and 110 degree Celsius
+
+    concentration_point = np.empty((len(temperature_scale), len(new_species)))
+
+
+
+
+
+    for i in range(len(temperature_scale)):
+
+
+
+        dGs[0] = (Tm_S1S2 - temperature_scale[i]) * dS
+
+        dGs[1] = (Tm_primer - temperature_scale[i]) * dS
+
+        dGs[2] = (Tm_extended_primer - temperature_scale[i]) * dS
+
+        dGs[3] = (Tm_enzyme - temperature_scale[i]) * dS
+
+        dGs[4] = (Tm_misbinding_primer - temperature_scale[i]) * dS
+
+        dGs[5] = (Tm_misbinding_extended_primer - temperature_scale[i]) * dS
+
+        dGs[6] = (Tm_misbinding_single_substrate - temperature_scale[i]) * dS
+
+        dGs[7] = (Tm_misbinding_double_substrate - temperature_scale[i]) * dS
+
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+        integration = odeint(PCR_reaction_with_misbinding, values, time_all, args=(temperature_scale[i], dGs))
+
+        concentration_point[i] = integration[-1]
+
+        values = initial_fixed
+
+
+
+
+    yield_PCR = ["S", "L"]
+
+    concentration_PCR = np.zeros((concentration_point.shape[0], len(yield_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[] for i in range(len(yield_PCR))]
+
+
+    for x in range(len(yield_PCR)):
+
+
+        for i in new_species:
+
+            if yield_PCR[x] in i:
+
+
+                indexes_of_species[x].append(new_species.index(i))
+
+
+    print(indexes_of_species)
+
+
+
+
+    for x in range(concentration_point.shape[0]):
+
+
+        for i in range(len(indexes_of_species)):
+
+            summary_concentration = 0
+
+
+            for n in range(len(indexes_of_species[i])):
+
+
+                summary_concentration = summary_concentration + concentration_point[x, indexes_of_species[i][n]]
+
+
+
+            concentration_PCR[x, i] = summary_concentration
+
+
+    yield_sum = [0 for i in range(concentration_point.shape[0])]
+
+
+
+
+    for i in range(concentration_point.shape[0]):
+
+
+
+
+        yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
+
+
+    plt.figure(1)
+
+    plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(yield_PCR)):
+
+        #plt.subplot(2, 6, i+1)
+
+
+        plt.plot(temperature_scale, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
+
+        #plt.gca().set_title(misbinding_single_species_PCR[i])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+    #plt.plot(temperature_scale, yield_sum, label = "Total yield: S + L")
+
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.xlabel("Temperature")
+    plt.ylabel("Total concentration")
+
+
+
+
+
+
+
+
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
     return concentration_PCR
 
 
@@ -1481,8 +1632,10 @@ if __name__ == '__main__':
 
     #print(values)
 
-    misbinding_only_one_integration(values, 23)    # pcr with misbinding
+    #misbinding_only_one_integration(values, 23)    # pcr with misbinding
 
     #print(table2)
 
     #print(total_yield(table2, timele))
+
+    purity_total_yield(values)
