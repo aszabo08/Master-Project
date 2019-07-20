@@ -998,6 +998,8 @@ def misbinding_only_one_integration(values, number):
 
     print("total misbinding conc", misbinding_PCR_total_concentration(concentration, time))
 
+    print("total yield", total_yield(concentration, time))
+
 
     #Plotting the concentrations over time
 
@@ -1307,6 +1309,163 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
 
 
+def total_yield(all_concentration, time_vector):
+
+
+    yield_PCR = ["S", "L"]
+
+    concentration_PCR = np.zeros((all_concentration.shape[0], len(yield_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[] for i in range(len(yield_PCR))]
+
+
+    for x in range(len(yield_PCR)):
+
+
+        for i in new_species:
+
+            if yield_PCR[x] in i:
+
+
+                indexes_of_species[x].append(new_species.index(i))
+
+
+    print(indexes_of_species)
+
+
+
+
+    for x in range(all_concentration.shape[0]):
+
+
+        for i in range(len(indexes_of_species)):
+
+            summary_concentration = 0
+
+
+            for n in range(len(indexes_of_species[i])):
+
+
+                summary_concentration = summary_concentration + all_concentration[x, indexes_of_species[i][n]]
+
+
+
+            concentration_PCR[x, i] = summary_concentration
+
+
+    yield_sum = [0 for i in range(all_concentration.shape[0])]
+
+
+
+
+    for i in range(all_concentration.shape[0]):
+
+
+
+
+        yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
+
+
+
+
+    plt.figure(1)
+
+    plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(yield_PCR)):
+
+        #plt.subplot(2, 6, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
+
+        #plt.gca().set_title(misbinding_single_species_PCR[i])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+    plt.plot(time_vector, yield_sum, label = "Total yield: S + L")
+
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.xlabel("Time")
+    plt.ylabel("Total concentration")
+
+
+
+
+    # plt.figure(2)
+    #
+    # plt.suptitle("Total concentrations of 4 single species over time with misbinding PCR" , fontsize = 14)
+    #
+    # highlighted_species = [0, 3, 5, 6]            # "S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"
+    #
+    #
+    # #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+    #
+    #
+    # for i in range(len(highlighted_species)):
+    #
+    #     #plt.subplot(2, 4, i+1)
+    #
+    #
+    #     plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = misbinding_single_species_PCR[highlighted_species[i]])
+    #
+    #     #plt.ylim([0, y_top_limit[i]])
+    #
+    #
+    #     #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+    #
+    # plt.xlabel("Time")
+    # plt.ylabel("Total concentration")
+    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    #
+    #
+    #
+    # plt.figure(3)
+    #
+    # plt.suptitle("Total concentrations of misbinding single species over time" , fontsize = 14)
+    #
+    # highlighted_species = [0, 7, 8, 10]            # "S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"
+    #
+    #
+    # #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+    #
+    #
+    # for i in range(len(highlighted_species)):
+    #
+    #     #plt.subplot(2, 4, i+1)
+    #
+    #
+    #     plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = misbinding_single_species_PCR[highlighted_species[i]])
+    #
+    #     #plt.ylim([0, y_top_limit[i]])
+    #
+    #
+    #     #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+    #
+    # plt.xlabel("Time")
+    # plt.ylabel("Total concentration")
+    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+
+
+
+    plt.show()
+
+
+
+
+
+
+
+
+
+    return concentration_PCR
 
 
 
@@ -1326,4 +1485,4 @@ if __name__ == '__main__':
 
     #print(table2)
 
-    #print(misbinding_PCR_total_concentration(table2, timele))
+    #print(total_yield(table2, timele))
