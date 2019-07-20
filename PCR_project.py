@@ -855,35 +855,6 @@ def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array da
 
 
 
-single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
-
-
-
-def PCR_total_concentration(all_concentration):
-
-
-    single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
-
-
-    concentration_PCR = np.zeros((all_concentration.shape[0], len(single_species_PCR)))
-
-    resi = []
-
-
-    for x in range(len(single_species_PCR)):
-
-
-        for i in species:
-
-            if single_species_PCR[x] in i:
-
-                #print("result", species.index(i))
-
-                append.resi(i)
-
-
-
-
 
 
 
@@ -2425,6 +2396,11 @@ def only_one_integration(values, number):
 
     print("The concentration of the 17 species at the end of", functions_plus_name[number], ":", values)
 
+
+    print("total conc", PCR_total_concentration(concentration, time))
+
+
+
     #after_nt_number = all_nucleotide(values)
 
     #all_umol_2 = u_molar_concentration(values)
@@ -2468,12 +2444,144 @@ def only_one_integration(values, number):
 
 
 
+
+
     return values
 
 
 
 
+
+
+
+
+
+version1 = [1 for i in range(17)]
+
+version2 = [2 for i in range(17)]
+
+
+table2 = np.array([version1, version2])
+
+
+
+
+single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
+
+
+
+def PCR_total_concentration(all_concentration, time_vector):
+
+
+    single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
+
+
+    concentration_PCR = np.zeros((all_concentration.shape[0], len(single_species_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[], [], [], [], [], [], []]
+
+
+    for x in range(len(single_species_PCR)):
+
+
+        for i in species:
+
+            if single_species_PCR[x] in i:
+
+
+                indexes_of_species[x].append(species.index(i))
+
+
+    print(indexes_of_species)
+
+
+
+
+    for x in range(all_concentration.shape[0]):
+
+
+        for i in range(len(indexes_of_species)):
+
+            summary_concentration = 0
+
+
+            for n in range(len(indexes_of_species[i])):
+
+
+                summary_concentration = summary_concentration + all_concentration[x, indexes_of_species[i][n]]
+
+
+
+            concentration_PCR[x, i] = summary_concentration
+
+
+
+
+    plt.figure(1)
+
+    plt.suptitle("Total concentrations of single species over time" , fontsize = 14)
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(single_species_PCR)):
+
+        plt.subplot(2, 4, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, i], label = single_species_PCR[i])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+        #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+        plt.xlabel("Time")
+        plt.ylabel("Total concentration")
+
+
+
+
+    plt.show()
+
+
+
+
+
+
+
+
+
+    return concentration_PCR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
+
+
+    print(version1)
+
+    print(version2)
+
+    print(table2)
+
+    #print(PCR_total_concentration(table2))
+
+    #onet = PCR_total_concentration(table2)
+
+   # print(onet[:, 2])
 
 
     #dS_change_4_species2(overall_concentration)
@@ -2504,10 +2612,9 @@ if __name__ == '__main__':
 
 
 
-    only_one_integration(values, 8)
+    cycle1 = only_one_integration(values, 8)
 
-
-
+    print(cycle1)
 
     #print(values)
 
