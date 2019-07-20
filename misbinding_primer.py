@@ -996,6 +996,9 @@ def misbinding_only_one_integration(values, number):
     #print("The difference in micromolar concentration after", functions_plus_name[number], ":", all_umol_1 - all_umol_2, "\n")
 
 
+    print("total misbinding conc", misbinding_PCR_total_concentration(concentration, time))
+
+
     #Plotting the concentrations over time
 
     plt.figure(1)
@@ -1029,7 +1032,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.xlabel("Time (s)")
         plt.ylabel("Concentration (uM)")
-        plt.tight_layout(w_pad=0.8, h_pad=0.8)
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
 
 
     plt.figure(2)
@@ -1094,7 +1097,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.xlabel("Time (s)")
         plt.ylabel("Concentration (uM)")
-        plt.tight_layout()
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
 
 
 
@@ -1127,7 +1130,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.xlabel("Time (s)")
         plt.ylabel("Concentration (uM)")
-        #plt.tight_layout()
+        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
 
 
 
@@ -1142,8 +1145,185 @@ def misbinding_only_one_integration(values, number):
     return values
 
 
+
+
+
+version1 = [1 for i in range(33)]
+
+version2 = [2 for i in range(33)]
+
+timele = [0,1]
+
+
+table2 = np.array([version1, version2])
+
+
+
+def misbinding_PCR_total_concentration(all_concentration, time_vector):
+
+
+    misbinding_single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
+
+
+    concentration_PCR = np.zeros((all_concentration.shape[0], len(misbinding_single_species_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[] for i in range(len(misbinding_single_species_PCR))]
+
+
+    for x in range(len(misbinding_single_species_PCR)):
+
+
+        for i in new_species:
+
+            if misbinding_single_species_PCR[x] in i:
+
+
+                indexes_of_species[x].append(new_species.index(i))
+
+
+    print(indexes_of_species)
+
+
+
+
+    for x in range(all_concentration.shape[0]):
+
+
+        for i in range(len(indexes_of_species)):
+
+            summary_concentration = 0
+
+
+            for n in range(len(indexes_of_species[i])):
+
+
+                summary_concentration = summary_concentration + all_concentration[x, indexes_of_species[i][n]]
+
+
+
+            concentration_PCR[x, i] = summary_concentration
+
+
+
+
+    plt.figure(1)
+
+    plt.suptitle("Total concentrations of single species over time with PCR misbinding" , fontsize = 14)
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(misbinding_single_species_PCR)):
+
+        plt.subplot(2, 6, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, i])      #label = misbinding_single_species_PCR[i]
+
+        plt.gca().set_title(misbinding_single_species_PCR[i])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+        #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+        plt.xlabel("Time")
+        plt.ylabel("Total concentration")
+
+
+
+
+    plt.figure(2)
+
+    plt.suptitle("Total concentrations of 4 single species over time with misbinding PCR" , fontsize = 14)
+
+    highlighted_species = [0, 3, 5, 6]            # "S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(highlighted_species)):
+
+        #plt.subplot(2, 4, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = misbinding_single_species_PCR[highlighted_species[i]])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+        #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+    plt.xlabel("Time")
+    plt.ylabel("Total concentration")
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+
+
+    plt.figure(3)
+
+    plt.suptitle("Total concentrations of misbinding single species over time" , fontsize = 14)
+
+    highlighted_species = [0, 7, 8, 10]            # "S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(highlighted_species)):
+
+        #plt.subplot(2, 4, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = misbinding_single_species_PCR[highlighted_species[i]])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+        #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+    plt.xlabel("Time")
+    plt.ylabel("Total concentration")
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+
+
+
+    plt.show()
+
+
+
+
+
+
+
+
+
+    return concentration_PCR
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
 
-    print(values)
+    #print(values)
 
     misbinding_only_one_integration(values, 23)    # pcr with misbinding
+
+    #print(table2)
+
+    #print(misbinding_PCR_total_concentration(table2, timele))
