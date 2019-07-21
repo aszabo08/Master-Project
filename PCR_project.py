@@ -15,6 +15,12 @@ import numpy as np
 
 
 
+
+
+from scipy.integrate import solve_ivp
+
+
+
 species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
@@ -35,17 +41,19 @@ values[0] = 3e-2
 #values[3] = 8            # concentration of P1 in uM
 #values[4] = 8
 
-values[3] = 8          # concentration of P1 in uM
-values[4] = 8
+values[3] = 30         # concentration of P1 in uM
+values[4] = 30
 
 
-values[7] = 0.2        # concentration of E in uM
+#values[7] = 0.2        # concentration of E in uM
+
+values[7] = 20
 
 #values[10] = 200           # concentration of dNTP in uM
 
 #values[10] = 10000
 
-values[10] = 12000
+values[10] = 25000
 
 
 # #
@@ -2348,7 +2356,7 @@ def only_one_integration(values, number):
 
 
 
-        integration_den = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs))
+        integration_den = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
 
         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
@@ -2366,7 +2374,7 @@ def only_one_integration(values, number):
 
         #print("dGs_anneals", dGs)
 
-        integration_anneal = odeint(functions_plus[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs))
+        integration_anneal = odeint(functions_plus[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
@@ -2384,7 +2392,7 @@ def only_one_integration(values, number):
 
         #print("dGs_text", dGs)
 
-        integration_ext = odeint(functions_plus[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs))
+        integration_ext = odeint(functions_plus[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
 
         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
@@ -2466,7 +2474,7 @@ table2 = np.array([version1, version2])
 
 
 
-single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
+#single_species_PCR = ["S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"]
 
 
 
@@ -2478,7 +2486,7 @@ def PCR_total_concentration(all_concentration, time_vector):
 
     concentration_PCR = np.zeros((all_concentration.shape[0], len(single_species_PCR)))         # the matrix s length is all time points
 
-    indexes_of_species = [[], [], [], [], [], [], []]
+    indexes_of_species = [[] for i in range(len(single_species_PCR))]
 
 
     for x in range(len(single_species_PCR)):
@@ -2532,6 +2540,8 @@ def PCR_total_concentration(all_concentration, time_vector):
 
         plt.plot(time_vector, concentration_PCR[:, i], label = single_species_PCR[i])
 
+        plt.gca().set_title(single_species_PCR[i])
+
         #plt.ylim([0, y_top_limit[i]])
 
 
@@ -2539,6 +2549,37 @@ def PCR_total_concentration(all_concentration, time_vector):
 
         plt.xlabel("Time")
         plt.ylabel("Total concentration")
+
+
+
+
+    plt.figure(2)
+
+    plt.suptitle("Total concentrations of 4 single species over time" , fontsize = 14)
+
+    highlighted_species = [0, 3, 5, 6]            #["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
+
+
+    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+
+
+    for i in range(len(highlighted_species)):
+
+        #plt.subplot(2, 4, i+1)
+
+
+        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = single_species_PCR[highlighted_species[i]])
+
+        #plt.ylim([0, y_top_limit[i]])
+
+
+        #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
+    plt.xlabel("Time")
+    plt.ylabel("Total concentration")
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+
 
 
 
@@ -2573,9 +2614,9 @@ if __name__ == '__main__':
 
     print(version1)
 
-    print(version2)
+    #print(version2)
 
-    print(table2)
+    #print(table2)
 
     #print(PCR_total_concentration(table2))
 
@@ -2612,9 +2653,9 @@ if __name__ == '__main__':
 
 
 
-    cycle1 = only_one_integration(values, 8)
+    only_one_integration(values, 8)
 
-    print(cycle1)
+    #print(cycle1)
 
     #print(values)
 
