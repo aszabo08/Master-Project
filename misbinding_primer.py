@@ -925,7 +925,7 @@ def misbinding_only_one_integration(values, number):
 
 
 
-        integration_den = odeint(functions_with_misbinding[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs))
+        integration_den = odeint(functions_with_misbinding[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
 
         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
@@ -951,7 +951,7 @@ def misbinding_only_one_integration(values, number):
 
         #print("dGs_anneals", dGs)
 
-        integration_anneal = odeint(functions_with_misbinding[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs))
+        integration_anneal = odeint(functions_with_misbinding[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
@@ -975,12 +975,35 @@ def misbinding_only_one_integration(values, number):
 
         #print("dGs_text", dGs)
 
-        integration_ext = odeint(functions_with_misbinding[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs))
+        integration_ext = odeint(functions_with_misbinding[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
 
         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
 
         values = integration_ext[-1]
+
+
+
+    dGs[0] = (Tm_S1S2 - T_cooling_down) * dS
+
+    dGs[1] = (Tm_primer - T_cooling_down) * dS
+
+    dGs[2] = (Tm_extended_primer - T_cooling_down) * dS
+
+    #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+
+    dGs[3] = (Tm_enzyme - T_cooling_down) * dS
+
+    dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+    integration_cool = odeint(functions_with_misbinding[number], integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+
+    concentration[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+
+
+    values = integration_cool[-1]
+
+
 
 
 
@@ -1506,7 +1529,7 @@ def purity_total_yield(values):
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
 
-        integration = odeint(PCR_reaction_with_misbinding, values, time_all, args=(temperature_scale[i], dGs))
+        integration = odeint(PCR_reaction_with_misbinding, values, time_all, args=(temperature_scale[i], dGs),  mxstep=5000000)
 
         concentration_point[i] = integration[-1]
 
@@ -1558,6 +1581,8 @@ def purity_total_yield(values):
 
     yield_sum = [0 for i in range(concentration_point.shape[0])]
 
+    purity = [0 for i in range(concentration_point.shape[0])]
+
 
 
 
@@ -1568,28 +1593,274 @@ def purity_total_yield(values):
 
         yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
 
+        purity[i] = concentration_PCR[i, 0] / yield_sum[i]
+
+
+    print("S", concentration_PCR[:, 0] )
+    print("L", concentration_PCR[:, 1] )
+    print("purity", purity)
+
 
     plt.figure(1)
+    #
+    # plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+    #
+    #
+    # #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+    #
+    #
+    # for i in range(len(yield_PCR)):
+    #
+    #     #plt.subplot(2, 6, i+1)
+    #
+    #
+    #     plt.plot(temperature_scale, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
+    #
+    #     #plt.gca().set_title(misbinding_single_species_PCR[i])
+    #
+    #     #plt.ylim([0, y_top_limit[i]])
 
-    plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+
+    plt.plot(temperature_scale, purity, label = "Total yield: S + L")
+
+    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.xlabel("Temperature")
+    plt.ylabel("Total concentration")
 
 
-    #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
 
 
-    for i in range(len(yield_PCR)):
-
-        #plt.subplot(2, 6, i+1)
 
 
-        plt.plot(temperature_scale, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
-
-        #plt.gca().set_title(misbinding_single_species_PCR[i])
-
-        #plt.ylim([0, y_top_limit[i]])
 
 
-    #plt.plot(temperature_scale, yield_sum, label = "Total yield: S + L")
+    plt.show()
+
+
+
+
+
+    return concentration_PCR
+
+
+
+
+
+
+
+def purity_total_yield_Tm(values):
+
+
+
+    #dGs = [0 for x in range(8)]
+
+    #time_all = np.linspace(0, tden + tanneal + text, tden + tanneal + text)
+
+
+    temperature_scale = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)     # Temperature scale between 0 and 110 degree Celsius
+
+    concentration_point = np.empty((len(temperature_scale), len(new_species)))
+
+
+
+
+
+
+
+    concentration = np.empty((number_time_points, 33))
+
+    dGs = [0 for x in range(8)]
+
+
+
+    #before_nt_number = all_nucleotide(values)
+
+    #all_umol_1 = u_molar_concentration(values)
+
+
+    for x in range(len(temperature_scale)):
+
+
+        Tm_misbinding_primer = temperature_scale[x]
+
+        Tm_primer = temperature_scale[x] + 5
+
+
+        for i in range(number_cycles):
+
+
+            dGs[0] = (Tm_S1S2 - Tden) * dS
+
+            dGs[1] = (Tm_primer - Tden) * dS
+
+            dGs[2] = (Tm_extended_primer - Tden) * dS
+
+            dGs[3] = (Tm_enzyme - Tden) * dS
+
+            dGs[4] = (Tm_misbinding_primer - Tden) * dS
+
+            dGs[5] = (Tm_misbinding_extended_primer - Tden) * dS
+
+            dGs[6] = (Tm_misbinding_single_substrate - Tden) * dS
+
+            dGs[7] = (Tm_misbinding_double_substrate - Tden) * dS
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+            #print("dGs_den", dGs)
+
+
+
+
+            integration_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+
+            concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+
+            dGs[0] = (Tm_S1S2 - Tanneal) * dS
+
+            dGs[1] = (Tm_primer - Tanneal) * dS
+
+            dGs[2] = (Tm_extended_primer - Tanneal) * dS
+
+            dGs[3] = (Tm_enzyme - Tanneal) * dS
+
+            dGs[4] = (Tm_misbinding_primer - Tanneal) * dS
+
+            dGs[5] = (Tm_misbinding_extended_primer - Tanneal) * dS
+
+            dGs[6] = (Tm_misbinding_single_substrate - Tanneal) * dS
+
+            dGs[7] = (Tm_misbinding_double_substrate - Tanneal) * dS
+
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+            #print("dGs_anneals", dGs)
+
+            integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+
+            concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+
+            dGs[0] = (Tm_S1S2 - Text) * dS
+
+            dGs[1] = (Tm_primer - Text) * dS
+
+            dGs[2] = (Tm_extended_primer - Text) * dS
+
+            dGs[3] = (Tm_enzyme - Text) * dS
+
+            dGs[4] = (Tm_misbinding_primer - Text) * dS
+
+            dGs[5] = (Tm_misbinding_extended_primer - Text) * dS
+
+            dGs[6] = (Tm_misbinding_single_substrate - Text) * dS
+
+            dGs[7] = (Tm_misbinding_double_substrate - Text) * dS
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+            #print("dGs_text", dGs)
+
+            integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+
+            concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+
+
+            values = integration_ext[-1]
+
+        concentration_point[x] = integration_ext[-1]
+
+        values = initial_fixed
+
+
+
+    yield_PCR = ["S", "L"]
+
+    concentration_PCR = np.zeros((concentration_point.shape[0], len(yield_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[] for i in range(len(yield_PCR))]
+
+
+    for x in range(len(yield_PCR)):
+
+
+        for i in new_species:
+
+            if yield_PCR[x] in i:
+
+
+                indexes_of_species[x].append(new_species.index(i))
+
+
+    print(indexes_of_species)
+
+
+
+
+    for x in range(concentration_point.shape[0]):
+
+
+        for i in range(len(indexes_of_species)):
+
+            summary_concentration = 0
+
+
+            for n in range(len(indexes_of_species[i])):
+
+
+                summary_concentration = summary_concentration + concentration_point[x, indexes_of_species[i][n]]
+
+
+
+            concentration_PCR[x, i] = summary_concentration
+
+
+    yield_sum = [0 for i in range(concentration_point.shape[0])]
+
+    purity = [0 for i in range(concentration_point.shape[0])]
+
+
+
+
+    for i in range(concentration_point.shape[0]):
+
+
+
+
+        yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
+
+        purity[i] = concentration_PCR[i, 0] / yield_sum[i]
+
+
+    print("S", concentration_PCR[:, 0] )
+    print("L", concentration_PCR[:, 1] )
+    print("purity", purity)
+
+
+    plt.figure(1)
+    #
+    # plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+    #
+    #
+    # #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
+    #
+    #
+    # for i in range(len(yield_PCR)):
+    #
+    #     #plt.subplot(2, 6, i+1)
+    #
+    #
+    #     plt.plot(temperature_scale, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
+    #
+    #     #plt.gca().set_title(misbinding_single_species_PCR[i])
+    #
+    #     #plt.ylim([0, y_top_limit[i]])
+
+
+    plt.plot(temperature_scale, purity, label = "Total yield: S + L")
 
     plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
@@ -1628,14 +1899,36 @@ def purity_total_yield(values):
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
 
     #print(values)
 
-    #misbinding_only_one_integration(values, 23)    # pcr with misbinding
+    misbinding_only_one_integration(values, 23)    # pcr with misbinding
 
     #print(table2)
 
     #print(total_yield(table2, timele))
 
-    purity_total_yield(values)
+    #purity_total_yield_Tm(values)
