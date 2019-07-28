@@ -26,6 +26,35 @@ Tm_misbinding_single_substrate = 343.15     # 70 degree    L  ( length of the cr
 Tm_misbinding_double_substrate = 345.15     # 72 degree    L1L2  -----> it is higher as assumingly the there are no mismatches in the complex while in S1L2 there could be more mismatched nt pairs due to the misbinding
 
 
+# mis = 0.25
+#
+#
+# # Assuming that one-fourth of the full length is mismatched: we just deduct that length
+#
+# length_misbinding_primer = primer_length - round(mis * primer_length)
+#
+# length_misbinding_extended_primer = extended_primer - round(mis * extended_primer)
+#
+# length_misbinding_single_substrate = length_of_L - round(mis * length_of_L)
+#
+#
+#
+# Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 306.1179269849045 K
+#
+# Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 328.8778398293736 K
+#
+# Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)          # 364.27564234055836 K
+#
+# Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                        # 364.78659575718 K
+#
+#
+
+
+
+
+
+
+
 
 def misbinding_primer_1(values, t, T, dGs):
 
@@ -1922,6 +1951,17 @@ def purity_total_yield_Tm(values):
 
 
 if __name__ == '__main__':
+
+    #
+    #
+    # print(Tm_misbinding_primer)
+    #
+    # print(Tm_misbinding_extended_primer)
+    #
+    # print(Tm_misbinding_single_substrate)
+    #
+    # print(Tm_misbinding_double_substrate)
+
 
     #print(values)
 
