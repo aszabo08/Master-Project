@@ -36,17 +36,31 @@ Tm_misbinding_double_substrate = 345.15     # 72 degree    L1L2  -----> it is hi
 # length_misbinding_extended_primer = extended_primer - round(mis * extended_primer)
 #
 # length_misbinding_single_substrate = length_of_L - round(mis * length_of_L)
-#
-#
-#
-# Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 306.1179269849045 K
-#
-# Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 328.8778398293736 K
-#
-# Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)          # 364.27564234055836 K
-#
-# Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                        # 364.78659575718 K
-#
+
+
+mismatch = 5
+
+
+#Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
+
+length_misbinding_primer = primer_length - mismatch
+
+length_misbinding_extended_primer = extended_primer - mismatch
+
+length_misbinding_single_substrate = length_of_L - mismatch
+
+
+
+
+
+Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 306.1179269849045 K
+
+Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 328.8778398293736 K
+
+Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)          # 364.27564234055836 K
+
+Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                        # 364.78659575718 K
+
 #
 
 
@@ -930,21 +944,49 @@ def misbinding_only_one_integration(values, number):
     for i in range(number_cycles):
 
 
-        dGs[0] = (Tm_S1S2 - Tden) * dS
+        # dGs[0] = (Tm_S1S2 - Tden) * dS
+        #
+        # dGs[1] = (Tm_primer - Tden) * dS
+        #
+        # dGs[2] = (Tm_extended_primer - Tden) * dS
+        #
+        # dGs[3] = (Tm_enzyme - Tden) * dS
+        #
+        # dGs[4] = (Tm_misbinding_primer - Tden) * dS
+        #
+        # dGs[5] = (Tm_misbinding_extended_primer - Tden) * dS
+        #
+        # dGs[6] = (Tm_misbinding_single_substrate - Tden) * dS
+        #
+        # dGs[7] = (Tm_misbinding_double_substrate - Tden) * dS
 
-        dGs[1] = (Tm_primer - Tden) * dS
 
-        dGs[2] = (Tm_extended_primer - Tden) * dS
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
+
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tden * dS)
+
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tden * dS)
 
         dGs[3] = (Tm_enzyme - Tden) * dS
 
-        dGs[4] = (Tm_misbinding_primer - Tden) * dS
+        dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Tden * dS)
 
-        dGs[5] = (Tm_misbinding_extended_primer - Tden) * dS
+        dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Tden * dS)
 
-        dGs[6] = (Tm_misbinding_single_substrate - Tden) * dS
+        dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Tden * dS)
 
-        dGs[7] = (Tm_misbinding_double_substrate - Tden) * dS
+        dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tden * dS)
+
+
+
+
+
+
+
+
+
+
+
 
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
@@ -958,21 +1000,52 @@ def misbinding_only_one_integration(values, number):
 
         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
-        dGs[0] = (Tm_S1S2 - Tanneal) * dS
+        # dGs[0] = (Tm_S1S2 - Tanneal) * dS
+        #
+        # dGs[1] = (Tm_primer - Tanneal) * dS
+        #
+        # dGs[2] = (Tm_extended_primer - Tanneal) * dS
+        #
+        # dGs[3] = (Tm_enzyme - Tanneal) * dS
+        #
+        # dGs[4] = (Tm_misbinding_primer - Tanneal) * dS
+        #
+        # dGs[5] = (Tm_misbinding_extended_primer - Tanneal) * dS
+        #
+        # dGs[6] = (Tm_misbinding_single_substrate - Tanneal) * dS
+        #
+        # dGs[7] = (Tm_misbinding_double_substrate - Tanneal) * dS
 
-        dGs[1] = (Tm_primer - Tanneal) * dS
 
-        dGs[2] = (Tm_extended_primer - Tanneal) * dS
+
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
+
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tanneal * dS)
+
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tanneal * dS)
 
         dGs[3] = (Tm_enzyme - Tanneal) * dS
 
-        dGs[4] = (Tm_misbinding_primer - Tanneal) * dS
+        dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Tanneal * dS)
 
-        dGs[5] = (Tm_misbinding_extended_primer - Tanneal) * dS
+        dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Tanneal * dS)
 
-        dGs[6] = (Tm_misbinding_single_substrate - Tanneal) * dS
+        dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Tanneal * dS)
 
-        dGs[7] = (Tm_misbinding_double_substrate - Tanneal) * dS
+        dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tanneal * dS)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -984,21 +1057,46 @@ def misbinding_only_one_integration(values, number):
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
-        dGs[0] = (Tm_S1S2 - Text) * dS
+        # dGs[0] = (Tm_S1S2 - Text) * dS
+        #
+        # dGs[1] = (Tm_primer - Text) * dS
+        #
+        # dGs[2] = (Tm_extended_primer - Text) * dS
+        #
+        # dGs[3] = (Tm_enzyme - Text) * dS
+        #
+        # dGs[4] = (Tm_misbinding_primer - Text) * dS
+        #
+        # dGs[5] = (Tm_misbinding_extended_primer - Text) * dS
+        #
+        # dGs[6] = (Tm_misbinding_single_substrate - Text) * dS
+        #
+        # dGs[7] = (Tm_misbinding_double_substrate - Text) * dS
 
-        dGs[1] = (Tm_primer - Text) * dS
 
-        dGs[2] = (Tm_extended_primer - Text) * dS
+
+
+
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
+
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Text * dS)
+
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Text * dS)
 
         dGs[3] = (Tm_enzyme - Text) * dS
 
-        dGs[4] = (Tm_misbinding_primer - Text) * dS
+        dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Text * dS)
 
-        dGs[5] = (Tm_misbinding_extended_primer - Text) * dS
+        dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Text * dS)
 
-        dGs[6] = (Tm_misbinding_single_substrate - Text) * dS
+        dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Text * dS)
 
-        dGs[7] = (Tm_misbinding_double_substrate - Text) * dS
+        dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Text * dS)
+
+
+
+
+
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
@@ -1013,15 +1111,37 @@ def misbinding_only_one_integration(values, number):
 
 
 
-    dGs[0] = (Tm_S1S2 - T_cooling_down) * dS
+    # dGs[0] = (Tm_S1S2 - T_cooling_down) * dS
+    #
+    # dGs[1] = (Tm_primer - T_cooling_down) * dS
+    #
+    # dGs[2] = (Tm_extended_primer - T_cooling_down) * dS
+    #
+    # #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+    #
+    # dGs[3] = (Tm_enzyme - T_cooling_down) * dS
 
-    dGs[1] = (Tm_primer - T_cooling_down) * dS
 
-    dGs[2] = (Tm_extended_primer - T_cooling_down) * dS
+    dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
 
-    #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+    dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_cooling_down  * dS)
 
-    dGs[3] = (Tm_enzyme - T_cooling_down) * dS
+    dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_cooling_down  * dS)
+
+    dGs[3] = (Tm_enzyme - T_cooling_down ) * dS
+
+    dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (T_cooling_down  * dS)
+
+    dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (T_cooling_down  * dS)
+
+    dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (T_cooling_down * dS)
+
+    dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_cooling_down  * dS)
+
+
+
+
+
 
     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
@@ -1954,18 +2074,18 @@ if __name__ == '__main__':
 
     #
     #
-    # print(Tm_misbinding_primer)
-    #
-    # print(Tm_misbinding_extended_primer)
-    #
-    # print(Tm_misbinding_single_substrate)
-    #
-    # print(Tm_misbinding_double_substrate)
+    print(Tm_misbinding_primer)
+
+    print(Tm_misbinding_extended_primer)
+
+    print(Tm_misbinding_single_substrate)
+
+    print(Tm_misbinding_double_substrate)
 
 
     #print(values)
 
-    misbinding_only_one_integration(values, 23)    # pcr with misbinding
+    #misbinding_only_one_integration(values, 23)    # pcr with misbinding
 
     #print(table2)
 
