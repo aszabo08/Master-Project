@@ -32,7 +32,7 @@ values = [0 for i in range(33)]
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 
-values[0] = 3e-4
+values[0] = 0.0001515151515152
 
 
 
@@ -46,19 +46,19 @@ values[0] = 3e-4
 #values[3] = 8            # concentration of P1 in uM
 #values[4] = 8
 
-values[3] = 5       # concentration of P1 in uM
-values[4] = 5
+values[3] = 0.5       # concentration of P1 in uM
+values[4] = 0.5
 
 
 #values[7] = 0.2        # concentration of E in uM
 
-values[7] = 2
+values[7] = 0.02
 
 #values[10] = 200           # concentration of dNTP in uM
 
 #values[10] = 10000
 
-values[10] = 2000
+values[10] = 200
 
 
 # #
@@ -84,14 +84,17 @@ initial_fixed = values
 
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
-#Tden = 343.15               # 96 degree
+#Tden = 343.15               # 98 degree
 
-Tden = 369.15
+Tden = 369.15                # 98 degree
 
-Tanneal = 303.15           # 30 degree
-#Tanneal = 323.15
+Tanneal = 303.15
 
-Text = 343.15               # 70 degree
+# 30 degree
+
+#Tanneal = 345.15
+
+Text = 345.15               # 72 degree
 
 #Text = 323.15
 
@@ -104,20 +107,27 @@ T_cooling_down = 298.15             # 25 degree celsius
 
 tden = 10                   # seconds
 tanneal = 10                # seconds
-text = 10                   # seconds
+text = 20                   # seconds
 
 t_cooling_down = 10
 
 
 total = tden + tanneal + text
 
-number_cycles = 30
+number_cycles = 32
 
 steps = 1
 
 
 amplicon_length = 1000
 primer_length = 15
+
+
+#primer_length = 27
+
+
+
+
 
 n = 10
 
@@ -136,14 +146,14 @@ number_time_points = total * steps * number_cycles + t_cooling_down * steps
 #
 # original Tm -es
 
-
-Tm_S1S2 = 363.15                # 90 degrees
-
-Tm_primer = 308.15              # 35 degrees        # from neb tm calculator: 15nt, 20 % GC content, 35 celius TM: AATTTAACGAATTCA
-
-Tm_extended_primer = 313.15     # 40 degree
-
-Tm_enzyme = 353.15              # 80 degree
+#
+# Tm_S1S2 = 363.15                # 90 degrees
+#
+# Tm_primer = 308.15              # 35 degrees        # from neb tm calculator: 15nt, 20 % GC content, 35 celius TM: AATTTAACGAATTCA
+#
+# Tm_extended_primer = 313.15     # 40 degree
+#
+# Tm_enzyme = 353.15              # 80 degree
 
 
 #dS = -1256.0395 # j/m
@@ -187,27 +197,33 @@ R = 8.314e-3        # Gas contant in  J / K mol
 
 #
 #
-# Tm_primer = 320.15      # 47 deggree
+#Tm_primer = 320.15      # 47 deggree
+
+#Tm_extended_primer = 337.15     #64 degree
+
+
+Tm_primer = 343.15
+
+Tm_extended_primer = 349.15
+
+
+Tmax = 373.15           # 100 degree
+
+
+K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)
+
+
+dH = (Tm_primer * dS * (primer_length + K)) / (Tmax * primer_length)
+
+
+dH_check = (Tm_extended_primer * dS * ( extended_primer + K)) / ( Tmax * extended_primer)
+
+Tm_S1S2 = (Tmax * amplicon_length * dH) / ((amplicon_length + K) * dS)
 #
-# Tm_extended_primer = 337.15     #64 degree
-#
-# Tmax = 373.15           # 100 degree
-#
-#
-# K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)
-#
-#
-# dH = (Tm_primer * dS * (primer_length + K)) / (Tmax * primer_length)
-#
-#
-# dH_check = (Tm_extended_primer * dS * ( extended_primer + K)) / ( Tmax * extended_primer)
-#
-# Tm_S1S2 = (Tmax * amplicon_length * dH) / ((amplicon_length + K) * dS)
-# #
-# # #Tm_enzyme = dH / dS
-#
-#
-# Tm_enzyme = 353.15              # 80 degree  not calculated!
+# #Tm_enzyme = dH / dS
+
+
+Tm_enzyme = 353.15              # 80 degree  not calculated!
 
 
 
@@ -1637,7 +1653,7 @@ def only_one_integration(values, number):
 
 
 
-        integration_den = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=500000)
+        integration_den = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
 
         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
@@ -1668,7 +1684,7 @@ def only_one_integration(values, number):
 
         #print("dGs_anneals", dGs)
 
-        integration_anneal = odeint(functions_plus[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=500000)
+        integration_anneal = odeint(functions_plus[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
@@ -1698,7 +1714,7 @@ def only_one_integration(values, number):
 
         #print("dGs_text", dGs)
 
-        integration_ext = odeint(functions_plus[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=500000)
+        integration_ext = odeint(functions_plus[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
 
         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
@@ -1742,12 +1758,12 @@ def only_one_integration(values, number):
     values = integration_cool[-1]
 
 
-    print("length of conc", concentration.shape)
+    #print("length of conc", concentration.shape)
 
     print("The concentration of the 17 species at the end of", functions_plus_name[number], ":", values)
 
 
-    print("total conc", PCR_total_concentration(concentration, time))
+    #print("total conc", PCR_total_concentration(concentration, time))
 
 
 
@@ -1946,7 +1962,7 @@ def PCR_total_concentration(all_concentration, time_vector):
 if __name__ == '__main__':
 
 
-    # print(dH)
+    #print("dh", dH)
     # print(dH_check)
     # print(Tm_S1S2)
     # print(Tm_enzyme)
