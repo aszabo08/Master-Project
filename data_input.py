@@ -132,6 +132,8 @@ Text = celsius_to_Kelvin(Text)
 
 text = int(text_string)
 
+number_cycles = int(input("Enter the number of cycles "))
+
 
 
 T_cooling_down = 298.15             # 25 degree celsius
@@ -272,7 +274,6 @@ Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH
 
 Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                        # 364.78659575718 K
 
-#
 
 
 
