@@ -88,13 +88,13 @@ functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "p
 
 Tden = 369.15                # 98 degree
 
-Tanneal = 303.15
+Tanneal = 346.15
 
 # 30 degree
 
 #Tanneal = 345.15
 
-Text = 345.15               # 72 degree
+Text = 349.15               # 72 degree
 
 #Text = 323.15
 
@@ -1784,7 +1784,7 @@ def only_one_integration(values, number):
     print("The concentration of the 17 species at the end of", functions_plus_name[number], ":", values)
 
 
-    #print("total conc", PCR_total_concentration(concentration, time))
+    print("total conc", PCR_total_concentration(concentration, time))
 
 
 
@@ -1926,7 +1926,7 @@ def PCR_total_concentration(all_concentration, time_vector):
 
     plt.figure(2)
 
-    plt.suptitle("Total concentrations of 4 single species over time" , fontsize = 14, FontWeight = "bold")
+    plt.suptitle("Total concentrations of 4 single species over time\nwith accurate primer binding site" , fontsize=18,  fontweight= 'bold', y=0.95)
 
     highlighted_species = [0, 3, 5, 6]            #["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
 
@@ -1936,24 +1936,26 @@ def PCR_total_concentration(all_concentration, time_vector):
 
     for i in range(len(highlighted_species)):
 
-        #plt.subplot(2, 4, i+1)
+        plt.subplot(2, 2, i+1)
+
+        plt.gca().set_title(single_species_PCR[highlighted_species[i]], fontweight = 'bold')
 
 
-        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = single_species_PCR[highlighted_species[i]])
+        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]])  # label = single_species_PCR[highlighted_species[i]]
 
         #plt.ylim([0, y_top_limit[i]])
 
 
         #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
 
-    plt.xlabel("Time (s) ",  FontSize= 13, FontWeight = "bold")
-    plt.ylabel("Total concentration (uM)",  FontSize= 13, FontWeight = "bold")
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+        plt.xlabel("Time (s) ",  FontSize= 13)
+        plt.ylabel("Total concentration (uM)",  FontSize= 13)
+        #plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
 
 
 
-
+    plt.subplots_adjust(hspace = 0.3)
 
     plt.show()
 
