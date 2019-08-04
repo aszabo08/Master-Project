@@ -120,10 +120,13 @@ steps = 1
 
 
 amplicon_length = 1000
+
 primer_length = 15
 
 
 #primer_length = 27
+
+
 
 
 
@@ -1624,6 +1627,8 @@ def only_one_integration(values, number):
     for i in range(number_cycles):
 
 
+
+
         # dGs[0] = (Tm_S1S2 - Tden) * dS
         #
         # dGs[1] = (Tm_primer - Tden) * dS
@@ -1651,7 +1656,13 @@ def only_one_integration(values, number):
         #print("dGs_den", dGs)
 
 
+        #print("den begin", i)
 
+        #integration_den, info = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000, full_output=1)
+
+        #print(info)
+
+        # print("den end", i)
 
         integration_den = odeint(functions_plus[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
 
@@ -1684,7 +1695,12 @@ def only_one_integration(values, number):
 
         #print("dGs_anneals", dGs)
 
+        #print("anneal begin", i)
+
         integration_anneal = odeint(functions_plus[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+
+        #print("anneal end", i)
+
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
@@ -1714,7 +1730,11 @@ def only_one_integration(values, number):
 
         #print("dGs_text", dGs)
 
+        #print("ext begin", i)
+
         integration_ext = odeint(functions_plus[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+
+        #print("ext end", i)
 
         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
@@ -1750,7 +1770,8 @@ def only_one_integration(values, number):
 
 
 
-    integration_cool = odeint(functions_plus[number], integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=500000)
+
+    integration_cool = odeint(functions_plus[number], integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
 
     concentration[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
 
@@ -1780,7 +1801,7 @@ def only_one_integration(values, number):
 
     plt.figure(1)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
 
     plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
 
@@ -1791,7 +1812,7 @@ def only_one_integration(values, number):
 
         plt.subplot(2, 5, i+1)
 
-        plt.gca().set_title(species[plots[i]])
+        plt.gca().set_title(species[plots[i]], fontweight = 'bold')
 
 
         plt.plot(time, concentration[:, plots[i]])
@@ -1801,12 +1822,12 @@ def only_one_integration(values, number):
 
         #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time")
-        plt.ylabel("Concentration")
+        plt.xlabel("Time", fontsize = 12)
+        plt.ylabel("Concentration", fontsize = 12)
 
 
 
-
+    plt.subplots_adjust(wspace = 0.38)
     plt.show()
 
 
@@ -1898,7 +1919,7 @@ def PCR_total_concentration(all_concentration, time_vector):
 
         plt.xlabel("Time (s) ",  FontSize= 13, FontWeight = "bold")
         plt.ylabel("Total concentration (uM)",  FontSize= 13, FontWeight = "bold")
-    plt.tight_layout()
+    #plt.tight_layout()
 
 
 

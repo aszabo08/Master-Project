@@ -17,14 +17,14 @@ length_of_L = 487 + 15 + 10         # 512
 
 
 
-Tm_misbinding_primer = 303.15               # 30 degrees
-
-Tm_misbinding_extended_primer = 308.15      # 35 degree
-
-Tm_misbinding_single_substrate = 343.15     # 70 degree    L  ( length of the created shorter product is 512 nt ---->  Neb calculator )
-
-Tm_misbinding_double_substrate = 345.15     # 72 degree    L1L2  -----> it is higher as assumingly the there are no mismatches in the complex while in S1L2 there could be more mismatched nt pairs due to the misbinding
-
+# Tm_misbinding_primer = 303.15               # 30 degrees
+#
+# Tm_misbinding_extended_primer = 308.15      # 35 degree
+#
+# Tm_misbinding_single_substrate = 343.15     # 70 degree    L  ( length of the created shorter product is 512 nt ---->  Neb calculator )
+#
+# Tm_misbinding_double_substrate = 345.15     # 72 degree    L1L2  -----> it is higher as assumingly the there are no mismatches in the complex while in S1L2 there could be more mismatched nt pairs due to the misbinding
+#
 
 # mis = 0.25
 #
@@ -1177,7 +1177,7 @@ def misbinding_only_one_integration(values, number):
 
     plt.figure(1)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
 
     #plots1 = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
 
@@ -1194,7 +1194,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 5, i+1)
 
-        plt.gca().set_title(new_species[plots1[i]])
+        plt.gca().set_title(new_species[plots1[i]], fontweight = 'bold')
 
 
         plt.plot(time, concentration[:, plots1[i]])
@@ -1204,14 +1204,14 @@ def misbinding_only_one_integration(values, number):
 
         #plt.legend([new_species[plots1[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time (s)")
-        plt.ylabel("Concentration (uM)")
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
+        plt.xlabel("Time (s)", fontsize = 12)
+        plt.ylabel("Concentration (uM)", fontsize = 12)
+        plt.subplots_adjust(wspace = 0.38)
 
 
     plt.figure(2)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
 
 
 
@@ -1228,7 +1228,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 4, i+1)
 
-        plt.gca().set_title(new_species[plots2[i]])
+        plt.gca().set_title(new_species[plots2[i]], fontweight = 'bold')
 
         plt.plot(time, concentration[:, plots2[i]])
 
@@ -1237,15 +1237,15 @@ def misbinding_only_one_integration(values, number):
 
         #plt.legend([new_species[plots2[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time (s)")
-        plt.ylabel("Concentration (uM)")
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
+        plt.xlabel("Time (s)", fontsize = 12)
+        plt.ylabel("Concentration (uM)", fontsize = 12)
+        plt.subplots_adjust(wspace = 0.38)
 
 
 
     plt.figure(3)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
 
     plots3 = []
 
@@ -1260,7 +1260,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 5, i+1)
 
-        plt.gca().set_title(new_species[plots3[i]])
+        plt.gca().set_title(new_species[plots3[i]], fontweight = 'bold')
 
         plt.plot(time, concentration[:, plots3[i]])
 
@@ -1269,15 +1269,15 @@ def misbinding_only_one_integration(values, number):
 
         #plt.legend([new_species[plots3[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time (s)")
-        plt.ylabel("Concentration (uM)")
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
+        plt.xlabel("Time (s)", fontsize = 12)
+        plt.ylabel("Concentration (uM)", fontsize = 12)
+        plt.subplots_adjust(wspace = 0.38)
 
 
 
     plt.figure(4)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
 
 
     plots4 = []
@@ -1293,7 +1293,7 @@ def misbinding_only_one_integration(values, number):
 
         plt.subplot(2, 4, i+1)
 
-        plt.gca().set_title(new_species[plots4[i]])
+        plt.gca().set_title(new_species[plots4[i]], fontweight = 'bold')
 
         plt.plot(time, concentration[:, plots4[i]])
 
@@ -1302,9 +1302,9 @@ def misbinding_only_one_integration(values, number):
 
         #plt.legend([new_species[plots4[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time (s)")
-        plt.ylabel("Concentration (uM)")
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=0.35, hspace=0.4)
+        plt.xlabel("Time (s)", fontsize = 12)
+        plt.ylabel("Concentration (uM)", fontsize = 12)
+        plt.subplots_adjust(wspace = 0.38)
 
 
 
@@ -1410,7 +1410,7 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
     plt.figure(2)
 
-    plt.suptitle("Total concentrations of 4 single species over time with misbinding PCR" , fontsize = 14)
+    plt.suptitle("Total concentrations of 4 single species over time\nwith primer misbinding" , fontsize=18,  fontweight= 'bold', y=0.95)
 
     highlighted_species = [0, 3, 5, 6]            # "S1", "S2", "P1", "P2", "Q1", "Q2", "E", "M2", "N2", "L1", "L2"
 
@@ -1420,19 +1420,23 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
     for i in range(len(highlighted_species)):
 
-        #plt.subplot(2, 4, i+1)
+        plt.subplot(2, 2, i+1)
+
+        plt.gca().set_title(misbinding_single_species_PCR[highlighted_species[i]], fontweight = 'bold')
 
 
-        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]], label = misbinding_single_species_PCR[highlighted_species[i]])
+        plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]])   # label = misbinding_single_species_PCR[highlighted_species[i]]
 
         #plt.ylim([0, y_top_limit[i]])
 
 
         #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
 
-    plt.xlabel("Time")
-    plt.ylabel("Total concentration")
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+        plt.xlabel("Time (s) ",  FontSize= 13)
+        plt.ylabel("Total concentration (uM)",  FontSize= 13)
+    #plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+
+    plt.subplots_adjust(hspace = 0.3)
 
 
 
@@ -1481,7 +1485,45 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
 
 
-def total_yield(all_concentration, time_vector):
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+def purity_over_total_yield(all_concentration, time_vector):
 
 
     yield_PCR = ["S", "L"]
@@ -1527,6 +1569,8 @@ def total_yield(all_concentration, time_vector):
 
     yield_sum = [0 for i in range(all_concentration.shape[0])]
 
+    purity = [0 for i in range(all_concentration.shape[0])]
+
 
 
 
@@ -1536,6 +1580,8 @@ def total_yield(all_concentration, time_vector):
 
 
         yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
+
+        purity[i] = concentration_PCR[i, 0] / yield_sum[i]
 
 
 
@@ -1561,6 +1607,8 @@ def total_yield(all_concentration, time_vector):
 
 
     plt.plot(time_vector, yield_sum, label = "Total yield: S + L")
+
+    plt.plot(time_vector, purity, label = "purity")
 
     plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
@@ -2073,19 +2121,19 @@ def purity_total_yield_Tm(values):
 if __name__ == '__main__':
 
     #
+    # #
+    # print(Tm_misbinding_primer)
     #
-    print(Tm_misbinding_primer)
-
-    print(Tm_misbinding_extended_primer)
-
-    print(Tm_misbinding_single_substrate)
-
-    print(Tm_misbinding_double_substrate)
+    # print(Tm_misbinding_extended_primer)
+    #
+    # print(Tm_misbinding_single_substrate)
+    #
+    # print(Tm_misbinding_double_substrate)
 
 
     #print(values)
 
-    #misbinding_only_one_integration(values, 23)    # pcr with misbinding
+    misbinding_only_one_integration(values, 23)    # pcr with misbinding
 
     #print(table2)
 
