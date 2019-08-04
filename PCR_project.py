@@ -14,13 +14,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-
-
-
-from scipy.integrate import solve_ivp
-
-
-
 species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2P1E", "dNTP", "Q1", "Q2", "S1Q2E", "S2Q1E", "S1Q2", "S2Q1"]
 
 
@@ -34,48 +27,12 @@ values = [0 for i in range(33)]
 
 values[0] = 0.0001515151515152
 
-
-
-#values[0] = 50
-
-#values[0] = 3.0769e-8
-
-#values[3] = 2             # concentration of P1 in uM
-#values[4] = 2            # concentration of P2 in uM
-
-#values[3] = 8            # concentration of P1 in uM
-#values[4] = 8
-
 values[3] = 0.5       # concentration of P1 in uM
 values[4] = 0.5
 
-
-#values[7] = 0.2        # concentration of E in uM
-
 values[7] = 0.02
 
-#values[10] = 200           # concentration of dNTP in uM
-
-#values[10] = 10000
-
 values[10] = 200
-
-
-# #
-# #
-# values[5] = 1e-2
-# values[6] = 1e-2
-#
-#
-#
-# values[8] = 4e-1
-# values[9] = 4e-1
-#
-#
-# values[15] = 5e-1
-# values[16] = 5e-1
-
-
 
 
 initial_dNTP = values[10]
@@ -84,69 +41,34 @@ initial_fixed = values
 
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
-#Tden = 343.15               # 98 degree
-
-Tden = 369.15                # 98 degree
-
-Tanneal = 346.15
-
-# 30 degree
-
-#Tanneal = 345.15
-
-Text = 349.15               # 72 degree
-
-#Text = 323.15
 
 
+Tden = 369.15
+Tanneal = 303.15
+Text = 349.15
 T_cooling_down = 298.15             # 25 degree celsius
-
-
-
-
 
 tden = 10                   # seconds
 tanneal = 10                # seconds
 text = 20                   # seconds
-
 t_cooling_down = 10
 
 
 total = tden + tanneal + text
-
 number_cycles = 32
-
 steps = 1
 
 
 amplicon_length = 1000
-
 primer_length = 15
-
-
-#primer_length = 27
-
-
-
-
-
-
-
 n = 10
-
 extended_primer = primer_length + n
-
 extended_length = amplicon_length - extended_primer
 
 time = np.linspace(0, number_cycles * (tden + tanneal + text) + t_cooling_down, number_cycles * (tden + tanneal + text) * steps + t_cooling_down * steps)  # for every second "steps" points are distinguished
 
 number_time_points = total * steps * number_cycles + t_cooling_down * steps
 
-
-# 1 entropy unit = 4.184 J/ K m
-
-
-#
 # original Tm -es
 
 #
@@ -158,48 +80,18 @@ number_time_points = total * steps * number_cycles + t_cooling_down * steps
 #
 # Tm_enzyme = 353.15              # 80 degree
 
-
-#dS = -1256.0395 # j/m
-
-#dS = - 52.7184e-2
-
-
-#dS = - 52.7184e-2/2         # -0.263592
-
-#dS = - 52.7184e-1
-
-
 dS = - 2
 
 
 max_exponent = 15    # 13
-
 min_clip = -1e+15       #18
-
 max_clip = 1e+15
-
-
 
 forward_rate = 1
 
 
-                        
-
-
-
-
-
-
 R = 8.314e-3        # Gas contant in  J / K mol
 
-#kB = 1.38064852e-23  # Boltzmann constant
-
-
-
-
-
-#
-#
 #Tm_primer = 320.15      # 47 deggree
 
 #Tm_extended_primer = 337.15     #64 degree
@@ -252,11 +144,6 @@ def celsius_to_Kelvin(x):
     return x + 273.15
 
 
-
-
-
-
-
 def clipping(kf, kr):
 
     return (kf / kr) * np.clip(kr, a_min= min_clip, a_max= max_clip), np.clip(kr, a_min= min_clip, a_max= max_clip)
@@ -280,11 +167,6 @@ def exponent_clipping(x):
 
 
     return np.clip(x, a_min= None, a_max= max_exponent)
-
-
-
-
-
 
 
 
@@ -389,23 +271,11 @@ def denaturation(values, t, T, dGs):
     kf1 = forward_rate
 
 
-    #exponent_1 = dGs[0]/(R*T)
-
     exponent_1 = exponent_clipping(dGs[0]/(R*T))
 
     kr1 = kf1 * np.exp(exponent_1)
 
-    #print(kr1)
-
     kf1, kr1 = clipping(kf1, kr1)
-
-    # if np.abs(kr1<1e-14):
-    #     kr1 = 0
-
-
-    #rate_den = - kr1 * S1S2 + kf1 * S1 * S2
-
-    #rate_den = np.clip((- kr1 * S1S2 + kf1 * S1 * S2), a_min= min_clip, a_max= max_clip)
 
     rate_den = rate_clipping(- kr1 * S1S2 + kf1 * S1 * S2)
 
@@ -1613,7 +1483,7 @@ def only_one_integration(values, number):
     functions_plus_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction"]
 
 
-    concentration = np.empty((number_time_points, 33))
+    concentration = np.empty((number_time_points, 33))          # len new species!
 
     dGs = [0 for x in range(4)]
 
@@ -2019,9 +1889,9 @@ if __name__ == '__main__':
 
 
 
+    print(len(new_species))
 
-
-    only_one_integration(values, 8)
+    #only_one_integration(values, 8)
 
     #print(cycle1)
 
