@@ -5,7 +5,7 @@ import numpy as np
 
 
 
-# ----- Functions for converting units --------------------------------------------------------------------------------------------------------------------
+# ------------------------ Functions for converting units ----------------------------- #
 
 
 # from previous code --- modified: from nanomolar to micromolar
@@ -37,13 +37,17 @@ def U_to_micromolar(U) :
 
 
 
+def uM_to_ng_per_ul(uM, bp) :
+
+	g_per_ul = uM * 1e-6 * 1e-6 * 660 * bp		# uM to M to mol/ul to g/ul
+
+	return g_per_ul * 1e9
+
+
+
+"Assuming that the stock concentration is 10.0 uM and the final volume is 50 ul"
 def uM_primer(ul):
-
-    "Assuming that the stock concentration is 10.0 uM and the final volume is 50 ul"
-
-
-    return (ul * 10) / 50
-
+	return (ul * 10) / 50
 
 def uM_dNTP(ul):
 
@@ -282,7 +286,7 @@ Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) 
 
 
 
-
+print("this", uM_to_ng_per_ul(0.004, 1000))
 
 
 
