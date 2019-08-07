@@ -178,7 +178,7 @@ def misbinding_primer_ext_1(values, t, T, dGs):
 
     #ce = 1000   # [dNTP/s] concentration of polymerase enzyme
 
-    ce = taq_nt_per_s(T)
+    ce = polymerase_nt_per_s(T)
 
     #rate_ext_1 = (ce / n) * S1P2E * dNTP
 
@@ -205,7 +205,7 @@ def misbinding_primer_ext_2(values, t, T, dGs):
     S1N2E = values[19]
     dNTP = values[10]
 
-    ce_N = taq_nt_per_s(T)
+    ce_N = polymerase_nt_per_s(T)
 
     # reaction: S1N2E + misbinding_extended_length * dNTP ---> L1L2 + E
 
@@ -571,7 +571,7 @@ def short_misbinding_primer_ext_1(values, t, T, dGs):
 
     #ce = 1000   # [dNTP/s] concentration of polymerase enzyme
 
-    ce = taq_nt_per_s(T)
+    ce = polymerase_nt_per_s(T)
 
     #rate_ext_1 = (ce / n) * S1P2E * dNTP
 
@@ -614,7 +614,7 @@ def short_misbinding_primer_ext_2(values, t, T, dGs):
 
 
 
-    ce_L = taq_nt_per_s(T)
+    ce_L = polymerase_nt_per_s(T)
 
     # reaction: S1N2E + misbinding_extended_length * dNTP ---> L1L2 + E
 
@@ -913,21 +913,11 @@ def PCR_reaction_with_misbinding(values, t, T, dGs):  # not using rate clipping 
 
 
 
-def misbinding_only_one_integration(values, number):
-
-    number = number - 1
-
-
-    functions_with_misbinding = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2, PCR_reaction, misbinding_primer_1, misbinding_polymerase_1, misbinding_primer_ext_1, misbinding_primer_ext_2, misbinding_denaturation, misbinding_polymerase_2, misbinding_primer_2, short_misbinding_primer, short_misbinding_polymerase_1, short_misbinding_primer_ext_1, short_misbinding_primer_ext_2, short_misbinding_polymerase_2, short_misbinding_primer_2, L_misbinding_denaturation, PCR_reaction_with_misbinding]
-
-    functions_name_with_misbinding = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction",  "misbinding_primer_1", "misbinding_polymerase_1", "misbinding_primer_ext_1", "misbinding_primer_ext_2", "misbinding_denaturation", "misbinding_polymerase_2", "misbinding_primer_2", "short_misbinding_primer", "short_misbinding_polymerase_1", "short_misbinding_primer_ext_1", "short_misbinding_primer_ext_2", "short_misbinding_polymerase_2", "short_misbinding_primer_2", "L_misbinding_denaturation", "PCR_reaction_with_misbinding"]
-
+def PCR_misbinding_integration(values):
 
 
     #no PCR, no PCR misbinding
     #all_function_names = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2", "PCR_reaction",  "misbinding_primer_1", "misbinding_polymerase_1", "misbinding_primer_ext_1", "misbinding_primer_ext_2", "misbinding_denaturation", "misbinding_polymerase_2", "misbinding_primer_2", "short_misbinding_primer", "short_misbinding_polymerase_1", "short_misbinding_primer_ext_1", "short_misbinding_primer_ext_2", "short_misbinding_polymerase_2", "short_misbinding_primer_2", "L_misbinding_denaturation", "PCR_reaction_with_misbinding"]
-
-
 
 
     concentration = np.empty((number_time_points, 33))
@@ -942,24 +932,6 @@ def misbinding_only_one_integration(values, number):
 
 
     for i in range(number_cycles):
-
-
-        # dGs[0] = (Tm_S1S2 - Tden) * dS
-        #
-        # dGs[1] = (Tm_primer - Tden) * dS
-        #
-        # dGs[2] = (Tm_extended_primer - Tden) * dS
-        #
-        # dGs[3] = (Tm_enzyme - Tden) * dS
-        #
-        # dGs[4] = (Tm_misbinding_primer - Tden) * dS
-        #
-        # dGs[5] = (Tm_misbinding_extended_primer - Tden) * dS
-        #
-        # dGs[6] = (Tm_misbinding_single_substrate - Tden) * dS
-        #
-        # dGs[7] = (Tm_misbinding_double_substrate - Tden) * dS
-
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
 
@@ -978,44 +950,12 @@ def misbinding_only_one_integration(values, number):
         dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tden * dS)
 
 
-
-
-
-
-
-
-
-
-
-
-
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        #print("dGs_den", dGs)
 
-
-
-
-        integration_den = odeint(functions_with_misbinding[number], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+        integration_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
 
         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
-
-        # dGs[0] = (Tm_S1S2 - Tanneal) * dS
-        #
-        # dGs[1] = (Tm_primer - Tanneal) * dS
-        #
-        # dGs[2] = (Tm_extended_primer - Tanneal) * dS
-        #
-        # dGs[3] = (Tm_enzyme - Tanneal) * dS
-        #
-        # dGs[4] = (Tm_misbinding_primer - Tanneal) * dS
-        #
-        # dGs[5] = (Tm_misbinding_extended_primer - Tanneal) * dS
-        #
-        # dGs[6] = (Tm_misbinding_single_substrate - Tanneal) * dS
-        #
-        # dGs[7] = (Tm_misbinding_double_substrate - Tanneal) * dS
-
 
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
@@ -1035,47 +975,11 @@ def misbinding_only_one_integration(values, number):
         dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tanneal * dS)
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        #print("dGs_anneals", dGs)
-
-        integration_anneal = odeint(functions_with_misbinding[number], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+        integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
 
         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
-
-        # dGs[0] = (Tm_S1S2 - Text) * dS
-        #
-        # dGs[1] = (Tm_primer - Text) * dS
-        #
-        # dGs[2] = (Tm_extended_primer - Text) * dS
-        #
-        # dGs[3] = (Tm_enzyme - Text) * dS
-        #
-        # dGs[4] = (Tm_misbinding_primer - Text) * dS
-        #
-        # dGs[5] = (Tm_misbinding_extended_primer - Text) * dS
-        #
-        # dGs[6] = (Tm_misbinding_single_substrate - Text) * dS
-        #
-        # dGs[7] = (Tm_misbinding_double_substrate - Text) * dS
-
-
-
-
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
 
@@ -1094,32 +998,14 @@ def misbinding_only_one_integration(values, number):
         dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Text * dS)
 
 
-
-
-
-
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        #print("dGs_text", dGs)
-
-        integration_ext = odeint(functions_with_misbinding[number], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+        integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
 
         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
 
         values = integration_ext[-1]
-
-
-
-    # dGs[0] = (Tm_S1S2 - T_cooling_down) * dS
-    #
-    # dGs[1] = (Tm_primer - T_cooling_down) * dS
-    #
-    # dGs[2] = (Tm_extended_primer - T_cooling_down) * dS
-    #
-    # #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
-    #
-    # dGs[3] = (Tm_enzyme - T_cooling_down) * dS
 
 
     dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
@@ -1138,26 +1024,16 @@ def misbinding_only_one_integration(values, number):
 
     dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_cooling_down  * dS)
 
-
-
-
-
-
     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-    integration_cool = odeint(functions_with_misbinding[number], integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+    integration_cool = odeint(PCR_reaction_with_misbinding, integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
 
     concentration[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
 
 
     values = integration_cool[-1]
 
-
-
-
-
-
-    print("The concentration of the 17 species at the end of", functions_name_with_misbinding[number], ":", values)
+    print("The concentration of the 17 species at the end of PCR misbinding integration:", values)
 
     #after_nt_number = all_nucleotide(values)
 
@@ -1306,30 +1182,10 @@ def misbinding_only_one_integration(values, number):
         plt.ylabel("Concentration (uM)", fontsize = 12)
         plt.subplots_adjust(wspace = 0.38)
 
-
-
-
-
-
     plt.show()
-
-
-
 
     return values
 
-
-
-
-
-version1 = [1 for i in range(33)]
-
-version2 = [2 for i in range(33)]
-
-timele = [0,1]
-
-
-table2 = np.array([version1, version2])
 
 
 
@@ -1751,241 +1607,12 @@ def purity_multiple_initial_conditions(overall_concentration):
         plt.plot(time, purity[e], label = "purity")
 
 
-
-    #     for i in range(len(yield_PCR)):
-    #
-    #     #plt.subplot(2, 6, i+1)
-    #
-    #
-    #     plt.plot(time_vector, concentration_PCR[:, i], label = yield_PCR[i])      #label = misbinding_single_species_PCR[i]
-    #
-    #     #plt.gca().set_title(misbinding_single_species_PCR[i])
-    #
-    #     #plt.ylim([0, y_top_limit[i]])
-    #
-    #
-    # plt.plot(time_vector, yield_sum, label = "Total yield: S + L")
-    #
-    # plt.plot(time_vector, purity, label = "purity")
-
     plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
     plt.xlabel("Time")
     plt.ylabel("Total concentration")
 
-
-
-
-
-
-
-
-    # plt.figure(1)
-    #
-    # plt.title("Low (-) and high (:) S1S2 initial concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
-    #
-    # style_curve = ['-',':']
-    #
-    # colour_curve = ['C1', 'C2', 'C3','C4']
-    #
-    #
-    # for i in range(len(overall_concentration)):
-    #
-    #
-    #     for x in range(len(var_dS)):
-    #
-    #
-    #         plt.plot(temperature_scale, var_dS_S1S2_result[i, x, ]/initial_overall[i][0]*100, style_curve[i], color = colour_curve[x], label = "dS = " + str(var_dS[x]))     #/initial_overall[e][0]*100
-    #
-    #
-    #
-    # plt.axvline(x=Tm_S1S2, color = 'black', linestyle= "--", label = "Tm_S1S2")
-    #
-    # #plt.legend(["Tm"])
-    #
-    # #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
-    #
-    # plt.xlim(320, None)
-    #
-    # plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
-    #
-    #
-    # #plt.ylabel("Concentration of S1S2 (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
-    #
-    # plt.ylabel("Percentage of S1S2 concentration (umol) \n at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= 11, FontWeight = "bold")
-    #
-    # #curve_legend = ["dS =", var_dS[x]]
-    #
-    # #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
-    #
-    # #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_S1S2", "Half-concentration of S1S2"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # #plt.tight_layout()
-    #
-    #
-    #
-    # plt.figure(2)
-    #
-    # plt.title("Low (-) and high (:) initial primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
-    #
-    #
-    # for i in range(len(overall_concentration)):
-    #
-    #
-    #     for x in range(len(var_dS)):
-    #
-    #
-    #         plt.plot(temperature_scale, var_dS_primer_result[i, x, ]/initial_overall[i][5]*100, style_curve[i], color = colour_curve[x], label = "dS = " + str(var_dS[x]))          #/initial_overall[e][5]*100
-    #
-    #
-    #
-    # plt.axvline(x=Tm_primer, color = 'black', linestyle= "--", label = "Tm_primer")
-    #
-    # #plt.legend(["Tm"])
-    #
-    # #plt.axhline(y=(initial_fixed[3]/2), color = "k", linestyle= ":")
-    #
-    # plt.xlim(None ,360)
-    #
-    # plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
-    #
-    #
-    # #plt.ylabel("Concentration of primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
-    #
-    # plt.ylabel("Percentage of primer concentration (umol) \n at the end of primer binding 1 reaction\n compared to the initial primer concentration", FontSize= 11, FontWeight = "bold")
-    #
-    # #curve_legend = ["dS =", var_dS[x]]
-    #
-    # #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
-    #
-    # #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_primer", "Half-concentration of primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # #plt.tight_layout()
-    #
-    #
-    #
-    #
-    # plt.figure(3)
-    #
-    # plt.title("Low (-) and high (:) initial extended primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
-    #
-    #
-    # for i in range(len(overall_concentration)):
-    #
-    #
-    #     for x in range(len(var_dS)):
-    #
-    #
-    #         #rint("just var",var_dS_ext_primer_result[i, x, ])
-    #
-    #         #print("initial", initial_overall[i][15]*100)
-    #
-    #
-    #         plt.plot(temperature_scale, var_dS_ext_primer_result[i, x, ]/initial_overall[i][15]*100, style_curve[i], color = colour_curve[x], label = "dS = " + str(var_dS[x]))      # /initial_overall[e][15]*100
-    #
-    #
-    #
-    # plt.axvline(x=Tm_extended_primer, color = 'black', linestyle= "--", label = "Tm_extended_primer")
-    #
-    # #plt.legend(["Tm"])
-    #
-    # #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
-    #
-    # plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
-    #
-    #
-    # #plt.ylabel("Concentration of extended primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
-    #
-    # plt.ylabel("Percentage of extended primer concentration (umol) \n at the end of primer binding 2 reaction\n compared to the initial extended primer concentration", FontSize= 11, FontWeight = "bold")
-    #
-    # #curve_legend = ["dS =", var_dS[x]]
-    #
-    # #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
-    #
-    # #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_extended_primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # #plt.tight_layout()
-    #
-    #
-    #
-    # plt.figure(4)
-    #
-    # plt.title("Low (-) and high (:) initial enzyme concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
-    #
-    #
-    # for i in range(len(overall_concentration)):
-    #
-    #
-    #     for x in range(len(var_dS)):
-    #
-    #
-    #         plt.plot(temperature_scale, var_dS_enzyme_result[i, x, ]/initial_overall[i][8]*100, style_curve[i], color = colour_curve[x], label = "dS = " + str(var_dS[x]))           # /initial_overall[e][8]*100
-    #
-    #
-    #
-    # plt.axvline(x=Tm_enzyme, color = 'black', linestyle= "--", label = "Tm_enzyme")
-    #
-    # #plt.legend(["Tm"])
-    #
-    # #plt.axhline(y=(initial_fixed[7]/2), color = "k", linestyle= ":")
-    #
-    # plt.xlim(320, 380)
-    #
-    # plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
-    #
-    #
-    # #plt.ylabel("Concentration of enzyme (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
-    #
-    # plt.ylabel("Percentage of enzyme concentration (umol) \n at the end of primer binding 1 and polymerase binding 1 reactions\n compared to the initial enzyme concentration", FontSize= 11, FontWeight = "bold")
-    #
-    # #curve_legend = ["dS =", var_dS[x]]
-    #
-    # #plt.legend(["S1S2", "Tm_S1S2", "Half-concentration"])
-    #
-    # #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_enzyme", "Half-concentration of enzyme"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
-    #
-    # #plt.tight_layout()
-
-
-
-
     plt.show()
-
-
-    #return S1S2_denature_temp[index_temp]
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -2608,5 +2235,7 @@ if __name__ == '__main__':
 
     #purity_total_yield_Tm(values)
 
+    PCR_misbinding_integration(values)
 
-    purity_multiple_initial_conditions(overall_concentration)
+
+    #purity_multiple_initial_conditions(overall_concentration)
