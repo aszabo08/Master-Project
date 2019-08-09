@@ -11,11 +11,14 @@ from PCR_project import *
 #                                                                              the shortest extended length is 0
 # average extended length = (974 + 0)/2 = 487
 
-misbinding_extended_length = 487
+#misbinding_extended_length = 487
 
-length_of_L = 487 + 15 + 10         # 512
+misbinding_extended_length = 156
 
 
+#length_of_L = 487 + 15 + 10         # 512
+
+length_of_L = misbinding_extended_length + primer_length + n
 
 # Tm_misbinding_primer = 303.15               # 30 degrees
 #
@@ -38,7 +41,7 @@ length_of_L = 487 + 15 + 10         # 512
 # length_misbinding_single_substrate = length_of_L - round(mis * length_of_L)
 
 
-mismatch = 5
+mismatch = int(n*0.75)
 
 
 #Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
@@ -53,13 +56,13 @@ length_misbinding_single_substrate = length_of_L - mismatch
 
 
 
-Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 306.1179269849045 K
+Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 342.71 K
 
-Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 328.8778398293736 K
+Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 346.87 K
 
-Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)          # 364.27564234055836 K
+Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)         # 356.168 K
 
-Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                        # 364.78659575718 K
+Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
 
 #
 
@@ -931,6 +934,32 @@ def PCR_misbinding_integration(values):
     #all_umol_1 = u_molar_concentration(values)
 
 
+    dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
+
+    dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
+
+    dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
+
+    dGs[3] = (Tm_enzyme - T_initial_den) * dS
+
+    dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (T_initial_den * dS)
+
+    dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (T_initial_den * dS)
+
+    dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (T_initial_den * dS)
+
+    dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_initial_den * dS)
+
+    dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+    integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+
+    concentration[0: t_initial_den * steps] = integration_initial_den
+
+    values = integration_initial_den[-1]
+
+
     for i in range(number_cycles):
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
@@ -953,9 +982,9 @@ def PCR_misbinding_integration(values):
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
 
-        integration_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+        integration_den = odeint(PCR_reaction_with_misbinding, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
 
-        concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+        concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
 
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
@@ -977,9 +1006,9 @@ def PCR_misbinding_integration(values):
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+        integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
 
-        concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+        concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
 
@@ -1000,9 +1029,9 @@ def PCR_misbinding_integration(values):
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+        integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
 
-        concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+        concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)] = integration_ext
 
 
         values = integration_ext[-1]
@@ -1026,14 +1055,17 @@ def PCR_misbinding_integration(values):
 
     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-    integration_cool = odeint(PCR_reaction_with_misbinding, integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+    integration_cool = odeint(PCR_reaction_with_misbinding, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
 
-    concentration[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+    concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
 
 
     values = integration_cool[-1]
 
     print("The concentration of the 17 species at the end of PCR misbinding integration:", values)
+
+    print("The concentration of S1S2 in ng/ul:", uM_to_ng_per_ul(values[0], amplicon_length))
+    print("The concentration of L1L2 in ng/ul:", uM_to_ng_per_ul(values[26], length_of_L))
 
     #after_nt_number = all_nucleotide(values)
 
@@ -1356,7 +1388,7 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
 low_concentration = [0 for i in range(33)]
 
-low_concentration[0] = 0.0001515151515152
+low_concentration[0] = 0.0005
 
 low_concentration[3], low_concentration[4] = 0.5, 0.5
 
@@ -1382,6 +1414,8 @@ overall_concentration = [low_concentration, high_concentration]
 initial_overall = overall_concentration
 
 
+T_multiple_extension = [344.15, 330.15]
+
 
 
 
@@ -1403,8 +1437,38 @@ def purity_multiple_initial_conditions(overall_concentration):
     for e in range(len(overall_concentration)):
 
 
-        for i in range(number_cycles):
+        Text = T_multiple_extension[e]
 
+
+
+
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
+
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
+
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
+
+        dGs[3] = (Tm_enzyme - T_initial_den) * dS
+
+        dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (T_initial_den * dS)
+
+        dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (T_initial_den * dS)
+
+        dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (T_initial_den * dS)
+
+        dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_initial_den * dS)
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+        integration_initial_den = odeint(PCR_reaction, overall_concentration[e], time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+
+        concentration[e, 0: t_initial_den * steps] = integration_initial_den
+
+        overall_concentration[e] = integration_initial_den[-1]
+
+
+        for i in range(number_cycles):
 
             dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
 
@@ -1422,13 +1486,13 @@ def purity_multiple_initial_conditions(overall_concentration):
 
             dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tden * dS)
 
+
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
 
+            integration_den = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
 
-            integration_den = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
-
-            concentration[e, (total * i * steps): ((total * i + tden) * steps)] = integration_den
+            concentration[e, t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
 
 
             dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
@@ -1448,15 +1512,11 @@ def purity_multiple_initial_conditions(overall_concentration):
             dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tanneal * dS)
 
 
-
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
+            integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
 
-            integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
-
-            concentration[e, ((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
-
-
+            concentration[e, t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
 
             dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
 
@@ -1475,17 +1535,14 @@ def purity_multiple_initial_conditions(overall_concentration):
             dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Text * dS)
 
 
-
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
+            integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
 
+            concentration[e, t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)] = integration_ext
 
-            integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
-
-            concentration[e, ((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
             overall_concentration[e] = integration_ext[-1]
-
 
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
@@ -1504,15 +1561,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
         dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_cooling_down  * dS)
 
-
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_cool = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+        integration_cool = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
 
-        concentration[e, (total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+        concentration[e, t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
 
 
         values = integration_cool[-1]
+
 
 
 
@@ -1576,6 +1633,10 @@ def purity_multiple_initial_conditions(overall_concentration):
 
         for i in range(number_time_points):
 
+            print("S", concentration_PCR[e, i, 0])
+
+            print("L", concentration_PCR[e, i, 1])
+
 
 
 
@@ -1592,7 +1653,7 @@ def purity_multiple_initial_conditions(overall_concentration):
 
     plt.figure(1)
 
-    plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+    plt.suptitle("Purity level after misbinding PCR" , fontsize = 14)
 
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
@@ -1682,7 +1743,7 @@ def purity_over_total_yield(all_concentration, time_vector):
 
     plt.figure(1)
 
-    plt.suptitle("Total yiled after misbinding PCR" , fontsize = 14)
+    plt.suptitle("Purity after misbinding PCR" , fontsize = 14)
 
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
@@ -2216,13 +2277,13 @@ if __name__ == '__main__':
 
     #
     # #
-    # print(Tm_misbinding_primer)
-    #
-    # print(Tm_misbinding_extended_primer)
-    #
-    # print(Tm_misbinding_single_substrate)
-    #
-    # print(Tm_misbinding_double_substrate)
+    print(Tm_misbinding_primer)
+
+    print(Tm_misbinding_extended_primer)
+
+    print(Tm_misbinding_single_substrate)
+
+    print(Tm_misbinding_double_substrate)
 
 
     #print(values)
