@@ -25,12 +25,12 @@ values = [0 for i in range(33)]
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 
-values[0] = 0.000445632798573975
+values[0] = 0.000445632798573975        # 5 ng
 
 values[3] = 0.5       # concentration of P1 in uM
 values[4] = 0.5
 
-values[7] = 0.02
+values[7] = 0.16
 
 values[10] = 200
 
@@ -45,16 +45,16 @@ functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "p
 T_initial_den = 371.15
 
 Tden = 371.15
-Tanneal = 330.15
-Text = 340.15
-T_cooling_down = 298.15             # 25 degree celsius
+Tanneal = 345.15
+Text = 345.15
+T_cooling_down = 345.15             # 72 degree celsius
 
 
 t_initial_den = 30
 
-tden = 10                   # seconds
-tanneal = 0                # seconds
-text = 20                   # seconds
+tden = 10                 # seconds
+tanneal = 10                # seconds
+text = 10                   # seconds
 t_cooling_down = 300
 
 
@@ -94,7 +94,7 @@ enzyme_type = 'q5'
 #
 # Tm_enzyme = 353.15              # 80 degree
 
-dS = - 2
+dS = -4
 
 
 max_exponent = 15    # 13
@@ -104,7 +104,7 @@ max_clip = 1e+15
 forward_rate = 1
 
 
-R = 8.314e-3        # Gas contant in  J / K mol
+R = 8.314e-3        # Gas contant in  k J / K mol
 
 #Tm_primer = 320.15      # 47 deggree
 
@@ -145,7 +145,11 @@ Tm_enzyme = 356.15             # 85 degree  not calculated!
 
 
 
+def uM_to_ng_per_ul(uM, bp) :
 
+	g_per_ul = uM * 1e-6 * 1e-6 * 660 * bp		# uM to M to mol/ul to g/ul
+
+	return g_per_ul * 1e9
 
 
 
@@ -301,7 +305,9 @@ def polymerase_nt_per_s(temperature):
 
     q5_temperature_data = [celsius_to_Kelvin(25), celsius_to_Kelvin(30), celsius_to_Kelvin(45), celsius_to_Kelvin(60), celsius_to_Kelvin(70), celsius_to_Kelvin(75), celsius_to_Kelvin(80), celsius_to_Kelvin(85), celsius_to_Kelvin(90), celsius_to_Kelvin(93) ]  # temperatures with known taq polymerase rate
 
-    q5_rate_data = [0, 4.63, 9.26, 46.30, 83.33, 106.48, 85.19, 78.70, 13.89, 0]           # taq polymerase rate at given temperatures
+    #q5_rate_data = [0, 4.63, 9.26, 46.30, 83.33, 106.48, 85.19, 78.70, 13.89, 0]           # taq polymerase rate at given temperatures
+
+    q5_rate_data = [0, 1,0.5, 0.5, 0.25, 0.25, 0.5, 0.5,0.5, 0]           # taq polymerase rate at given temperatures
 
     q5_temp_interpolar = np.interp(temperature_scale, q5_temperature_data, q5_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
 
@@ -1586,8 +1592,23 @@ def PCR_integration(values):
     #all_umol_1 = u_molar_concentration(values)
 
 
+    dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
+
+    dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
+
+    dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
+
+    dGs[3] = (Tm_enzyme - T_initial_den) * dS
+
+    dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
 
+
+    integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+
+    concentration[0: t_initial_den * steps] = integration_initial_den
+
+    values = integration_initial_den[-1]
 
 
 
@@ -1603,9 +1624,9 @@ def PCR_integration(values):
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_den = odeint(PCR_reaction, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+        integration_den = odeint(PCR_reaction, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
 
-        concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+        concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
 
@@ -1617,9 +1638,9 @@ def PCR_integration(values):
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_anneal = odeint(PCR_reaction, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+        integration_anneal = odeint(PCR_reaction, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
 
-        concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+        concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
 
         dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
 
@@ -1631,9 +1652,9 @@ def PCR_integration(values):
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+        integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
 
-        concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+        concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1:t_initial_den * steps +  (total * (i + 1) * steps)] = integration_ext
 
         values = integration_ext[-1]
 
@@ -1647,9 +1668,9 @@ def PCR_integration(values):
 
     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-    integration_cool = odeint(PCR_reaction, integration_ext[-1], time[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+    integration_cool = odeint(PCR_reaction, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
 
-    concentration[(total * (i + 1) * steps) - 1: (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+    concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
 
     values = integration_cool[-1]
 
@@ -1876,7 +1897,13 @@ if __name__ == '__main__':
 
     #print(len(new_species))
 
+    print("f", values[0])
+    print("s", values[1])
+
     PCR_integration(values)
+
+    print("f2", values[0])
+    print("s2", values[1])
 
     #print(cycle1)
 
