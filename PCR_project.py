@@ -31,6 +31,8 @@ values = [0 for i in range(33)]
 
 values[0] = 0.00015151515151515152      # 5 ng in 1000 pb
 
+#values[0] = 0.00303030303030303
+
 values[3] = 0.5       # concentration of P1 in uM
 values[4] = 0.5
 
@@ -83,7 +85,7 @@ t_initial_den = 0
 
 tden = 10                 # seconds
 tanneal = 10                # seconds
-text = 10                   # seconds
+text = 20                   # seconds
 t_cooling_down = 0
 
 
@@ -911,7 +913,7 @@ def primer_ext_2(values, t, T, dGs):
 
 
 
-def taq_denaturation(values, t, T, dGs):
+def enzyme_denaturation(values, t, T, dGs):
 
     E = values[7]
 
@@ -929,14 +931,14 @@ def taq_denaturation(values, t, T, dGs):
 
     temp_interpolar = np.interp(taq_denaturation_T, temperature_data, taq_denaturation)        # calculating the taq polymerase rate between 0 and 90 degrees
 
-    # plt.title("Denaturation of Taq polymerase")
-    #
-    # plt.plot(taq_denaturation_T, temp_interpolar)
-    #
-    # plt.xlabel("Temperature (Kelvin)")
-    # plt.ylabel("Rate of Taq polymerase denaturation")
-    #
-    # plt.show()
+    plt.title("The level of denaturation of DNA polymerase at different temperatures")
+
+    plt.plot(taq_denaturation_T, temp_interpolar)
+
+    plt.xlabel("Temperature (Kelvin)")
+    plt.ylabel("Level of DNA polymerase denaturation (uM) ")
+
+    plt.show()
 
     if T > celsius_to_Kelvin(90):
 
@@ -949,7 +951,7 @@ def taq_denaturation(values, t, T, dGs):
 
 def PCR_reaction(values, t, T, dGs):  # not using rate clipping cos the array data
 
-    summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + taq_denaturation(values, t, T, dGs)
+    summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + enzyme_denaturation(values, t, T, dGs)
 
     summary = np.clip(summary, a_min= min_clip, a_max= max_clip)
 
@@ -972,24 +974,24 @@ def enzyme_dissociation(values, t, T, dGs):
 
 low_concentration = [0 for i in range(33)]
 
-low_concentration[0] = 0.00015151515151515152   # 5 ng
+low_concentration[0] = 0.00015151515151515152    # 5 ng 1000bp
 
-low_concentration[5], low_concentration[6] = 0.01, 0.01
+low_concentration[5], low_concentration[6] = 0.0001, 0.0001
 
-low_concentration[8], low_concentration[9] = 0.025, 0.025
+low_concentration[8], low_concentration[9] = 0.0001, 0.0001
 
-low_concentration[15], low_concentration[16] = 1.5e-3, 1.5e-3
+low_concentration[15], low_concentration[16] = 0.0001,  0.0001
 
 
 high_concentration = [0 for i in range(33)]
 
-high_concentration[0] = 0.00303030303030303     # 100 ng
+high_concentration[0] = 0.0175
 
-high_concentration[5], high_concentration[6] = 0.1, 0.1
+high_concentration[5], high_concentration[6] = 0.0175, 0.0175
 
-high_concentration[8], high_concentration[9] = 0.05, 0.05
+high_concentration[8], high_concentration[9] = 0.007, 0.007
 
-high_concentration[15], high_concentration[16] = 2.5e-2, 2.5e-2
+high_concentration[15], high_concentration[16] = 0.014, 0.014
 
 overall_concentration = [low_concentration, high_concentration]
 
@@ -1100,11 +1102,13 @@ def dS_change_4_species2(overall_concentration):
 
 
 
+    size = 16
 
+    l_size = 12
 
     plt.figure(1)
 
-    plt.title("Low (-) and high (:) S1S2 initial concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1S2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
     style_curve = ['-',':']
 
@@ -1127,14 +1131,14 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
 
-    plt.xlim(320, None)
+    plt.xlim(310, 360)
 
-    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+    plt.xlabel("Temperature (K)", FontSize= size, FontWeight = "bold")
 
 
     #plt.ylabel("Concentration of S1S2 (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
-    plt.ylabel("Percentage of S1S2 concentration (umol) \n at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= 11, FontWeight = "bold")
+    plt.ylabel("Percentage of S1S2 concentration \n at the end of denaturation \n compared to the initial S1S2 concentration", FontSize= size, FontWeight = "bold")
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1142,7 +1146,7 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_S1S2", "Half-concentration of S1S2"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':l_size}, bbox_to_anchor=(1,1))
 
     #plt.tight_layout()
 
@@ -1150,7 +1154,7 @@ def dS_change_4_species2(overall_concentration):
 
     plt.figure(2)
 
-    plt.title("Low (-) and high (:) initial primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1P2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1169,14 +1173,14 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.axhline(y=(initial_fixed[3]/2), color = "k", linestyle= ":")
 
-    plt.xlim(None ,360)
+    plt.xlim(300,350)
 
-    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+    plt.xlabel("Temperature (K)", FontSize= size, FontWeight = "bold")
 
 
     #plt.ylabel("Concentration of primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
-    plt.ylabel("Percentage of primer concentration (umol) \n at the end of primer binding 1 reaction\n compared to the initial primer concentration", FontSize= 11, FontWeight = "bold")
+    plt.ylabel("Percentage of S1P2 concentration \n at the end of primer binding 1 reaction\n compared to the initial S1P2 concentration", FontSize= size, FontWeight = "bold")
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1184,7 +1188,7 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_primer", "Half-concentration of primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':l_size}, bbox_to_anchor=(1,1))
 
     #plt.tight_layout()
 
@@ -1193,7 +1197,7 @@ def dS_change_4_species2(overall_concentration):
 
     plt.figure(3)
 
-    plt.title("Low (-) and high (:) initial extended primer concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1Q2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1217,12 +1221,14 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.axhline(y=(initial_fixed[0]/2), color = "k", linestyle= ":")
 
-    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+    plt.xlim(300,360)
+
+    plt.xlabel("Temperature (K)", FontSize= size, FontWeight = "bold")
 
 
     #plt.ylabel("Concentration of extended primer (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
-    plt.ylabel("Percentage of extended primer concentration (umol) \n at the end of primer binding 2 reaction\n compared to the initial extended primer concentration", FontSize= 11, FontWeight = "bold")
+    plt.ylabel("Percentage of S1Q2 concentration \n at the end of primer binding 2 reaction\n compared to the initial S1Q2 concentration", FontSize= size, FontWeight = "bold")
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1230,7 +1236,7 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_extended_primer"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':l_size}, bbox_to_anchor=(1,1))
 
     #plt.tight_layout()
 
@@ -1238,7 +1244,7 @@ def dS_change_4_species2(overall_concentration):
 
     plt.figure(4)
 
-    plt.title("Low (-) and high (:) initial enzyme concentration with different dS values", FontSize= 16, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1P2E concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1257,14 +1263,14 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.axhline(y=(initial_fixed[7]/2), color = "k", linestyle= ":")
 
-    plt.xlim(320, 380)
+    plt.xlim(300,360)
 
-    plt.xlabel("Temperature (K)", FontSize= 13, FontWeight = "bold", position=(0.9,-1))
+    plt.xlabel("Temperature (K)", FontSize= size, FontWeight = "bold")
 
 
     #plt.ylabel("Concentration of enzyme (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
-    plt.ylabel("Percentage of enzyme concentration (umol) \n at the end of primer binding 1 and polymerase binding 1 reactions\n compared to the initial enzyme concentration", FontSize= 11, FontWeight = "bold")
+    plt.ylabel("Percentage of S1P2E concentration \n at the end of enzyme_dissociation reaction\n compared to the initial S1P2E concentration", FontSize= size, FontWeight = "bold")
 
     #curve_legend = ["dS =", var_dS[x]]
 
@@ -1272,7 +1278,7 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.legend(["dS = " + str(var_dS[0]), "dS = " + str(var_dS[1]), "dS = " + str(var_dS[2]), "dS = " + str(var_dS[3]), "dS = " + str(var_dS[4]), "Tm_enzyme", "Half-concentration of enzyme"], loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':l_size}, bbox_to_anchor=(1,1))
 
     #plt.tight_layout()
 
@@ -1792,8 +1798,8 @@ def PCR_integration(values):
 
         #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time", fontsize = 12)
-        plt.ylabel("Concentration", fontsize = 12)
+        plt.xlabel("Time (s)", fontsize = 12)
+        plt.ylabel("Concentration (uM)", fontsize = 12)
 
 
 
@@ -1941,10 +1947,10 @@ def PCR_total_concentration(all_concentration, time_vector):
 if __name__ == '__main__':
 
 
-    #print("dh", dH)
+    print("dh", dH)
     # print(dH_check)
     print(Tm_S1S2)
-    #print(Tm_enzyme2)
+    print(K)
 
 
 
@@ -1963,7 +1969,7 @@ if __name__ == '__main__':
 
     #dS1S2_dS_Tden(values)
 
-    #print(taq_denaturation(values, Tanneal))
+    #print(enzyme_denaturation(values, Tanneal))
 
 
     #print(values)
