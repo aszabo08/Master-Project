@@ -25,7 +25,7 @@ values = [0 for i in range(33)]
 
 #values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
 
-values[0] = 0.000445632798573975        # 5 ng
+values[0] = 0.000445632798573975   # 5 ng
 
 values[3] = 0.5       # concentration of P1 in uM
 values[4] = 0.5
@@ -41,13 +41,30 @@ initial_fixed = values
 
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
+#
+# T_initial_den = 369.15
+#
+# Tden = 369.15
+# Tanneal = 334.15
+# Text = 345.15
+# T_cooling_down = 345.15             # 72 degree celsius
 
+
+
+
+
+
+#
 T_initial_den = 371.15
 
 Tden = 371.15
 Tanneal = 345.15
 Text = 345.15
 T_cooling_down = 345.15             # 72 degree celsius
+
+
+
+
 
 
 t_initial_den = 30
@@ -63,13 +80,13 @@ number_cycles = 32
 steps = 1
 
 
-# amplicon_length = 1000
-# primer_length = 15
-# n = 10
-
 amplicon_length = 340
 primer_length = 28
 n = 10
+#
+# amplicon_length = 340
+# primer_length = 28
+# n = 10
 
 
 extended_primer = primer_length + n
@@ -79,7 +96,7 @@ time = np.linspace(0, t_initial_den + number_cycles * (tden + tanneal + text) + 
 
 number_time_points = total * steps * number_cycles + (t_initial_den + t_cooling_down) * steps
 
-enzyme_type = 'q5'
+enzyme_type = 'taq'
 
 
 
@@ -94,7 +111,9 @@ enzyme_type = 'q5'
 #
 # Tm_enzyme = 353.15              # 80 degree
 
-dS = -4
+#dS = -4
+
+dS = -2
 
 
 max_exponent = 15    # 13
@@ -111,9 +130,9 @@ R = 8.314e-3        # Gas contant in  k J / K mol
 #Tm_extended_primer = 337.15     #64 degree
 
 
-# Tm_primer = 343.15
-#
-# Tm_extended_primer = 349.15
+# Tm_primer = 339.15
+# #
+# Tm_extended_primer = 346.15
 
 
 Tm_primer = 345.15
@@ -296,20 +315,35 @@ def polymerase_nt_per_s(temperature):
     temperature_scale = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(95), (95 - 0 + 1))  # x coordinates
 
 
-    taq_temperature_data = [celsius_to_Kelvin(20), celsius_to_Kelvin(22), celsius_to_Kelvin(37), celsius_to_Kelvin(55), celsius_to_Kelvin(70), celsius_to_Kelvin(75), celsius_to_Kelvin(80), celsius_to_Kelvin(90)]  # temperatures with known taq polymerase rate
-
-    taq_rate_data = [0, 0.25, 1.5, 24, 60, 150, 150, 0]           # taq polymerase rate at given temperatures
-
-    taq_temp_interpolar = np.interp(temperature_scale, taq_temperature_data, taq_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
-
-
     q5_temperature_data = [celsius_to_Kelvin(25), celsius_to_Kelvin(30), celsius_to_Kelvin(45), celsius_to_Kelvin(60), celsius_to_Kelvin(70), celsius_to_Kelvin(75), celsius_to_Kelvin(80), celsius_to_Kelvin(85), celsius_to_Kelvin(90), celsius_to_Kelvin(93) ]  # temperatures with known taq polymerase rate
 
     #q5_rate_data = [0, 4.63, 9.26, 46.30, 83.33, 106.48, 85.19, 78.70, 13.89, 0]           # taq polymerase rate at given temperatures
 
-    q5_rate_data = [0, 1,0.5, 0.5, 0.25, 0.25, 0.5, 0.5,0.5, 0]           # taq polymerase rate at given temperatures
+    q5_rate_data = [0,  0.005, 0.010,  0.075,  0.11,  0.15,  0.12, 0.10, 0.020, 0]           # taq polymerase rate at given temperatures
+
+    #q5_rate_data = [0,  2.5e-5,2.5e-5, 2.5e-5,  2.5e-5,  2.5e-5,  2.5e-5,  0.15, 0.15, 0]
 
     q5_temp_interpolar = np.interp(temperature_scale, q5_temperature_data, q5_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
+
+
+
+
+
+    #taq_temperature_data = [celsius_to_Kelvin(20), celsius_to_Kelvin(22), celsius_to_Kelvin(37), celsius_to_Kelvin(55), celsius_to_Kelvin(70), celsius_to_Kelvin(75), celsius_to_Kelvin(80), celsius_to_Kelvin(90)]  # temperatures with known taq polymerase rate
+
+    taq_temperature_data = [celsius_to_Kelvin(25), celsius_to_Kelvin(30), celsius_to_Kelvin(45), celsius_to_Kelvin(60), celsius_to_Kelvin(70), celsius_to_Kelvin(75), celsius_to_Kelvin(80), celsius_to_Kelvin(85), celsius_to_Kelvin(90), celsius_to_Kelvin(93) ]
+
+    #taq_rate_data = [0, 0.25, 1.5, 24, 60, 150, 150, 0]           # taq polymerase rate at given temperatures
+
+    taq_rate_data = [0.75 * q5_rate_data[i] for i in range(len(q5_rate_data))]
+
+    #taq_rate_data = [0,  0.003, 0.006,  0.045,  0.066,  0.09,  0.072, 0.06, 0.012, 0]
+
+    #taq_rate_data = [0,  2.5e-4,2.5e-3, 2.5e-6,  2.5e-7,  2.5e-1,  2.5e-3,  0.15, 0.15, 0]
+
+    taq_temp_interpolar = np.interp(temperature_scale, taq_temperature_data, taq_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
+
+
 
 
 
@@ -333,7 +367,7 @@ def polymerase_nt_per_s(temperature):
     if enzyme_type == 'taq':
 
 
-        if ((temperature >= celsius_to_Kelvin(20)) and (temperature <= celsius_to_Kelvin(90))):
+        if ((temperature >= celsius_to_Kelvin(25)) and (temperature <= celsius_to_Kelvin(93))):
 
             taq_index = list(temperature_scale).index(temperature)
 
@@ -924,24 +958,24 @@ def enzyme_dissociation(values, t, T, dGs):
 
 low_concentration = [0 for i in range(33)]
 
-low_concentration[0] = 45
+low_concentration[0] = 0.00015151515151515152   # 5 ng
 
-low_concentration[5], low_concentration[6] = 8, 8
+low_concentration[5], low_concentration[6] = 0.01, 0.01
 
-low_concentration[8], low_concentration[9] = 0.0025, 0.0025
+low_concentration[8], low_concentration[9] = 0.025, 0.025
 
-low_concentration[15], low_concentration[16] = 1.5e-8, 1.5e-8
+low_concentration[15], low_concentration[16] = 1.5e-3, 1.5e-3
 
 
 high_concentration = [0 for i in range(33)]
 
-high_concentration[0] = 4000
+high_concentration[0] = 0.00303030303030303     # 100 ng
 
-high_concentration[5], high_concentration[6] = 60, 60
+high_concentration[5], high_concentration[6] = 0.1, 0.1
 
-high_concentration[8], high_concentration[9] = 0.0005, 0.0005
+high_concentration[8], high_concentration[9] = 0.05, 0.05
 
-high_concentration[15], high_concentration[16] = 2.5e-8, 2.5e-8
+high_concentration[15], high_concentration[16] = 2.5e-2, 2.5e-2
 
 overall_concentration = [low_concentration, high_concentration]
 
@@ -1877,7 +1911,7 @@ if __name__ == '__main__':
 
     #print(u_molar_concentration(values))
 
-    #print(polymerase_nt_per_s(celsius_to_Kelvin(95)))
+    print(polymerase_nt_per_s(celsius_to_Kelvin(55)))
 
     #S1S2_dS(values)
 
@@ -1897,13 +1931,9 @@ if __name__ == '__main__':
 
     #print(len(new_species))
 
-    print("f", values[0])
-    print("s", values[1])
 
-    PCR_integration(values)
+    #PCR_integration(values)
 
-    print("f2", values[0])
-    print("s2", values[1])
 
     #print(cycle1)
 
