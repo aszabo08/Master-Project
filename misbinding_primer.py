@@ -41,7 +41,7 @@ length_of_L = misbinding_extended_length + primer_length + n
 # length_misbinding_single_substrate = length_of_L - round(mis * length_of_L)
 
 
-mismatch = int(n*0.75)
+mismatch = int(primer_length*0.75)
 
 
 #Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
@@ -1697,10 +1697,6 @@ def purity_over_total_yield(all_concentration, time_vector):
 
 
                 indexes_of_species[x].append(new_species.index(i))
-
-
-    print(indexes_of_species)
-
 
 
 
