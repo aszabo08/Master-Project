@@ -41,6 +41,9 @@ values[7] = 0.2
 values[10] = 200
 
 
+#values[10] = 800
+
+
 initial_dNTP = values[10]
 
 initial_fixed = values
@@ -52,7 +55,11 @@ T_initial_den = 369.15
 
 Tden = 369.15
 Tanneal = 334.15
+#Text = 345.15
+
 Text = 345.15
+
+
 T_cooling_down = 345.15             # 72 degree celsius
 
 
@@ -274,7 +281,7 @@ def all_nucleotide(values):
 def u_molar_concentration(values):
 
 
-    length = [2 * amplicon_length, amplicon_length, amplicon_length, primer_length, primer_length, amplicon_length + primer_length, amplicon_length + primer_length, 0, amplicon_length + primer_length, amplicon_length + primer_length, 1, extended_primer, extended_primer, amplicon_length + extended_primer,  amplicon_length + extended_primer, amplicon_length + extended_primer, amplicon_length + extended_primer, ]
+    length = [2 * amplicon_length, amplicon_length, amplicon_length, primer_length, primer_length, amplicon_length + primer_length, amplicon_length + primer_length, 0, amplicon_length + primer_length, amplicon_length + primer_length, 1, extended_primer, extended_primer, amplicon_length + extended_primer,  amplicon_length + extended_primer, amplicon_length + extended_primer, amplicon_length + extended_primer, 0, 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 
     return sum(values[i] * length[i] for i in range(len(values)))
 
@@ -790,6 +797,9 @@ def primer_ext_1(values, t, T, dGs):
 
     ce = polymerase_nt_per_s(T)
 
+    #ce = 0.15
+
+
     #rate_ext_1 = (ce / n) * S1P2E * dNTP
 
     #rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
@@ -809,6 +819,8 @@ def primer_ext_1(values, t, T, dGs):
     #nucleotide = np.clip((- n * rate_ext_1 - n * rate_ext_2), a_min= min_clip, a_max= max_clip)
 
     nucleotide = rate_clipping(- n * rate_ext_1 - n * rate_ext_2)
+
+
 
 
     y = np.zeros(33)
@@ -921,6 +933,8 @@ def enzyme_denaturation(values, t, T, dGs):
 
     rate = 0.0001           #???
 
+
+
     #rate = 0
 
     taq_denaturation_T = np.linspace(celsius_to_Kelvin(0), celsius_to_Kelvin(110), 111)
@@ -931,14 +945,14 @@ def enzyme_denaturation(values, t, T, dGs):
 
     temp_interpolar = np.interp(taq_denaturation_T, temperature_data, taq_denaturation)        # calculating the taq polymerase rate between 0 and 90 degrees
 
-    plt.title("The level of denaturation of DNA polymerase at different temperatures")
-
-    plt.plot(taq_denaturation_T, temp_interpolar)
-
-    plt.xlabel("Temperature (Kelvin)")
-    plt.ylabel("Level of DNA polymerase denaturation (uM) ")
-
-    plt.show()
+    # plt.title("The level of denaturation of DNA polymerase at different temperatures")
+    #
+    # plt.plot(taq_denaturation_T, temp_interpolar)
+    #
+    # plt.xlabel("Temperature (Kelvin)")
+    # plt.ylabel("Level of DNA polymerase denaturation (uM) ")
+    #
+    # plt.show()
 
     if T > celsius_to_Kelvin(90):
 
@@ -1102,13 +1116,13 @@ def dS_change_4_species2(overall_concentration):
 
 
 
-    size = 16
+    size = 20
 
-    l_size = 12
+    l_size = 18
 
     plt.figure(1)
 
-    plt.title("Low (-) and high (:) S1S2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1S2 concentration with different dS values", FontSize= 22, FontWeight = "bold", position=(0.5, 1.05))
 
     style_curve = ['-',':']
 
@@ -1135,6 +1149,7 @@ def dS_change_4_species2(overall_concentration):
 
     plt.xlabel("Temperature (K)", FontSize= size, FontWeight = "bold")
 
+    plt.tick_params(labelsize = 16)
 
     #plt.ylabel("Concentration of S1S2 (uM)", FontSize= 13, FontWeight = "bold", position=(0,0.6))
 
@@ -1154,7 +1169,7 @@ def dS_change_4_species2(overall_concentration):
 
     plt.figure(2)
 
-    plt.title("Low (-) and high (:) S1P2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1P2 concentration with different dS values", FontSize= 22, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1192,12 +1207,12 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.tight_layout()
 
-
+    plt.tick_params(labelsize = 16)
 
 
     plt.figure(3)
 
-    plt.title("Low (-) and high (:) S1Q2 concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1Q2 concentration with different dS values", FontSize= 22, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1215,7 +1230,7 @@ def dS_change_4_species2(overall_concentration):
 
 
 
-    plt.axvline(x=Tm_extended_primer, color = 'black', linestyle= "--", label = "Tm_extended_primer")
+    plt.axvline(x=Tm_extended_primer, color = 'black', linestyle= "--", label = "Tm_ext_p")
 
     #plt.legend(["Tm"])
 
@@ -1240,11 +1255,11 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.tight_layout()
 
-
+    plt.tick_params(labelsize = 16)
 
     plt.figure(4)
 
-    plt.title("Low (-) and high (:) S1P2E concentration with different dS values", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Low (-) and high (:) S1P2E concentration with different dS values", FontSize= 22, FontWeight = "bold", position=(0.5, 1.05))
 
 
     for i in range(len(overall_concentration)):
@@ -1282,7 +1297,7 @@ def dS_change_4_species2(overall_concentration):
 
     #plt.tight_layout()
 
-
+    plt.tick_params(labelsize = 16)
 
 
     plt.show()
@@ -1301,40 +1316,144 @@ def individual_integration(values):
     functions = [denaturation, primer_binding_1, polymerase_binding_1, primer_ext_1, polymerase_binding_2, primer_binding_2, primer_ext_2]
 
 
-    functions_name = ["Denaturation", "Primer binding 1", "Polymerase binding 1", "Primer extension 1", "Polymerase binding 2", "Primer binding 2", "Primer extension 2"]
+    functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer ext_2"]
 
-    concentration = np.empty((number_time_points, 33))
+    # concentration = np.empty((number_time_points, 33))
+    #
+    # dGs = [0 for x in range(4)]
+    #
+    # difference_umol = []
+    #
+    #
+    # for n in range(len(functions)):
+    #
+    #
+    #
+    #     #before_nt_number = all_nucleotide(values)
+    #
+    #     #all_umol_1 = u_molar_concentration(values)
+    #
+    #
+    #     for i in range(number_cycles):
+    #
+    #
+    #         dGs[0] = (Tm_S1S2 - Tden) * dS
+    #
+    #         dGs[1] = (Tm_primer - Tden) * dS
+    #
+    #         dGs[2] = (Tm_extended_primer - Tden) * dS
+    #
+    #         #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
+    #
+    #         dGs[3] = (Tm_enzyme - Tden) * dS
+    #
+    #         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+    #
+    #         #print("dGs_den", dGs)
+    #
+    #
+    #         integration_den = odeint(functions[n], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+    #
+    #         concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+    #
+    #
+    #         dGs[0] = (Tm_S1S2 - Tanneal) * dS
+    #
+    #         dGs[1] = (Tm_primer - Tanneal) * dS
+    #
+    #         dGs[2] = (Tm_extended_primer - Tanneal) * dS
+    #
+    #         #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
+    #
+    #         dGs[3] = (Tm_enzyme - Tanneal) * dS
+    #
+    #         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+    #
+    #         #print("dGs_anneals", dGs)
+    #
+    #
+    #
+    #         integration_anneal = odeint(functions[n], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+    #
+    #         concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+    #
+    #
+    #
+    #         dGs[0] = (Tm_S1S2 - Text) * dS
+    #
+    #         dGs[1] = (Tm_primer - Text) * dS
+    #
+    #         dGs[2] = (Tm_extended_primer - Text) * dS
+    #
+    #         #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+    #
+    #         dGs[3] = (Tm_enzyme - Text) * dS
+    #
+    #         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+    #
+    #         #print("dGs_text", dGs)
+    #
+    #         integration_ext = odeint(functions[n], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+    #
+    #         concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+    #
+    #
+    #         values = integration_ext[-1]
+    #
+    #
+
+
+
+
+
+    concentration = np.empty((number_time_points, 33))          # len new species!
 
     dGs = [0 for x in range(4)]
 
-    difference_umol = []
+    #before_nt_number = all_nucleotide(values)
 
+    #all_umol_1 = u_molar_concentration(values)
+
+    difference_umol = []
 
     for n in range(len(functions)):
 
 
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
 
-        #before_nt_number = all_nucleotide(values)
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
 
-        #all_umol_1 = u_molar_concentration(values)
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
 
+        dGs[3] = (Tm_enzyme - T_initial_den) * dS
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+
+        # integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+        #
+        # concentration[0: t_initial_den * steps] = integration_initial_den
+        #
+        # values = integration_initial_den[-1]
+
+        all_umol_1 = u_molar_concentration(values)
 
         for i in range(number_cycles):
 
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
 
-            dGs[0] = (Tm_S1S2 - Tden) * dS
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tden * dS)
 
-            dGs[1] = (Tm_primer - Tden) * dS
-
-            dGs[2] = (Tm_extended_primer - Tden) * dS
-
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tden * dS)
 
             dGs[3] = (Tm_enzyme - Tden) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_den", dGs)
+            # integration_den = odeint(PCR_reaction, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
 
 
             integration_den = odeint(functions[n], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
@@ -1342,20 +1461,23 @@ def individual_integration(values):
             concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
 
-            dGs[0] = (Tm_S1S2 - Tanneal) * dS
 
-            dGs[1] = (Tm_primer - Tanneal) * dS
 
-            dGs[2] = (Tm_extended_primer - Tanneal) * dS
 
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tanneal * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tanneal * dS)
 
             dGs[3] = (Tm_enzyme - Tanneal) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_anneals", dGs)
-
+            # integration_anneal = odeint(PCR_reaction, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
 
 
             integration_anneal = odeint(functions[n], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
@@ -1364,26 +1486,63 @@ def individual_integration(values):
 
 
 
-            dGs[0] = (Tm_S1S2 - Text) * dS
 
-            dGs[1] = (Tm_primer - Text) * dS
 
-            dGs[2] = (Tm_extended_primer - Text) * dS
 
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Text * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Text * dS)
 
             dGs[3] = (Tm_enzyme - Text) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_text", dGs)
+            # integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1:t_initial_den * steps +  (total * (i + 1) * steps)] = integration_ext
+
 
             integration_ext = odeint(functions[n], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
 
             concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
 
+
+
+
             values = integration_ext[-1]
+
+        # dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
+        #
+        # dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_cooling_down * dS)
+        #
+        # dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_cooling_down * dS)
+        #
+        # dGs[3] = (Tm_enzyme - T_cooling_down) * dS
+        #
+        # dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        # integration_cool = odeint(PCR_reaction, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+        #
+        # concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+        #
+        # values = integration_cool[-1]
+
+        #print("The concentration of the 17 species at the end of PCR integration is:", values)
+
+        #print("The concentration of S1S2 in ng/ul:", uM_to_ng_per_ul(values[0], amplicon_length))
+
+
+
+
+
+        all_umol_2 = u_molar_concentration(values)
+
+        difference_umol.append(all_umol_1 - all_umol_2)
+
 
         print("The concentration of the 17 species after", functions_name[n], "is added to the process individually:", values)
 
@@ -1397,47 +1556,49 @@ def individual_integration(values):
         #print("The difference in nt number after", functions_name[n], ":", before_nt_number - after_nt_number, "\n")
         #print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
 
-
-        plt.figure(1)
-
-        plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
-
-        plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
-
-
-        for i in range(10):
-
-            plt.subplot(2, 5, i+1)
-
-
-            plt.plot(time, concentration[:, plots[i]])
-
-
-            plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
-
-            plt.xlabel("Time")
-            plt.ylabel("Concentration")
-
-
+        #
+        # plt.figure(1)
+        #
+        # plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+        #
+        # plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
+        #
+        #
+        # for i in range(10):
+        #
+        #     plt.subplot(2, 5, i+1)
+        #
+        #
+        #     plt.plot(time, concentration[:, plots[i]])
+        #
+        #
+        #     plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+        #
+        #     plt.xlabel("Time")
+        #     plt.ylabel("Concentration")
 
 
 
-        plt.show()
 
-    #print(difference_umol)
 
-    #plt.figure(2)
+        #plt.show()
 
-    #plt.title("Difference of micromolar concentration after each function is added individually", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    print(difference_umol)
 
-    #plt.plot(range(len(functions)), difference_umol)
+    plt.figure(2)
 
-    #plt.xticks(range(len(functions)), functions_name)
+    plt.title("Difference of the overall micromolar concentration after each function is added individually", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
-    #plt.xlabel("Name of the individually added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
-    #plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
+    plt.plot(range(len(functions)), difference_umol)
 
-    #plt.show()
+    plt.tick_params(labelsize = 14)
+
+    plt.xticks(range(len(functions)), functions_name)
+
+    plt.xlabel("Name of the individually added function", FontSize= 14, FontWeight = "bold")
+    plt.ylabel("Difference in micromolar concentration", FontSize= 14, FontWeight = "bold")
+
+    plt.show()
 
 
     #the created values will be used in the next function
@@ -1500,7 +1661,7 @@ def iterative_integration(values, number):
 
     all_summaries = [a,b,c, d,e,f,g]
 
-    #difference_umol = []
+    difference_umol = []
 
     for n in range(number):
 
@@ -1511,71 +1672,198 @@ def iterative_integration(values, number):
 
 
 
-        #before_nt_number = all_nucleotide(values)
 
-        #all_umol_1 = u_molar_concentration(values)
 
+        # #before_nt_number = all_nucleotide(values)
+        #
+        # #all_umol_1 = u_molar_concentration(values)
+        #
+        #
+        # for i in range(number_cycles):
+        #
+        #
+        #     dGs[0] = (Tm_S1S2 - Tden) * dS
+        #
+        #     dGs[1] = (Tm_primer - Tden) * dS
+        #
+        #     dGs[2] = (Tm_extended_primer - Tden) * dS
+        #
+        #     #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
+        #
+        #     dGs[3] = (Tm_enzyme - Tden) * dS
+        #
+        #     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        #     #print("dGs_den", dGs)
+        #
+        #
+        #     integration_den = odeint(all_summaries[n], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+        #
+        #     concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+        #
+        #     dGs[0] = (Tm_S1S2 - Tanneal) * dS
+        #
+        #     dGs[1] = (Tm_primer - Tanneal) * dS
+        #
+        #     dGs[2] = (Tm_extended_primer - Tanneal) * dS
+        #
+        #     #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
+        #
+        #     dGs[3] = (Tm_enzyme - Tanneal) * dS
+        #
+        #     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        #     #print("dGs_anneals", dGs)
+        #
+        #     integration_anneal = odeint(all_summaries[n], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+        #
+        #     concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+        #
+        #     dGs[0] = (Tm_S1S2 - Text) * dS
+        #
+        #     dGs[1] = (Tm_primer - Text) * dS
+        #
+        #     dGs[2] = (Tm_extended_primer - Text) * dS
+        #
+        #     #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+        #
+        #     dGs[3] = (Tm_enzyme - Text) * dS
+        #
+        #     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        #     #print("dGs_text", dGs)
+        #
+        #     integration_ext = odeint(all_summaries[n], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+        #
+        #     concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+        #
+        #
+        #     values = integration_ext[-1]
+
+
+
+
+        dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
+
+        dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
+
+        dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
+
+        dGs[3] = (Tm_enzyme - T_initial_den) * dS
+
+        dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+
+        # integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+        #
+        # concentration[0: t_initial_den * steps] = integration_initial_den
+        #
+        # values = integration_initial_den[-1]
+
+        all_umol_1 = u_molar_concentration(values)
 
         for i in range(number_cycles):
 
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
 
-            dGs[0] = (Tm_S1S2 - Tden) * dS
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tden * dS)
 
-            dGs[1] = (Tm_primer - Tden) * dS
-
-            dGs[2] = (Tm_extended_primer - Tden) * dS
-
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tden * dS
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tden * dS)
 
             dGs[3] = (Tm_enzyme - Tden) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_den", dGs)
+            # integration_den = odeint(PCR_reaction, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
 
 
             integration_den = odeint(all_summaries[n], values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
 
             concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
-            dGs[0] = (Tm_S1S2 - Tanneal) * dS
 
-            dGs[1] = (Tm_primer - Tanneal) * dS
 
-            dGs[2] = (Tm_extended_primer - Tanneal) * dS
 
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Tanneal * dS
+
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tanneal * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tanneal * dS)
 
             dGs[3] = (Tm_enzyme - Tanneal) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_anneals", dGs)
+            # integration_anneal = odeint(PCR_reaction, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
+
 
             integration_anneal = odeint(all_summaries[n], integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
 
             concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
-            dGs[0] = (Tm_S1S2 - Text) * dS
 
-            dGs[1] = (Tm_primer - Text) * dS
 
-            dGs[2] = (Tm_extended_primer - Text) * dS
 
-            #dGs[3] = ((20 * Tm_primer * dS) / primer_length) - Text * dS
+
+
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Text * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Text * dS)
 
             dGs[3] = (Tm_enzyme - Text) * dS
 
             dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-            #print("dGs_text", dGs)
+            # integration_ext = odeint(PCR_reaction, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+            #
+            # concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1:t_initial_den * steps +  (total * (i + 1) * steps)] = integration_ext
+
 
             integration_ext = odeint(all_summaries[n], integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
 
             concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
 
+
+
+
             values = integration_ext[-1]
+
+        # dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
+        #
+        # dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_cooling_down * dS)
+        #
+        # dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_cooling_down * dS)
+        #
+        # dGs[3] = (Tm_enzyme - T_cooling_down) * dS
+        #
+        # dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        # integration_cool = odeint(PCR_reaction, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+        #
+        # concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+        #
+        # values = integration_cool[-1]
+
+        #print("The concentration of the 17 species at the end of PCR integration is:", values)
+
+
+
+
+
+        all_umol_2 = u_molar_concentration(values)
+
+        difference_umol.append(all_umol_1 - all_umol_2)
 
         print("The concentration of the 17 species after", functions_name[n],  "is added to the process iteratively:", values)
 
@@ -1591,44 +1879,46 @@ def iterative_integration(values, number):
         #print("The difference in micromol after", functions_name[n], ":", all_umol_1 - all_umol_2, "\n")
 
 
-        plt.figure(1)
+        # plt.figure(1)
+        #
+        # plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
+        #
+        # plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
+        #
+        #
+        # for i in range(10):
+        #
+        #     plt.subplot(2, 5, i+1)
+        #
+        #
+        #     plt.plot(time, concentration[:, plots[i]])
+        #
+        #
+        #     plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+        #
+        #     plt.xlabel("Time")
+        #     plt.ylabel("Concentration")
+        #
+        #
+        # plt.show()
+        #
+        # values = initial_fixed
 
-        plt.suptitle("Change of the species' concentrations over time" , fontsize = 14)
 
-        plots = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
+    plt.figure(2)
 
+    plt.title("Difference of micromolar concentration after each function is added iteratively",  FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
 
-        for i in range(10):
+    plt.plot(range(number), difference_umol)
 
-            plt.subplot(2, 5, i+1)
+    plt.tick_params(labelsize = 14)
 
+    plt.xticks(range(number), functions_name)
 
-            plt.plot(time, concentration[:, plots[i]])
+    plt.xlabel("Name of the iteratively added function", FontSize= 14, FontWeight = "bold")
+    plt.ylabel("Difference in micromolar concentration", FontSize= 14, FontWeight = "bold")
 
-
-            plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
-
-            plt.xlabel("Time")
-            plt.ylabel("Concentration")
-
-
-        plt.show()
-
-        values = initial_fixed
-
-
-    #plt.figure(2)
-
-    #plt.title("Difference of micromolar concentration after each function is added iteratively",  FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
-
-    #plt.plot(range(number), difference_umol)
-
-    #plt.xticks(range(number), functions_name)
-
-    #plt.xlabel("Name of the iteratively added function", FontSize= 13, FontWeight = "bold", position=(0.9, 0))
-    #plt.ylabel("Difference in micromolar concentration", FontSize= 13, FontWeight = "bold", position=(0,0.8))
-
-    #plt.show()
+    plt.show()
 
 
     return integration_ext[-1]
@@ -1963,7 +2253,7 @@ if __name__ == '__main__':
 
     #print(u_molar_concentration(values))
 
-    #print(polymerase_nt_per_s(celsius_to_Kelvin(55)))
+    #print(polymerase_nt_per_s(345.15))
 
     #S1S2_dS(values)
 
@@ -1976,7 +2266,7 @@ if __name__ == '__main__':
 
     #individual_integration(values)
 
-    #iterative_integration(values, 7)
+    iterative_integration(values, 7)
 
 
 
@@ -1984,7 +2274,7 @@ if __name__ == '__main__':
     #print(len(new_species))
 
 
-    PCR_integration(values)
+    #PCR_integration(values)
 
 
     #print(cycle1)
