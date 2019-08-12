@@ -1484,7 +1484,7 @@ first_concentration[0] = 0.1
 
 first_concentration[3], first_concentration[4] = 0.5, 0.5
 
-first_concentration[7] = 0.02
+first_concentration[7] = 0.2
 
 first_concentration[10] = 200
 
@@ -1497,7 +1497,7 @@ second_concentration[0] = 0.01
 
 second_concentration[3], second_concentration[4] = 0.5, 0.5
 
-second_concentration[7] = 0.02
+second_concentration[7] = 0.2
 
 second_concentration[10] = 200
 
@@ -1508,7 +1508,7 @@ third_concentration[0] = 0.001
 
 third_concentration[3], third_concentration[4] = 0.5, 0.5
 
-third_concentration[7] = 0.02
+third_concentration[7] = 0.2
 
 third_concentration[10] = 200
 
@@ -1518,7 +1518,12 @@ overall_concentration = [first_concentration, second_concentration, third_concen
 initial_overall = overall_concentration
 
 
-#T_multiple_extension = [344.15, 330.15]
+#T_multiple_extension = [339.15, 345.15, 350.15]
+
+
+label_s1s2 = ["S1S2 = 0.1", "S1S2 = 0.01", "S1S2 = 0.001"]
+
+label_Text = [Text = ]
 
 
 
@@ -1765,14 +1770,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-    print("purity level with first concentration set:", purity[0][-1])
+    for i in range(len(overall_concentration)):
 
-    print("purity level with second concentration set:", purity[1][-1])
+        print("purity level of concentration set:", purity[i][-1])
+
 
 
     plt.figure(1)
 
-    plt.suptitle("Purity level after misbinding PCR" , fontsize = 14)
+    plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 22, fontweight= 'bold')
 
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
@@ -1784,13 +1790,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-        plt.plot(time, purity[e], label = "purity")
+        plt.plot(time, purity[e], label = label_s1s2[e])
 
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':16}, bbox_to_anchor=(1,1))
 
-    plt.xlabel("Time")
-    plt.ylabel("Total concentration")
+    plt.tick_params(labelsize = 16)
+
+    plt.xlabel("Time (s) ",  FontSize= 18, fontweight= 'bold')
+    plt.ylabel("Total concentration (uM)",  FontSize= 18, fontweight= 'bold')
 
     plt.show()
 
