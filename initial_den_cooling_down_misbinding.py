@@ -11,9 +11,16 @@ from PCR_project import *
 #                                                                              the shortest extended length is 0
 # average extended length = (974 + 0)/2 = 487
 
-misbinding_extended_length = 487
+#misbinding_extended_length = 487
 
 #misbinding_extended_length = 156
+
+
+# 2207 - 25 -10 = 2172
+
+# (2171 +0) / 2 = 1085.5 ---> 1086
+
+misbinding_extended_length = 1086
 
 
 #length_of_L = 487 + 15 + 10         # 512
@@ -969,16 +976,16 @@ def PCR_misbinding_integration(values):
 
     dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-    # print("before initial")
-    #
-    #
-    # integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
-    #
-    # concentration[0: t_initial_den * steps] = integration_initial_den
-    #
-    # values = integration_initial_den[-1]
-    #
-    # print("after initial")
+    print("before initial")
+
+
+    integration_initial_den = odeint(PCR_reaction, values, time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+
+    concentration[0: t_initial_den * steps] = integration_initial_den
+
+    values = integration_initial_den[-1]
+
+    print("after initial")
 
 
     for i in range(number_cycles):
@@ -1008,16 +1015,16 @@ def PCR_misbinding_integration(values):
         #print("before den", i)
 
 
-        # integration_den = odeint(PCR_reaction_with_misbinding, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+        integration_den = odeint(PCR_reaction_with_misbinding, values, time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+
+        concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
+
         #
-        # concentration[t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
-
-
-        integration_den, info_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000, full_output=True)
-
-        #print(info_den)
-
-        concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
+        # integration_den, info_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000, full_output=True)
+        #
+        # #print(info_den)
+        #
+        # concentration[(total * i * steps): ((total * i + tden) * steps)] = integration_den
 
 
 
@@ -1051,16 +1058,16 @@ def PCR_misbinding_integration(values):
 
         #print("integration den last result" , integration_den[-1])
 
-        # integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+        integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+
+        concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
+
+
+        # integration_anneal, info_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000, full_output=True)
         #
-        # concentration[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
-
-
-        integration_anneal, info_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000, full_output=True)
-
-        #print(info_anneal)
-
-        concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+        # #print(info_anneal)
+        #
+        # concentration[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
 
 
 
@@ -1093,16 +1100,16 @@ def PCR_misbinding_integration(values):
         #print("before ext", i)
 
 
-        # integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+        integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+
+        concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)] = integration_ext
+
+
+        # integration_ext, info_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000, full_output=True)
         #
-        # concentration[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)] = integration_ext
-
-
-        integration_ext, info_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000, full_output=True)
-
-        #print(info_ext)
-
-        concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+        # #print(info_ext)
+        #
+        # concentration[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
 
 
 
@@ -1135,15 +1142,15 @@ def PCR_misbinding_integration(values):
 
     # print("before cool")
     #
-    # integration_cool = odeint(PCR_reaction_with_misbinding, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
-    #
-    # concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+    integration_cool = odeint(PCR_reaction_with_misbinding, integration_ext[-1], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+
+    concentration[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
     #
     # print("after cool")
 
 
 
-    #values = integration_cool[-1]
+    values = integration_cool[-1]
 
     print("The concentration of the 17 species at the end of PCR misbinding integration:", values)
 
@@ -1484,7 +1491,7 @@ first_concentration[0] = 0.1
 
 first_concentration[3], first_concentration[4] = 0.5, 0.5
 
-first_concentration[7] = 0.02
+first_concentration[7] = 0.2
 
 first_concentration[10] = 200
 
@@ -1497,7 +1504,7 @@ second_concentration[0] = 0.01
 
 second_concentration[3], second_concentration[4] = 0.5, 0.5
 
-second_concentration[7] = 0.02
+second_concentration[7] = 0.2
 
 second_concentration[10] = 200
 
@@ -1508,7 +1515,7 @@ third_concentration[0] = 0.001
 
 third_concentration[3], third_concentration[4] = 0.5, 0.5
 
-third_concentration[7] = 0.02
+third_concentration[7] = 0.2
 
 third_concentration[10] = 200
 
@@ -1518,7 +1525,12 @@ overall_concentration = [first_concentration, second_concentration, third_concen
 initial_overall = overall_concentration
 
 
-#T_multiple_extension = [344.15, 330.15]
+#T_multiple_extension = [339.15, 345.15, 350.15]
+
+
+label_s1s2 = ["S1S2 = 0.1", "S1S2 = 0.01", "S1S2 = 0.001"]
+
+   #label_Text = [Text = ]
 
 
 
@@ -1765,14 +1777,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-    print("purity level with first concentration set:", purity[0][-1])
+    for i in range(len(overall_concentration)):
 
-    print("purity level with second concentration set:", purity[1][-1])
+        print("purity level of concentration set:", purity[i][-1])
+
 
 
     plt.figure(1)
 
-    plt.suptitle("Purity level after misbinding PCR" , fontsize = 14)
+    plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 22, fontweight= 'bold')
 
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
@@ -1784,13 +1797,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-        plt.plot(time, purity[e], label = "purity")
+        plt.plot(time, purity[e], label = label_s1s2[e])
 
 
-    plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':16}, bbox_to_anchor=(1,1))
 
-    plt.xlabel("Time")
-    plt.ylabel("Total concentration")
+    plt.tick_params(labelsize = 16)
+
+    plt.xlabel("Time (s) ",  FontSize= 18, fontweight= 'bold')
+    plt.ylabel("Total concentration (uM)",  FontSize= 18, fontweight= 'bold')
 
     plt.show()
 
@@ -2424,7 +2439,7 @@ if __name__ == '__main__':
 
     #purity_total_yield_Tm(values)
 
-    #PCR_misbinding_integration(values)
+    PCR_misbinding_integration(values)
 
 
-    purity_multiple_initial_conditions(overall_concentration)
+   #purity_multiple_initial_conditions(overall_concentration)
