@@ -54,7 +54,7 @@ length_of_L = misbinding_extended_length + primer_length + n
 #mismatch = int(0.5 * primer_length)
 
 
-mismatch = int(0.5 * primer_length)
+mismatch = int(0.80 * primer_length)
 
 #Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
 
@@ -1807,6 +1807,8 @@ def purity_multiple_initial_conditions(overall_concentration):
     plt.xlabel("Time (s) ",  FontSize= 18, fontweight= 'bold')
     plt.ylabel("Total concentration (uM)",  FontSize= 18, fontweight= 'bold')
 
+    #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
+
     plt.show()
 
 
@@ -1862,16 +1864,16 @@ def purity_over_total_yield(all_concentration, time_vector):
     for i in range(all_concentration.shape[0]):
 
 
-        print(concentration_PCR[i, 0])
+        #print(concentration_PCR[i, 0])
 
-        print(concentration_PCR[i, 1])
+        #print(concentration_PCR[i, 1])
 
 
 
 
         yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
 
-        print("yield", yield_sum[i])
+        #print("yield", yield_sum[i])
 
         purity[i] = concentration_PCR[i, 0] / yield_sum[i]
 
@@ -2400,6 +2402,43 @@ def purity_total_yield_Tm(values):
 
 
 
+experiment_results = [121.01, 100.21, 70.7, 99.32, 30.19, 2.35]     # in ng/ul
+
+###############model_results = [13.920583653531423]
+
+model_results = [13.399389300562468, 10.345881289354317, 30.30019959991723, 31.88182755512074, 3.9823027827329027, 7.696303301432735]
+
+
+l1l2_results = [0.2580720786117887, 0.11973914167183851, 1.0865291921937494, 0.890811185488324, 0.14035884599348175, 0.511316613338765]
+
+purity_results = [0.967225734185978, 0.9842826616815208, 0.9476291509779476, 0.9594607853861616, 0.9322468481479678, 0.8752663993704469]
+
+
+def comparison_experiment_model():
+
+
+    label_exp = ["Exp 0", "Exp 1", "Exp 2", "Exp 3", "Exp 4", "Exp 5"]
+
+
+    plt.title("Comparison between dsDNA concentration obtained by\nlaboratory experiment and computational model ", FontSize= 16, FontWeight = "bold")        # position=(0.5, 1.05)
+
+    plt.plot(range(len(experiment_results)), experiment_results,'bo',label ="Lab\nExperiment" )
+    plt.plot(range(len(experiment_results)), experiment_results, 'b')
+    plt.plot(range(len(model_results)), model_results, 'go', label = "Model")
+    plt.plot(range(len(model_results)), model_results, 'g')
+
+    plt.tick_params(labelsize = 14)
+
+    plt.xticks(range(len(label_exp)), label_exp)
+
+    plt.xlabel("Number of experiment", FontSize= 14, FontWeight = "bold")
+    plt.ylabel("DsDNA concentrationat\nthe end PCR (ng/ul)", FontSize= 14, FontWeight = "bold")
+
+    plt.legend(loc='upper left', prop={'size':10}, bbox_to_anchor=(1,1))
+
+    plt.show()
+
+
 
 
 
@@ -2439,7 +2478,9 @@ if __name__ == '__main__':
 
     #purity_total_yield_Tm(values)
 
-    PCR_misbinding_integration(values)
+    #PCR_misbinding_integration(values)
 
 
    #purity_multiple_initial_conditions(overall_concentration)
+
+    comparison_experiment_model()
