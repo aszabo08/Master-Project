@@ -1,9 +1,7 @@
 
 """
-This application visualizes primer binding and misbinding to a substrate, creating substrate-primer products.
-"S" stands for the concentration of the substrate, "P" and "SP" for the concentration of the primer and the bound state of the substrate and primer.
-The concentrations for all the above mentioned species are given in mole/liter.
-The k parameters (k1, k2, k3) are rate constants in binding and misbinding processes.
+This application models the polymerase chain reaction with the opportunity of primer misbinding using the user' s input for initial concentrations (dsDNA, primer, dNTP, enzyme) and temperature settings. The amplified amount of dsDNA is displayed in micromolar and ng/ ul concentrations at the end of the process.
+
 """
 
 
@@ -23,151 +21,108 @@ new_species = ["S1S2", "S1", "S2", "P1", "P2", "S1P2", "S2P1", "E", "S1P2E", "S2
 values = [0 for i in range(33)]
 
 
-#values[0] = 3.0769e-2       # concentration of plasmid (S1S2) in uM
+##########  Standard conditions  ##########
 
-#values[0] = 0.000445632798573975   # 5 ng for 340 bp
+# values[0] = 0.00015151515151515152        # 5 ng of 1000 bp dsDNA
+# values[3] = 0.5                           # concentration of P1 in uM
+# values[4] = 0.5                           # concentration of P2 in uM
+# values[7] = 0.2                           # concentration of E in uM
+# values[10] = 200                          # concentration of dNTP in uM
+
+# T_initial_den = 369.15                    # temperature of initial denaturation in K (96 °C)
+# Tden = 369.15                             # temperature of denaturation in K (96 °C)
+# Tanneal = 334.15                          # temperature of annealing in K (61 °C)
+# Text = 345.15                             # temperature of extension in K (72 °C)
+# T_cooling_down = 345.15                   # temperature of final extension in K (72 °C)
+
+# t_initial_den = 0                         # length of initial denaturation in seconds
+# tden = 10                                 # length of denaturation in seconds
+# tanneal = 10                              # length of annealing in seconds
+# text = 20                                 # length of extension in seconds
+# t_cooling_down =0                         # length of final extension in seconds
+
+# enzyme_type = 'taq'                       # either 'taq' or 'q5'
+
+# amplicon_length = 1000                    # bp
+# primer_length = 15                        # nt
+# n = 10                                    # nt
+
+# Tm_primer = 339.15                       # melting temperature of the primer in K (66 °C)
+# Tm_extended_primer = 346.15              # melting temperature of the extended primer in K (73 °C)
+
+# number_cycles = 32
+
+##########  Experimental design for validation ##########
+
+values[0] = 0.00013730416992764068         # 10 ng of 2207 bp dsDNA
+values[3] = 0.25                           # concentration of P1 in uM
+values[4] = 0.25                           # concentration of P2 in uM
+values[7] = 0.16                           # concentration of E in uM
+values[10] = 200                           # concentration of dNTP in uM
+
+T_initial_den = 371.15                     # temperature of initial denaturation in K (98 °C)
+Tden = 371.15                              # temperature of denaturation in K (98 °C)
+#Tanneal = 345.15                          # temperature of annealing in K (72 °C)
+Tanneal = 338.15                           # temperature of annealing in K (65 °C)
+Text = 345.15                              # temperature of extension in K (72 °C)
+T_cooling_down = 345.15                    # temperature of final extension in K (72 °C)
+
+t_initial_den = 30                         # length of initial denaturation in seconds
+tden = 10                                  # length of denaturation in seconds
+# tanneal = 35                             # length of annealing in seconds
+# text = 35                                # length of extension in seconds
+tanneal = 20                               # length of annealing in seconds
+text = 50                                  # length of extension in seconds
+t_cooling_down = 300                       # length of final extension in seconds
+
+enzyme_type = 'q5'                         # either 'taq' or 'q5'
+
+amplicon_length = 2207                     # bp
+primer_length = 25                         # nt
+n = 10                                     # nt
+
+Tm_primer = 345.15                         # melting temperature of the primer in K (72 °C)
+Tm_extended_primer = 348.15                # melting temperature of the extended primer in K (75 °C)
+
+number_cycles = 32
 
 
+##########  General settings ##########
 
-values[0] = 0.00015151515151515152      # 5 ng in 1000 pb
-
-#values[0] = 0.00303030303030303
-
-values[3] = 0.5       # concentration of P1 in uM
-values[4] = 0.5
-
-values[7] = 0.2
-
-values[10] = 200
-
-
-#values[10] = 800
-
-
-initial_dNTP = values[10]
-
-initial_fixed = values
 
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
-#
-T_initial_den = 369.15
-
-Tden = 369.15
-Tanneal = 334.15
-#Text = 345.15
-
-Text = 345.15
-
-
-T_cooling_down = 345.15             # 72 degree celsius
-
-
-
-
-
-#
-# #
-# T_initial_den = 371.15
-#
-# Tden = 371.15
-# Tanneal = 345.15
-# Text = 345.15
-# T_cooling_down = 345.15             # 72 degree celsius
-
-
-
-
-
-#
-# t_initial_den = 30
-#
-# tden = 10                 # seconds
-# tanneal = 10                # seconds
-# text = 10                   # seconds
-# t_cooling_down = 300
-
-
-t_initial_den = 0
-
-tden = 10                 # seconds
-tanneal = 10                # seconds
-text = 20                   # seconds
-t_cooling_down = 0
-
-
-
-
-total = tden + tanneal + text
-number_cycles = 32
 steps = 1
+#initial_dNTP = values[10]
 
-
-amplicon_length = 1000
-primer_length = 15
-n = 10
-#
-# amplicon_length = 340
-# primer_length = 28
-# n = 10
-
-
+initial_fixed = values
+total = tden + tanneal + text
 extended_primer = primer_length + n
 extended_length = amplicon_length - extended_primer
-
 time = np.linspace(0, t_initial_den + number_cycles * (tden + tanneal + text) + t_cooling_down, number_cycles * (tden + tanneal + text) * steps + (t_cooling_down + t_initial_den) * steps)  # for every second "steps" points are distinguished
-
 number_time_points = total * steps * number_cycles + (t_initial_den + t_cooling_down) * steps
-
-enzyme_type = 'taq'
-
-
-
-# original Tm -es
-
-#
-# Tm_S1S2 = 363.15                # 90 degrees
-#
-# Tm_primer = 308.15              # 35 degrees        # from neb tm calculator: 15nt, 20 % GC content, 35 celius TM: AATTTAACGAATTCA
-#
-# Tm_extended_primer = 313.15     # 40 degree
-#
-# Tm_enzyme = 353.15              # 80 degree
-
-#dS = -4
 
 dS = -2
 
+#max_exponent = 15
+max_exponent = 8
 
-max_exponent = 15    # 13
-min_clip = -1e+15       #18
-max_clip = 1e+15
+# min_clip = -1e+15
+# max_clip = 1e+15
+min_clip = -1e+12
+max_clip = 1e+12
 
-forward_rate = 1
-
-
-R = 8.314e-3        # Gas contant in  k J / K mol
+forward_rate = 1                        # uM/s
+R = 8.314e-3                            # Gas constant in kJ K^-1 mol^-1
 
 #Tm_primer = 320.15      # 47 deggree
 
 #Tm_extended_primer = 337.15     #64 degree
 
-
-Tm_primer = 339.15              # 66 degree
-#
-Tm_extended_primer = 346.15         # 73 degree
+Tmax = 373.15                           # maximum melting temperature in K (100 °C)
 
 
-# Tm_primer = 345.15
-# #
-# Tm_extended_primer = 348.15
-
-
-
-Tmax = 373.15           # 100 degree
-
-
-K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)
+K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)           #
 
 
 dH = (Tm_primer * dS * (primer_length + K)) / (Tmax * primer_length)
@@ -344,6 +299,8 @@ def polymerase_nt_per_s(temperature):
 
     q5_rate_data = [0,  0.005, 0.010,  0.075,  0.11,  0.15,  0.12, 0.10, 0.020, 0]           # taq polymerase rate at given temperatures
 
+    q5_rate_data = [0.6 * q5_rate_data[i] for i in range(len(q5_rate_data))]
+
     #q5_rate_data = [0,  2.5e-5,2.5e-5, 2.5e-5,  2.5e-5,  2.5e-5,  2.5e-5,  0.15, 0.15, 0]
 
     q5_temp_interpolar = np.interp(temperature_scale, q5_temperature_data, q5_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
@@ -359,6 +316,11 @@ def polymerase_nt_per_s(temperature):
     #taq_rate_data = [0, 0.25, 1.5, 24, 60, 150, 150, 0]           # taq polymerase rate at given temperatures
 
     taq_rate_data = [0.75 * q5_rate_data[i] for i in range(len(q5_rate_data))]
+
+
+    ############################################################
+
+    #taq_rate_data = [1.5e-3 for i in range(len(q5_rate_data))]
 
     #taq_rate_data = [0,  0.003, 0.006,  0.045,  0.066,  0.09,  0.072, 0.06, 0.012, 0]
 
@@ -453,7 +415,7 @@ def denaturation(values, t, T, dGs):
 
     y[2] = -rate_den
 
-
+    #print("den", y)
 
     return y
 
@@ -542,6 +504,7 @@ def primer_binding_1(values, t, T, dGs):
     y[5] = rate_S1P2_bind
     y[6] = rate_S2P1_bind
 
+    #print("primer binding", y)
 
     return y
 
@@ -620,6 +583,7 @@ def primer_binding_2(values, t, T, dGs):
     y[16] = rate_S2Q1_bind
 
 
+
     return y
 
 
@@ -692,6 +656,7 @@ def polymerase_binding_1(values, t, T, dGs):
     y[8] = rate_poly_S1P2_bind
     y[9] = rate_poly_S2P1_bind
 
+    #print("pol binding", y)
 
     return y
 
@@ -830,6 +795,8 @@ def primer_ext_1(values, t, T, dGs):
     y[10] = nucleotide  # concentration of dNTP
     y[13] = rate_ext_1  # concentration of S1Q2E
     y[14] = rate_ext_2  # concentration of S2Q1E
+
+    #print("ext 1", y)
 
     return y
 
@@ -1587,16 +1554,16 @@ def individual_integration(values):
 
     plt.figure(2)
 
-    plt.title("Difference of the overall micromolar concentration after each function is added individually", FontSize= 18, FontWeight = "bold", position=(0.5, 1.05))
+    plt.title("Difference of the overall micromolar concentration after each function is added individually", FontSize= 22, FontWeight = "bold", position=(0.5, 1.05))
 
     plt.plot(range(len(functions)), difference_umol)
 
-    plt.tick_params(labelsize = 14)
+    plt.tick_params(labelsize = 18)
 
     plt.xticks(range(len(functions)), functions_name)
 
-    plt.xlabel("Name of the individually added function", FontSize= 14, FontWeight = "bold")
-    plt.ylabel("Difference in micromolar concentration", FontSize= 14, FontWeight = "bold")
+    plt.xlabel("Name of the individually added function", FontSize= 20, FontWeight = "bold")
+    plt.ylabel("Difference in micromolar concentration", FontSize= 20, FontWeight = "bold")
 
     plt.show()
 
@@ -2178,7 +2145,7 @@ def PCR_total_concentration(all_concentration, time_vector):
 
     plt.figure(2)
 
-    plt.suptitle("Total concentrations of 4 single species over time\nwith accurate primer binding site" , fontsize=18,  fontweight= 'bold', y=0.95)
+    plt.suptitle("The change of total concentrations of 4 single species\nwith accurate primer binding site" , fontsize=22,  fontweight= 'bold')
 
     highlighted_species = [0, 3, 5, 6]            #["S1", "S2", "P1", "P2", "Q1", "Q2", "E"]
 
@@ -2190,7 +2157,9 @@ def PCR_total_concentration(all_concentration, time_vector):
 
         plt.subplot(2, 2, i+1)
 
-        plt.gca().set_title(single_species_PCR[highlighted_species[i]], fontweight = 'bold')
+        plt.tick_params(labelsize = 16)
+
+        plt.gca().set_title(single_species_PCR[highlighted_species[i]], fontweight = 'bold', fontsize = 18)
 
 
         plt.plot(time_vector, concentration_PCR[:, highlighted_species[i]])  # label = single_species_PCR[highlighted_species[i]]
@@ -2200,8 +2169,8 @@ def PCR_total_concentration(all_concentration, time_vector):
 
         #plt.legend([species[plots[i]]], loc='upper left', prop={'size':10})
 
-        plt.xlabel("Time (s) ",  FontSize= 13)
-        plt.ylabel("Total concentration (uM)",  FontSize= 13)
+        plt.xlabel("Time (s) ",  FontSize= 18)
+        plt.ylabel("Total concentration (uM)",  FontSize= 18)
         #plt.legend(loc='upper left', prop={'size':11}, bbox_to_anchor=(1,1))
 
 
@@ -2266,7 +2235,7 @@ if __name__ == '__main__':
 
     #individual_integration(values)
 
-    iterative_integration(values, 7)
+    iterative_integration(values, 4)
 
 
 
