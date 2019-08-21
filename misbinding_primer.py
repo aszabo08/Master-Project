@@ -46,8 +46,10 @@ length_of_L = misbinding_extended_length + primer_length + n
 
 #mismatch = int(0.5 * primer_length)
 
+mismatch = int(0.8 * primer_length)
 
-mismatch = int(0.5 * primer_length)
+
+#mismatch = int(0.75 * primer_length)
 
 #Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
 
@@ -899,7 +901,6 @@ def L_misbinding_denaturation(values, t, T, dGs):
 
 
 def PCR_reaction_with_misbinding(values, t, T, dGs):  # not using rate clipping cos the array data
-
     summary = denaturation(values, t, T, dGs) + primer_binding_1(values, t, T, dGs) + primer_binding_2(values, t, T, dGs) + polymerase_binding_1(values, t, T, dGs) + polymerase_binding_2(values, t, T, dGs) + primer_ext_1(values, t, T, dGs) + primer_ext_2(values, t, T, dGs) + enzyme_denaturation(values, t, T, dGs) + misbinding_primer_1(values, t, T, dGs) + misbinding_polymerase_1(values, t, T, dGs) + misbinding_primer_ext_1(values, t, T, dGs) + misbinding_primer_ext_2(values, t, T, dGs) + misbinding_denaturation(values, t, T, dGs) + misbinding_polymerase_2(values, t, T, dGs) + misbinding_primer_2(values, t, T, dGs) + short_misbinding_primer(values, t, T, dGs) + short_misbinding_polymerase_1(values, t, T, dGs) + short_misbinding_primer_ext_1(values, t, T, dGs) + short_misbinding_primer_ext_2(values, t, T, dGs) + short_misbinding_polymerase_2(values, t, T, dGs) + short_misbinding_primer_2(values, t, T, dGs) + L_misbinding_denaturation(values, t, T, dGs)
 
     summary = np.clip(summary, a_min= min_clip, a_max= max_clip)
@@ -1084,11 +1085,11 @@ def PCR_misbinding_integration(values):
         dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Text * dS)
 
 
-        #print("before clip", dGs)
+        #print("before clip dG", dGs)
 
         dGs = np.clip(dGs, a_min=None, a_max=1e+12)
 
-        #print("after clip", dGs)
+        #print("after clip dG", dGs)
 
         #print("before ext", i)
 
@@ -1480,7 +1481,7 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
 first_concentration = [0 for i in range(33)]
 
-first_concentration[0] = 0.1
+first_concentration[0] = 0.00015151515151515152
 
 first_concentration[3], first_concentration[4] = 0.5, 0.5
 
@@ -1493,7 +1494,7 @@ first_concentration[10] = 200
 
 second_concentration = [0 for i in range(33)]
 
-second_concentration[0] = 0.01
+second_concentration[0] = 0.00015151515151515152
 
 second_concentration[3], second_concentration[4] = 0.5, 0.5
 
@@ -1504,7 +1505,7 @@ second_concentration[10] = 200
 
 third_concentration = [0 for i in range(33)]
 
-third_concentration[0] = 0.001
+third_concentration[0] = 0.00015151515151515152
 
 third_concentration[3], third_concentration[4] = 0.5, 0.5
 
@@ -1513,17 +1514,47 @@ third_concentration[7] = 0.2
 third_concentration[10] = 200
 
 
-overall_concentration = [first_concentration, second_concentration, third_concentration]
+fourth_concentration = [0 for i in range(33)]
+
+fourth_concentration[0] = 0.00015151515151515152
+
+fourth_concentration[3], third_concentration[4] = 0.5, 0.5
+
+fourth_concentration[7] = 0.2
+
+fourth_concentration[10] = 200
+
+
+fifth_concentration = [0 for i in range(33)]
+
+fifth_concentration[0] = 0.00015151515151515152
+
+fifth_concentration[3], third_concentration[4] = 0.5, 0.5
+
+fifth_concentration[7] = 0.2
+
+fifth_concentration[10] = 200
+
+
+overall_concentration = [first_concentration, second_concentration, third_concentration, fourth_concentration, fifth_concentration]
 
 initial_overall = overall_concentration
 
 
 #T_multiple_extension = [339.15, 345.15, 350.15]
 
+#T_multiple_annealing = [320.15, 330.15, 334.15, 339.15, 345.15]
 
-label_s1s2 = ["S1S2 = 0.1", "S1S2 = 0.01", "S1S2 = 0.001"]
+T_multiple_annealing = [333.15, 334.15, 335.15, 336.15, 337.15]
 
-label_Text = [Text = ]
+multiple_mismatch = [int(0.25 * primer_length), int(0.5 * primer_length), int(0.75 * primer_length), int(0.85 * primer_length), int(0.90 * primer_length)]
+
+
+label_s1s2 = ["S1S2 = " + str(first_concentration[0]), "S1S2 = " + str(second_concentration[0]), "S1S2 = " + str(third_concentration[0])]
+
+#label_Text = ["Tanneal =" + str(T_multiple_annealing[0]), "Tanneal =" + str(T_multiple_annealing[1]), "Tanneal =" + str(T_multiple_annealing[2])]
+
+label_mismatch = ["Length (nt) = " + str(multiple_mismatch[0]), "Length (nt) = " + str(multiple_mismatch[1]), "Length (nt) = " + str(multiple_mismatch[2]), "Length (nt) = " + str(multiple_mismatch[3]), "Length (nt) = " + str(multiple_mismatch[4])]
 
 
 
@@ -1546,7 +1577,27 @@ def purity_multiple_initial_conditions(overall_concentration):
     for e in range(len(overall_concentration)):
 
 
-        #Text = T_multiple_extension[e]
+        #Tanneal = T_multiple_annealing[e]
+
+
+
+        mismatch = multiple_mismatch[e]
+        #
+        #
+        length_misbinding_primer = primer_length - mismatch
+
+        length_misbinding_extended_primer = extended_primer - mismatch
+
+        length_misbinding_single_substrate = length_of_L - mismatch
+
+
+        Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 342.71 K
+
+        Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 346.87 K
+
+        Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)         # 356.168 K
+
+        Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
 
 
 
@@ -1757,9 +1808,9 @@ def purity_multiple_initial_conditions(overall_concentration):
 
         for i in range(number_time_points):
 
-            print("S", concentration_PCR[e, i, 0])
+            #print("S", concentration_PCR[e, i, 0])
 
-            print("L", concentration_PCR[e, i, 1])
+            #print("L", concentration_PCR[e, i, 1])
 
 
 
@@ -1775,11 +1826,23 @@ def purity_multiple_initial_conditions(overall_concentration):
         print("purity level of concentration set:", purity[i][-1])
 
 
+    #new
+
+    final_pur = []
+
+    for i in range(len(overall_concentration)):
+
+        final_pur.append(purity[i][-1])
+
+
 
     plt.figure(1)
 
-    plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 22, fontweight= 'bold')
+    #plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 22, fontweight= 'bold')
 
+    #plt.suptitle("Purity level with different annealing temperatures" , fontsize = 22, fontweight= 'bold')
+
+    plt.suptitle("Purity level with different lengths of primer mismatch\n after primer misbinding" , fontsize = 22, fontweight= 'bold')
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
 
@@ -1790,15 +1853,28 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-        plt.plot(time, purity[e], label = label_s1s2[e])
+        plt.plot(time, purity[e], label = label_mismatch[e])
 
 
-    plt.legend(loc='upper left', prop={'size':16}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':14}, bbox_to_anchor=(1,1))
 
     plt.tick_params(labelsize = 16)
 
     plt.xlabel("Time (s) ",  FontSize= 18, fontweight= 'bold')
-    plt.ylabel("Total concentration (uM)",  FontSize= 18, fontweight= 'bold')
+    plt.ylabel("Purity level: [S] / ( [S] + [L])",  FontSize= 18, fontweight= 'bold')
+
+
+    # plt.figure(2)
+    #
+    # plt.suptitle("Purity level with different annealing temperatures" , fontsize = 22, fontweight= 'bold')
+    #
+    # plt.plot(T_multiple_annealing, final_pur,'ro')
+    #
+    # plt.tick_params(labelsize = 16)
+    #
+    # plt.xlabel("Annealing temperature (K) ",  FontSize= 18, fontweight= 'bold')
+    # plt.ylabel("Purity level: [S] / ( [S] + [L]",  FontSize= 18, fontweight= 'bold')
+
 
     plt.show()
 
@@ -1855,16 +1931,16 @@ def purity_over_total_yield(all_concentration, time_vector):
     for i in range(all_concentration.shape[0]):
 
 
-        print(concentration_PCR[i, 0])
+        #print(concentration_PCR[i, 0])
 
-        print(concentration_PCR[i, 1])
+        #print(concentration_PCR[i, 1])
 
 
 
 
         yield_sum[i] = concentration_PCR[i, 0] +  concentration_PCR[i, 1]
 
-        print("yield", yield_sum[i])
+        #print("yield", yield_sum[i])
 
         purity[i] = concentration_PCR[i, 0] / yield_sum[i]
 
@@ -2380,8 +2456,318 @@ def purity_total_yield_Tm(values):
 
 
 
+def purity_diff_Tanneal(values):
 
 
+    #Tanneal_scale = np.linspace(celsius_to_Kelvin(30), celsius_to_Kelvin(70), 41)
+
+    Tanneal_scale = np.linspace(celsius_to_Kelvin(55), celsius_to_Kelvin(80), 26)
+
+    dGs = [0 for x in range(8)]
+
+    concentration = np.zeros((len(Tanneal_scale), number_time_points, len(new_species)))
+
+
+    yield_PCR = ["S", "L"]
+
+    concentration_PCR = np.zeros((len(Tanneal_scale), number_time_points, len(yield_PCR)))         # the matrix s length is all time points
+
+    indexes_of_species = [[] for i in range(len(yield_PCR))]
+
+
+    for x in range(len(yield_PCR)):
+
+
+        for i in new_species:
+
+            if yield_PCR[x] in i:
+
+
+                indexes_of_species[x].append(new_species.index(i))
+
+
+
+
+
+
+
+
+
+    #for e in range(len(overall_concentration)):
+
+    for e in range(len(Tanneal_scale)):
+
+        Tanneal = Tanneal_scale[e]
+
+        values = initial_fixed
+
+
+        # length_misbinding_primer = primer_length - mismatch
+        #
+        # length_misbinding_extended_primer = extended_primer - mismatch
+        #
+        # length_misbinding_single_substrate = length_of_L - mismatch
+        #
+        #
+        # Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 342.71 K
+        #
+        # Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 346.87 K
+        #
+        # Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)         # 356.168 K
+        #
+        # Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
+
+
+
+
+        # dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_initial_den * dS)
+        #
+        # dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_initial_den * dS)
+        #
+        # dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_initial_den * dS)
+        #
+        # dGs[3] = (Tm_enzyme - T_initial_den) * dS
+        #
+        # dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (T_initial_den * dS)
+        #
+        # dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (T_initial_den * dS)
+        #
+        # dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (T_initial_den * dS)
+        #
+        # dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_initial_den * dS)
+        #
+        # dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        #
+        # integration_initial_den = odeint(PCR_reaction, overall_concentration[e], time[0: t_initial_den * steps], args=(T_initial_den, dGs), mxstep=5000000)
+        #
+        # concentration[e, 0: t_initial_den * steps] = integration_initial_den
+        #
+        # overall_concentration[e] = integration_initial_den[-1]
+
+
+        for i in range(number_cycles):
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tden * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tden * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tden * dS)
+
+            dGs[3] = (Tm_enzyme - Tden) * dS
+
+            dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Tden * dS)
+
+            dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Tden * dS)
+
+            dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Tden * dS)
+
+            dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tden * dS)
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+
+            # integration_den = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[(t_initial_den * steps -1 + total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)], args=(Tden, dGs),  mxstep=5000000)
+            #
+            # concentration[e, t_initial_den * steps -1 + (total * i * steps): t_initial_den * steps + ((total * i + tden) * steps)] = integration_den
+
+            integration_den = odeint(PCR_reaction_with_misbinding, values, time[(total * i * steps): ((total * i + tden) * steps)], args=(Tden, dGs), mxstep=5000000)
+
+            concentration[e, (total * i * steps): ((total * i + tden) * steps)] = integration_den
+
+
+
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Tanneal * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Tanneal * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Tanneal * dS)
+
+            dGs[3] = (Tm_enzyme - Tanneal) * dS
+
+            dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Tanneal * dS)
+
+            dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Tanneal * dS)
+
+            dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Tanneal * dS)
+
+            dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Tanneal * dS)
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+            # integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs),  mxstep=5000000)
+            #
+            # concentration[e, t_initial_den * steps + ((total * i + tden) * steps) - 1: t_initial_den * steps + ((total * i + tden + tanneal) * steps)] = integration_anneal
+
+            integration_anneal = odeint(PCR_reaction_with_misbinding, integration_den[-1], time[((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)], args=(Tanneal, dGs), mxstep=5000000)
+
+            concentration[e, ((total * i + tden) * steps) - 1: ((total * i + tden + tanneal) * steps)] = integration_anneal
+
+
+            dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (Text * dS)
+
+            dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (Text * dS)
+
+            dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (Text * dS)
+
+            dGs[3] = (Tm_enzyme - Text) * dS
+
+            dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (Text * dS)
+
+            dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (Text * dS)
+
+            dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (Text * dS)
+
+            dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (Text * dS)
+
+
+            dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+
+            # integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)], args=(Text, dGs),  mxstep=5000000)
+            #
+            # concentration[e, t_initial_den * steps + ((total * i + tden + tanneal) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps)] = integration_ext
+
+            integration_ext = odeint(PCR_reaction_with_misbinding, integration_anneal[-1], time[((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)], args=(Text, dGs), mxstep=5000000)
+            concentration[e, ((total * i + tden + tanneal) * steps) - 1: (total * (i + 1) * steps)] = integration_ext
+
+
+
+            values = integration_ext[-1]
+
+
+        # dGs[0] = (Tmax * amplicon_length * dH) / ( amplicon_length + K) - (T_cooling_down * dS)
+        #
+        # dGs[1] = (Tmax * primer_length * dH) / ( primer_length + K) - (T_cooling_down  * dS)
+        #
+        # dGs[2] = (Tmax * extended_primer * dH) / ( extended_primer + K) - (T_cooling_down  * dS)
+        #
+        # dGs[3] = (Tm_enzyme - T_cooling_down ) * dS
+        #
+        # dGs[4] = (Tmax * length_misbinding_primer * dH) / ( length_misbinding_primer + K) - (T_cooling_down  * dS)
+        #
+        # dGs[5] = (Tmax * length_misbinding_extended_primer * dH) / ( length_misbinding_extended_primer + K) - (T_cooling_down  * dS)
+        #
+        # dGs[6] = (Tmax * length_misbinding_single_substrate * dH) / ( length_misbinding_single_substrate + K) - (T_cooling_down * dS)
+        #
+        # dGs[7] = (Tmax * length_of_L * dH) / ( length_of_L + K) - (T_cooling_down  * dS)
+        #
+        # dGs = np.clip(dGs, a_min=None, a_max=1e+12)
+        #
+        # integration_cool = odeint(PCR_reaction_with_misbinding, overall_concentration[e], time[t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)], args=(T_cooling_down, dGs), mxstep=5000000)
+        #
+        # concentration[e, t_initial_den * steps + (total * (i + 1) * steps) - 1: t_initial_den * steps + (total * (i + 1) * steps + t_cooling_down * steps)] = integration_cool[-1]
+
+
+        #values = integration_cool[-1]
+
+
+
+
+    #print("concentration", concentration)
+
+
+
+
+
+    #print(indexes_of_species)
+
+
+
+    for e in range(len(Tanneal_scale)):
+
+
+
+        for x in range(number_time_points):
+
+
+            for i in range(len(indexes_of_species)):
+
+
+                summary_concentration = 0
+
+
+                for n in range(len(indexes_of_species[i])):
+
+
+                    summary_concentration = summary_concentration + concentration[e, x, indexes_of_species[i][n]]
+
+
+
+                concentration_PCR[e, x, i] = summary_concentration
+
+
+
+    yield_sum = np.zeros((len(Tanneal_scale), number_time_points))
+
+    purity = np.zeros((len(Tanneal_scale), number_time_points))
+
+
+
+    for e in range(len(Tanneal_scale)):
+
+
+        for i in range(number_time_points):
+
+            #print("S", concentration_PCR[e, i, 0])
+
+            #print("L", concentration_PCR[e, i, 1])
+
+
+
+
+            yield_sum[e, i] = concentration_PCR[e, i, 0] +  concentration_PCR[e, i, 1]
+
+            purity[e, i] = concentration_PCR[e, i, 0] / yield_sum[e, i]
+
+    print("purity", purity)
+
+
+    final_purities = []
+
+    for i in range(len(Tanneal_scale)):
+
+        final_purities.append(purity[i][-1])
+
+    print("final_purities", final_purities)
+
+
+    final_yield_sum = []
+
+    for i in range(len(Tanneal_scale)):
+
+        final_yield_sum.append(yield_sum[i][-1])
+
+
+
+    plt.figure(1)
+
+    plt.suptitle("Purity level with different annealing temperatures" , fontsize = 22, fontweight= 'bold')
+
+    plt.plot(Tanneal_scale, final_purities,'bo')
+
+    plt.tick_params(labelsize = 16)
+
+    plt.xlabel("Annealing temperature (K) ",  FontSize= 18, fontweight= 'bold')
+    plt.ylabel("Purity level: [S] / ( [S] + [L])",  FontSize= 18, fontweight= 'bold')
+
+
+
+
+    plt.figure(2)
+
+    plt.suptitle("Product yield with different annealing temperatures" , fontsize = 22, fontweight= 'bold')
+
+    plt.plot(Tanneal_scale, final_yield_sum,'ro')
+
+    plt.tick_params(labelsize = 16)
+
+    plt.xlabel("Annealing temperature (K) ",  FontSize= 18, fontweight= 'bold')
+    plt.ylabel("Product yield (uM): [S] + [L]",  FontSize= 18, fontweight= 'bold')
+
+    plt.show()
 
 
 
@@ -2436,3 +2822,5 @@ if __name__ == '__main__':
 
 
     purity_multiple_initial_conditions(overall_concentration)
+
+    #purity_diff_Tanneal(values)
