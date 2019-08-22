@@ -23,68 +23,72 @@ values = [0 for i in range(33)]
 
 ##########  Standard conditions  ##########
 
-# values[0] = 0.00015151515151515152        # 5 ng of 1000 bp dsDNA
-# values[3] = 0.5                           # concentration of P1 in uM
-# values[4] = 0.5                           # concentration of P2 in uM
-# values[7] = 0.2                           # concentration of E in uM
-# values[10] = 200                          # concentration of dNTP in uM
+values[0] = 0.00015151515151515152        # 5 ng of 1000 bp dsDNA
+values[3] = 0.5                           # concentration of P1 in uM
+values[4] = 0.5                           # concentration of P2 in uM
+values[7] = 0.2                           # concentration of E in uM
+values[10] = 200                          # concentration of dNTP in uM
 
-# T_initial_den = 369.15                    # temperature of initial denaturation in K (96 °C)
-# Tden = 369.15                             # temperature of denaturation in K (96 °C)
-# Tanneal = 334.15                          # temperature of annealing in K (61 °C)
-# Text = 345.15                             # temperature of extension in K (72 °C)
-# T_cooling_down = 345.15                   # temperature of final extension in K (72 °C)
+T_initial_den = 369.15                    # temperature of initial denaturation in K (96 °C)
+Tden = 369.15                             # temperature of denaturation in K (96 °C)
 
-# t_initial_den = 0                         # length of initial denaturation in seconds
-# tden = 10                                 # length of denaturation in seconds
-# tanneal = 10                              # length of annealing in seconds
-# text = 20                                 # length of extension in seconds
-# t_cooling_down =0                         # length of final extension in seconds
+Tanneal = 334.15                         # temperature of annealing in K (61 °C)
+#Tanneal = 320.15
+Text = 345.15                             # temperature of extension in K (72 °C)
+T_cooling_down = 345.15                   # temperature of final extension in K (72 °C)
 
-# enzyme_type = 'taq'                       # either 'taq' or 'q5'
+t_initial_den = 0                         # length of initial denaturation in seconds
+tden = 10                                 # length of denaturation in seconds
+tanneal = 10                              # length of annealing in seconds
+text = 20                                 # length of extension in seconds
+t_cooling_down =0                         # length of final extension in seconds
 
-# amplicon_length = 1000                    # bp
-# primer_length = 15                        # nt
-# n = 10                                    # nt
+enzyme_type = 'taq'                       # either 'taq' or 'q5'
 
-# Tm_primer = 339.15                       # melting temperature of the primer in K (66 °C)
-# Tm_extended_primer = 346.15              # melting temperature of the extended primer in K (73 °C)
+amplicon_length = 1000                    # bp
+primer_length = 15                        # nt
+n = 10                                    # nt
 
-# number_cycles = 32
+Tm_primer = 339.15                       # melting temperature of the primer in K (66 °C)
+Tm_extended_primer = 346.15              # melting temperature of the extended primer in K (73 °C)
+
+number_cycles = 32
+
+#number_cycles = 3
 
 ##########  Experimental design for validation ##########
 
-values[0] = 0.00013730416992764068         # 10 ng of 2207 bp dsDNA
-values[3] = 0.25                           # concentration of P1 in uM
-values[4] = 0.25                           # concentration of P2 in uM
-values[7] = 0.16                           # concentration of E in uM
-values[10] = 200                           # concentration of dNTP in uM
-
-T_initial_den = 371.15                     # temperature of initial denaturation in K (98 °C)
-Tden = 371.15                              # temperature of denaturation in K (98 °C)
-#Tanneal = 345.15                          # temperature of annealing in K (72 °C)
-Tanneal = 338.15                           # temperature of annealing in K (65 °C)
-Text = 345.15                              # temperature of extension in K (72 °C)
-T_cooling_down = 345.15                    # temperature of final extension in K (72 °C)
-
-t_initial_den = 30                         # length of initial denaturation in seconds
-tden = 10                                  # length of denaturation in seconds
-# tanneal = 35                             # length of annealing in seconds
-# text = 35                                # length of extension in seconds
-tanneal = 20                               # length of annealing in seconds
-text = 50                                  # length of extension in seconds
-t_cooling_down = 300                       # length of final extension in seconds
-
-enzyme_type = 'q5'                         # either 'taq' or 'q5'
-
-amplicon_length = 2207                     # bp
-primer_length = 25                         # nt
-n = 10                                     # nt
-
-Tm_primer = 345.15                         # melting temperature of the primer in K (72 °C)
-Tm_extended_primer = 348.15                # melting temperature of the extended primer in K (75 °C)
-
-number_cycles = 32
+# values[0] = 0.00013730416992764068      # 10 ng of 2207 bp dsDNA
+# values[3] = 0.25                        # concentration of P1 in uM
+# values[4] = 0.25                        # concentration of P2 in uM
+# values[7] = 0.16                        # concentration of E in uM
+# values[10] = 200                        # concentration of dNTP in uM
+#
+# T_initial_den = 371.15                  # temperature of initial denaturation in K (98 °C)
+# Tden = 371.15                           # temperature of denaturation in K (98 °C)
+# # Tanneal = 345.15                      # temperature of annealing in K (72 °C)
+# Tanneal = 338.15                        # temperature of annealing in K (65 °C)
+# Text = 345.15                           # temperature of extension in K (72 °C)
+# T_cooling_down = 345.15                 # temperature of final extension in K (72 °C)
+#
+# t_initial_den = 30                         # length of initial denaturation in seconds
+# tden = 10                                  # length of denaturation in seconds
+# # tanneal = 35                             # length of annealing in seconds
+# # text = 35                                # length of extension in seconds
+# tanneal = 20                               # length of annealing in seconds
+# text = 50                                  # length of extension in seconds
+# t_cooling_down = 300                       # length of final extension in seconds
+#
+# enzyme_type = 'q5'                         # either 'taq' or 'q5'
+#
+# amplicon_length = 2207                     # bp
+# primer_length = 25                         # nt
+# n = 10                                     # nt
+#
+# Tm_primer = 345.15                         # melting temperature of the primer in K (72 °C)
+# Tm_extended_primer = 348.15                # melting temperature of the extended primer in K (75 °C)
+#
+# number_cycles = 32
 
 
 ##########  General settings ##########
@@ -93,7 +97,7 @@ number_cycles = 32
 functions_name = ["denaturation", "primer_binding_1", "polymerase_binding_1", "primer_ext_1", "polymerase_binding_2", "primer_binding_2", "primer_ext_2"]
 
 steps = 1
-#initial_dNTP = values[10]
+
 
 initial_fixed = values
 total = tden + tanneal + text
@@ -102,36 +106,38 @@ extended_length = amplicon_length - extended_primer
 time = np.linspace(0, t_initial_den + number_cycles * (tden + tanneal + text) + t_cooling_down, number_cycles * (tden + tanneal + text) * steps + (t_cooling_down + t_initial_den) * steps)  # for every second "steps" points are distinguished
 number_time_points = total * steps * number_cycles + (t_initial_den + t_cooling_down) * steps
 
-dS = -2
+dS = - 2                                    # entropy change, unit: kJ K^-1
+
+#dS = - 4
 
 #max_exponent = 15
-max_exponent = 8
+
+max_exponent = 7
 
 # min_clip = -1e+15
 # max_clip = 1e+15
 min_clip = -1e+12
 max_clip = 1e+12
 
-forward_rate = 1                        # uM/s
-R = 8.314e-3                            # Gas constant in kJ K^-1 mol^-1
+forward_rate = 1                                # uM/s
+R = 8.314e-3                                    # Gas constant in kJ K^-1 mol^-1
 
 #Tm_primer = 320.15      # 47 deggree
 
 #Tm_extended_primer = 337.15     #64 degree
 
-Tmax = 373.15                           # maximum melting temperature in K (100 °C)
+Tmax = 373.15                                   # maximum melting temperature in K (100 °C)
 
 
-K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)           #
+K = (primer_length * extended_primer * (Tm_extended_primer - Tm_primer)) / (extended_primer * Tm_primer - primer_length * Tm_extended_primer)           # Michaelis constant
 
 
-dH = (Tm_primer * dS * (primer_length + K)) / (Tmax * primer_length)
+dH = (Tm_primer * dS * (primer_length + K)) / (Tmax * primer_length)                                 # enthalpy change, unit: kJ
 
 
-dH_check = (Tm_extended_primer * dS * ( extended_primer + K)) / ( Tmax * extended_primer)
 
 Tm_S1S2 = (Tmax * amplicon_length * dH) / ((amplicon_length + K) * dS)
-#
+
 Tm_enzyme1 = (Tmax * 1 * dH) / ((1 + K) * dS)
 
 Tm_enzyme2 = dH/dS
@@ -299,9 +305,9 @@ def polymerase_nt_per_s(temperature):
 
     q5_rate_data = [0,  0.005, 0.010,  0.075,  0.11,  0.15,  0.12, 0.10, 0.020, 0]           # taq polymerase rate at given temperatures
 
-    q5_rate_data = [0.6 * q5_rate_data[i] for i in range(len(q5_rate_data))]
+    #used speed for validation:
 
-    #q5_rate_data = [0,  2.5e-5,2.5e-5, 2.5e-5,  2.5e-5,  2.5e-5,  2.5e-5,  0.15, 0.15, 0]
+    #q5_rate_data = [0.4 * q5_rate_data[i] for i in range(len(q5_rate_data))]
 
     q5_temp_interpolar = np.interp(temperature_scale, q5_temperature_data, q5_rate_data)        # calculating the taq polymerase rate between 0 and 90 degrees
 

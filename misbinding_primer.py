@@ -13,65 +13,22 @@ from PCR_project import *
 
 misbinding_extended_length = 487
 
-#misbinding_extended_length = 156
-
 
 #length_of_L = 487 + 15 + 10         # 512
 
 length_of_L = misbinding_extended_length + primer_length + n
 
-# Tm_misbinding_primer = 303.15               # 30 degrees
-#
-# Tm_misbinding_extended_primer = 308.15      # 35 degree
-#
-# Tm_misbinding_single_substrate = 343.15     # 70 degree    L  ( length of the created shorter product is 512 nt ---->  Neb calculator )
-#
-# Tm_misbinding_double_substrate = 345.15     # 72 degree    L1L2  -----> it is higher as assumingly the there are no mismatches in the complex while in S1L2 there could be more mismatched nt pairs due to the misbinding
-#
-
-# mis = 0.25
-#
-#
-# # Assuming that one-fourth of the full length is mismatched: we just deduct that length
-#
-# length_misbinding_primer = primer_length - round(mis * primer_length)
-#
-# length_misbinding_extended_primer = extended_primer - round(mis * extended_primer)
-#
-# length_misbinding_single_substrate = length_of_L - round(mis * length_of_L)
-
-
 #mismatch = int(primer_length * 0.75)
 
+mismatch = int(0.5 * primer_length)
 
-#mismatch = int(0.5 * primer_length)
-
-mismatch = int(0.8 * primer_length)
-
-
-#mismatch = int(0.75 * primer_length)
-
-#Assuming that we have 5 mismatches in the primer: the extensions will be based on correct base pairing!
-
-# length_misbinding_primer = primer_length - mismatch
-#
-# length_misbinding_extended_primer = extended_primer - mismatch
-#
-# length_misbinding_single_substrate = length_of_L - mismatch
-
-
-
+#mismatch = int(0.8 * primer_length)
 
 length_misbinding_primer = primer_length - mismatch
 
 length_misbinding_extended_primer = extended_primer - mismatch
 
 length_misbinding_single_substrate = length_of_L - mismatch
-
-
-
-
-
 
 
 
@@ -83,18 +40,13 @@ Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH
 
 Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
 
-#
 
 
-
-
-
+##########  Interactions of PCR with primer misbinding  ##########
 
 
 
 def misbinding_primer_1(values, t, T, dGs):
-
-
 
     S1 = values[1]
     P2 = values[4]
@@ -103,21 +55,11 @@ def misbinding_primer_1(values, t, T, dGs):
 
     kf6 = forward_rate
 
-    #exponent_2a = dGs[1]/(R*T)
-
-    #exponent_2a = np.clip((dGs[1]/(R*T)), a_min= None, a_max= max_exponent)
-
     exponent_6a = exponent_clipping(dGs[4]/(R*T))
 
     kr6a = kf6 * np.exp(exponent_6a)
 
     kf6, kr6a = clipping(kf6, kr6a)
-
-
-
-    #rate_S1P2_bind = kf2 * S1 * P2 - kr2a * S1P2
-
-    #rate_S1P2_bind = np.clip((kf2 * S1 * P2 - kr2a * S1P2), a_min= min_clip, a_max= max_clip)
 
     rate_S1M2_bind = rate_clipping(kf6 * S1 * P2 - kr6a * S1M2)
 
@@ -147,19 +89,11 @@ def misbinding_polymerase_1(values, t, T, dGs):
 
     kf7 = forward_rate
 
-    #exponent_3a = dGs[3]/(R*T)
-
-    #exponent_3a = np.clip((dGs[3]/(R*T)), a_min= None, a_max= max_exponent)
-
     exponent_7a = exponent_clipping(dGs[3]/(R*T))
 
     kr7a = kf7 * np.exp(exponent_7a)
 
     kf7, kr7a = clipping(kf7, kr7a)
-
-    #rate_poly_S1P2_bind = kf3 * S1P2 * E - kr3a * S1P2E
-
-    #rate_poly_S1P2_bind = np.clip((kf3 * S1P2 * E - kr3a * S1P2E), a_min= min_clip, a_max= max_clip)
 
     rate_poly_S1M2_bind = rate_clipping(kf7 * S1M2 * E - kr7a * S1M2E)
 
@@ -179,32 +113,14 @@ def misbinding_polymerase_1(values, t, T, dGs):
 
 def misbinding_primer_ext_1(values, t, T, dGs):
 
-    """ The primer is extended by a few nucleotides to ensure the primer binding
-        to the substrate without dissociation when reaching the extension temperature
-
-        In this model 99.5 % of the primer - substrate complexes stay together, while 0.5 % of them will melt
-        at the extension temperature"""
 
 
     S1M2E = values[18]
     dNTP = values[10]
 
-    #if (total_molecule_length(dNTP, 1)) >= (2 * n):
-
-
-        #primer_ext_1.counter += 1
-
-
-    #   S1P2E + n * dNTP -> S1Q2E
-    #   S2P1E + n * dNTP -> S2Q1E
-
-    #ce = 1000   # [dNTP/s] concentration of polymerase enzyme
 
     ce = polymerase_nt_per_s(T)
 
-    #rate_ext_1 = (ce / n) * S1P2E * dNTP
-
-    #rate_ext_1 = np.clip(((ce / n) * S1P2E * dNTP), a_min= min_clip, a_max= max_clip)
 
     rate_ext_1 = rate_clipping((ce / n) * S1M2E * dNTP)
 
@@ -231,10 +147,6 @@ def misbinding_primer_ext_2(values, t, T, dGs):
 
     # reaction: S1N2E + misbinding_extended_length * dNTP ---> L1L2 + E
 
-    #rate_ext_Q1 = (ce_Q / extended_length) * S1Q2E * dNTP
-
-    #rate_ext_Q1 = np.clip(((ce_Q / extended_length) * S1Q2E * dNTP), a_min= min_clip, a_max= max_clip)
-
     rate_ext_N1 = rate_clipping((ce_N / misbinding_extended_length) * S1N2E * dNTP)
 
 
@@ -250,20 +162,6 @@ def misbinding_primer_ext_2(values, t, T, dGs):
 
 
 
-    # else:
-    #
-    #     y = np.zeros(17)
-    #
-    #     y[10] = dNTP                           # concentration of dNTP
-    #     y[13] = S1Q2E                         # concentration of S1Q2E
-    #     y[14] = S2Q1E                          # concentration of S2Q1E
-    #
-    #     return y
-
-
-
-
-
 
 def misbinding_denaturation(values, t, T, dGs):
 
@@ -276,8 +174,6 @@ def misbinding_denaturation(values, t, T, dGs):
     kf8 = forward_rate
 
 
-    #exponent_1 = dGs[0]/(R*T)
-
     exponent_8 = exponent_clipping(dGs[6]/(R*T))
 
     kr8 = kf8 * np.exp(exponent_8)
@@ -286,10 +182,6 @@ def misbinding_denaturation(values, t, T, dGs):
     kf8, kr8 = clipping(kf8, kr8)
 
 
-
-    #rate_den = - kr1 * S1S2 + kf1 * S1 * S2
-
-    #rate_den = np.clip((- kr1 * S1S2 + kf1 * S1 * S2), a_min= min_clip, a_max= max_clip)
 
     rate_den = rate_clipping(- kr8 * S1L2 + kf8 * S1 * L2)
 
@@ -1481,7 +1373,9 @@ def misbinding_PCR_total_concentration(all_concentration, time_vector):
 
 first_concentration = [0 for i in range(33)]
 
-first_concentration[0] = 0.00015151515151515152
+#first_concentration[0] = 0.00015151515151515152
+
+first_concentration[0] = 0.001
 
 first_concentration[3], first_concentration[4] = 0.5, 0.5
 
@@ -1494,7 +1388,9 @@ first_concentration[10] = 200
 
 second_concentration = [0 for i in range(33)]
 
-second_concentration[0] = 0.00015151515151515152
+#second_concentration[0] = 0.00015151515151515152
+
+second_concentration[0] = 0.0001
 
 second_concentration[3], second_concentration[4] = 0.5, 0.5
 
@@ -1505,7 +1401,9 @@ second_concentration[10] = 200
 
 third_concentration = [0 for i in range(33)]
 
-third_concentration[0] = 0.00015151515151515152
+#third_concentration[0] = 0.00015151515151515152
+
+third_concentration[0] = 0.00001
 
 third_concentration[3], third_concentration[4] = 0.5, 0.5
 
@@ -1536,7 +1434,9 @@ fifth_concentration[7] = 0.2
 fifth_concentration[10] = 200
 
 
-overall_concentration = [first_concentration, second_concentration, third_concentration, fourth_concentration, fifth_concentration]
+#overall_concentration = [first_concentration, second_concentration, third_concentration, fourth_concentration, fifth_concentration]
+
+overall_concentration = [first_concentration, second_concentration, third_concentration]
 
 initial_overall = overall_concentration
 
@@ -1581,23 +1481,23 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-        mismatch = multiple_mismatch[e]
+        # mismatch = multiple_mismatch[e]
+        # #
+        # #
+        # length_misbinding_primer = primer_length - mismatch
+        #
+        # length_misbinding_extended_primer = extended_primer - mismatch
+        #
+        # length_misbinding_single_substrate = length_of_L - mismatch
         #
         #
-        length_misbinding_primer = primer_length - mismatch
-
-        length_misbinding_extended_primer = extended_primer - mismatch
-
-        length_misbinding_single_substrate = length_of_L - mismatch
-
-
-        Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 342.71 K
-
-        Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 346.87 K
-
-        Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)         # 356.168 K
-
-        Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
+        # Tm_misbinding_primer = (Tmax * length_misbinding_primer * dH) / ((length_misbinding_primer + K) * dS)                                       # 342.71 K
+        #
+        # Tm_misbinding_extended_primer = (Tmax * length_misbinding_extended_primer * dH) / ((length_misbinding_extended_primer + K) * dS)            # 346.87 K
+        #
+        # Tm_misbinding_single_substrate = (Tmax * length_misbinding_single_substrate * dH) / ((length_misbinding_single_substrate + K) * dS)         # 356.168 K
+        #
+        # Tm_misbinding_double_substrate = (Tmax * length_of_L * dH) / ((length_of_L + K) * dS)                                                       # 356.17 K
 
 
 
@@ -1838,11 +1738,11 @@ def purity_multiple_initial_conditions(overall_concentration):
 
     plt.figure(1)
 
-    #plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 22, fontweight= 'bold')
+    plt.suptitle("Purity level with different initial S1S2 values" , fontsize = 18, fontweight= 'bold')
 
     #plt.suptitle("Purity level with different annealing temperatures" , fontsize = 22, fontweight= 'bold')
 
-    plt.suptitle("Purity level with different lengths of primer mismatch\n after primer misbinding" , fontsize = 22, fontweight= 'bold')
+    #plt.suptitle("Purity level with different lengths of primer mismatch\n after primer misbinding" , fontsize = 18, fontweight= 'bold')
 
     #y_top_limit = [6, 6, 8.3, 2.5, 0.22, 0.12, 10400, 0.11, 0.12, 0.1]
 
@@ -1853,15 +1753,15 @@ def purity_multiple_initial_conditions(overall_concentration):
 
 
 
-        plt.plot(time, purity[e], label = label_mismatch[e])
+        plt.plot(time, purity[e], label = label_s1s2[e])
 
 
-    plt.legend(loc='upper left', prop={'size':14}, bbox_to_anchor=(1,1))
+    plt.legend(loc='upper left', prop={'size':8}, bbox_to_anchor=(1,1))
 
-    plt.tick_params(labelsize = 16)
+    plt.tick_params(labelsize = 12)
 
-    plt.xlabel("Time (s) ",  FontSize= 18, fontweight= 'bold')
-    plt.ylabel("Purity level: [S] / ( [S] + [L])",  FontSize= 18, fontweight= 'bold')
+    plt.xlabel("Time (s) ",  FontSize= 16, fontweight= 'bold')
+    plt.ylabel("Purity level: [S] / ( [S] + [L])",  FontSize= 16, fontweight= 'bold')
 
 
     # plt.figure(2)
