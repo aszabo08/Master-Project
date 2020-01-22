@@ -1,4 +1,4 @@
-This repository contains the improving versions of my master project for Bioinformatics MSc at Newcastle University from where I graduated at 2019.
+This repository contains the improving versions of my master's project for MSc Bioinformatics at Newcastle University from where I graduated in 2019.
 
 The aim of this dissertation was to develop a computational model of polymerase chain reaction (PCR) including the possibility of primer misbinding, providing a more sensitive PCR model to support the teaching process of complex experimental design.
 
