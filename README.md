@@ -15,15 +15,23 @@ To run the program: download the Master-Project and run the "master_PCR_complete
 An example input for the species' contentration and temperature setting in the polymerase chain reaction model:
 
 plasmid (ng): 5
+
 primer (uM): 0.5  
+
 polymerse (U): 0.2
+
 dNTP (uM): 200 
+
 initial denaturation (°C and s): 96 30
+
 denaturation (°C and s): 96 10
+
 annealing (°C and s): 61 10
+
 extension (°C and s): 72 20
+
 final elongation (°C and s): 72 300
+
 cumber of cycles: 32
+
 enzyme type: taq
-
-
