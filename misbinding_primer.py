@@ -1063,10 +1063,9 @@ def extended_PCR_misbinding_integration(values):
 
 
     #Plotting the concentrations over time
-
     plt.figure(1)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
+    plt.suptitle("Change of the species' concentrations over time", fontweight = 'bold')
 
     #plots1 = [0, 1, 3, 5, 7, 8, 10, 11, 13, 15]
 
@@ -1084,21 +1083,24 @@ def extended_PCR_misbinding_integration(values):
         plt.subplot(2, 5, i+1)
 
         plt.gca().set_title(new_species[plots1[i]], fontweight = 'bold')
+        plt.gca().title.set_position([0.5, 1.05])
 
 
         plt.plot(time, concentration[:, plots1[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,2))
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
 
-        plt.xlabel("Time (s)", fontsize = 12)
-        plt.ylabel("Concentration (uM)", fontsize = 12)
-        plt.subplots_adjust(wspace = 0.38)
+
+    plt.subplots_adjust(hspace=0.5, wspace=1)
 
 
     plt.figure(2)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
+    plt.suptitle("Change of the species' concentrations over time", fontweight = 'bold')
 
 
 
@@ -1116,21 +1118,23 @@ def extended_PCR_misbinding_integration(values):
         plt.subplot(2, 4, i+1)
 
         plt.gca().set_title(new_species[plots2[i]], fontweight = 'bold')
+        plt.gca().title.set_position([0.5, 1.05])
 
         plt.plot(time, concentration[:, plots2[i]])
 
         #plt.ylim([0, y_top_limit[i]])
 
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,2))
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
 
-        plt.xlabel("Time (s)", fontsize = 12)
-        plt.ylabel("Concentration (uM)", fontsize = 12)
-        plt.subplots_adjust(wspace = 0.38)
 
 
+    plt.subplots_adjust(hspace=0.5, wspace=1)
 
     plt.figure(3)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
+    plt.suptitle("Change of the species' concentrations over time", fontweight = 'bold')
 
     plots3 = []
 
@@ -1146,20 +1150,22 @@ def extended_PCR_misbinding_integration(values):
         plt.subplot(2, 5, i+1)
 
         plt.gca().set_title(new_species[plots3[i]], fontweight = 'bold')
+        plt.gca().title.set_position([0.5, 1.05])
 
         plt.plot(time, concentration[:, plots3[i]])
 
         #plt.ylim([0, y_top_limit[i]])
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,2))
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
 
-        plt.xlabel("Time (s)", fontsize = 12)
-        plt.ylabel("Concentration (uM)", fontsize = 12)
-        plt.subplots_adjust(wspace = 0.38)
+    plt.subplots_adjust(hspace=0.5, wspace=1)
 
 
 
     plt.figure(4)
 
-    plt.suptitle("Change of the species' concentrations over time" , fontsize = 18,  fontweight = 'bold', y = 0.95)
+    plt.suptitle("Change of the species' concentrations over time", fontweight = 'bold')
 
 
     plots4 = []
@@ -1176,14 +1182,17 @@ def extended_PCR_misbinding_integration(values):
         plt.subplot(2, 4, i+1)
 
         plt.gca().set_title(new_species[plots4[i]], fontweight = 'bold')
+        plt.gca().title.set_position([0.5, 1.05])
 
         plt.plot(time, concentration[:, plots4[i]])
 
         #plt.ylim([0, y_top_limit[i]])
+        plt.ticklabel_format(style='sci', axis='y', scilimits=(0,2))
+        plt.xlabel("Time (s)")
+        plt.ylabel("Concentration (uM)")
 
-        plt.xlabel("Time (s)", fontsize = 12)
-        plt.ylabel("Concentration (uM)", fontsize = 12)
-        plt.subplots_adjust(wspace = 0.38)
+
+    plt.subplots_adjust(hspace=0.5, wspace=1)
 
     plt.show()
 
