@@ -7,7 +7,6 @@ The created model is based on a dynamical system, displaying 33 species and 22 i
 In order to run the PCR model, the user provides 16 experimental factors: the concentrations of the dsDNA, primers, enzyme and dNTP, the temperature and length of initial denaturation, denaturation, annealing, extension and final extension. Furthermore, the number of cycles and the type of enzyme is also chosen by the user. The enzyme type can be either Taq or Q5, which show different enzyme activity at different temperatures. The outcome is five plots displaying the concentration change over time of all the participant species and the purity level of the dsDNA. 
 
 
-Instruction
 -------------------------------------------------------------------------------------------
 To run the program: download the Master-Project and run the "master_PCR_complete.py" file.
 -------------------------------------------------------------------------------------------
