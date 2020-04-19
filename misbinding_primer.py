@@ -1052,7 +1052,7 @@ def extended_PCR_misbinding_integration(values):
 
     values = integration_cool[-1]
 
-    print("The concentration of the 17 species at the end of PCR misbinding integration:", values)
+    print("The concentration of the species at the end of PCR misbinding integration:", values)
 
     print("The concentration of S1S2 in ng/ul:", uM_to_ng_per_ul(values[0], amplicon_length))
     print("The concentration of L1L2 in ng/ul:", uM_to_ng_per_ul(values[26], length_of_L))
