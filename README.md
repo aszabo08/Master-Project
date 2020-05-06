@@ -15,37 +15,23 @@ In order to use the program, download the Master-Project and run the "master_PCR
 
 An example input for the species' contentration and temperature setting in the polymerase chain reaction model is shown below:
 
-plasmid (ng): 5
+<br />
 
-primer (uM): 0.5  
+![](images/Figure_Input_Data.png)
 
-polymerse (U): 0.2
-
-dNTP (uM): 200 
-
-initial denaturation (°C and s): 96 30
-
-denaturation (°C and s): 96 10
-
-annealing (°C and s): 61 10
-
-extension (°C and s): 72 20
-
-final elongation (°C and s): 72 300
-
-cumber of cycles: 32
-
-enzyme type: taq
+<br />
 
 
----------------------------------
 ## Explanation of the output
----------------------------------
+
 
 This figure below shows all the participant species of the PCR model and the interactions between them. The species with only accurate primer binding sites are shown in green, while the added species with primer misbinding are shown in black. 
 
+<br />
 
+![](images/Figure_Species_Interactions.PNG)
 
+<br />
 
 Presuming accurate primer binding sites, the components of the dynamical system are the following: 
 
@@ -68,6 +54,8 @@ The following interactions are modelled between the components above:
 -	polymerase binding – unbinding (3, 5)
 -	primer extension (4, 7) 
 -	enzyme denaturation (8) 
+
+
 
 
 The previously declared components were extended to accommodate the primer misbinding option in the system with the following species:
