@@ -56,7 +56,7 @@ The following interactions are modelled between the components above:
 -	enzyme denaturation (8) 
 
 
-
+<br />
 
 The previously declared components were extended to accommodate the primer misbinding option in the system with the following species:
 
